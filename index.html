@@ -4,585 +4,943 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Interactive Stats Calculator — Moegamat</title>
+
+  <!-- Tailwind CDN for quick utility classes -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- MathJax for clean math rendering -->
+  <!-- MathJax for math rendering -->
   <script>
     window.MathJax = {
-      tex: { inlineMath: [['$','$'], ['\\(','\\)']], macros: {RR: "\\mathbb{R}"} },
+      tex: { inlineMath: [['$','$'], ['\\(','\\)']] },
       svg: { fontCache: 'global' }
     };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
+  <!-- math.js for formula parsing (PMF-by-formula) -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.js"></script>
+
   <style>
     :root{
       --bg1:#2a0000;--bg2:#660000;--bg3:#b30000;--text:#ffeaea;
-      --card-bg: rgba(255,255,255,0.03);
-      --card-border: rgba(255,255,255,0.06);
-      --btn1: linear-gradient(90deg,#7f1d1d,#b91c1c);
-      --btn1-hover: linear-gradient(90deg,#991b1b,#dc2626);
-      --ghost-bg: #1a1a1a;
-      --ghost-hover: rgba(255,255,255,0.06);
+      --btn1:#7f1d1d;--btn2:#b91c1c;--ghost:#1a1a1a;--card-border:rgba(255,255,255,.12);
+      --card-bg:rgba(255,255,255,.04);--muted:#ffdede;--accent:#ffdddd
     }
-
-    /* PAGE */
-    html,body{height:100%}
-    body{
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      margin:0;padding:0;
-      background: linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
-      color: var(--text);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-    }
-
-    /* CARDS & LAYOUT */
-    .container{max-width:1100px;margin:0 auto;padding:1.25rem}
-    .glass{
-      background: var(--card-bg);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-    }
-    header .brand-title{font-weight:800;font-size:1.6rem}
-    .grid-main{display:grid;gap:1.25rem;grid-template-columns:1fr}
-    @media(min-width:1000px){ .grid-main{grid-template-columns:360px 1fr} }
-
-    /* CONTROLS */
-    .btn {
-      display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
-      padding:.55rem .9rem;border-radius:.6rem;font-weight:700;border:none;cursor:pointer;
-      transition:all .14s ease;
-    }
-    .btn-primary{background:var(--btn1);color:white;box-shadow:0 8px 20px rgba(0,0,0,0.35)}
-    .btn-primary:hover{background:var(--btn1-hover);transform:translateY(-2px)}
-    .btn-ghost{background:var(--ghost-bg);color:var(--text);border:1px solid rgba(255,255,255,0.06)}
-    .btn-ghost:hover{background:var(--ghost-hover);transform:translateY(-1px)}
-    .btn-black {
-  background: #000000;
-  color: #ffffff;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-  border-radius: 0.6rem;
-  padding: 0.55rem 0.9rem;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  transition: all 0.14s ease;
-}
-.btn-black:hover {
-  background: #222222;
-  transform: translateY(-2px);
-}
-
-    .input{
-      width:100%;padding:.5rem .75rem;border-radius:8px;border:1px solid rgba(255,255,255,0.08);
-      background:rgba(255,255,255,0.03);color:var(--text);outline:none;font-size:0.95rem;
-    }
-    .select{
-      appearance:none;padding:.5rem .8rem;border-radius:8px;border:1px solid rgba(0,0,0,0.08);
-      background:white;color:#000;font-weight:600;
-    }
-
-    /* HELP POPUP */
-    .help-inline{display:inline-block;margin-left:.45rem;background:transparent;border-radius:6px;padding:.1rem .35rem;border:1px solid rgba(255,255,255,0.06);cursor:pointer}
-    .help-popup{
-      position:fixed;z-index:1200;display:none;max-width:320px;background:#0f1724;color:#fff;padding:.8rem;border-radius:8px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.6);font-size:.92rem;line-height:1.35;border:1px solid rgba(255,255,255,0.04)
-    }
-    .help-popup h4{margin:0 0 .35rem 0;font-weight:700;font-size:1rem}
-    .help-popup p{margin:0}
-
-    /* OUTPUT STEPS */
-    .steps { margin-top:.5rem; padding:.85rem; border-radius:8px; background:rgba(0,0,0,0.12); font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-size:.95rem; color:var(--text) }
-    .step { margin-bottom:.75rem }
-    .step p{ margin:0; padding:0.08rem 0 }
-    .formula { margin-top:.4rem; padding:.45rem; background:rgba(255,255,255,0.02); border-radius:6px }
-
-    /* TOPIC CARD */
-    .topic-card { padding:1rem; min-height:280px; border-radius:10px; background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.03)); border:1px solid rgba(255,255,255,0.03) }
-
-    /* THEME SWATCH ROW (for accessibility preview) */
-    .swatches { display:flex; gap:.5rem; align-items:center }
-    .swatch{ width:46px; height:30px; border-radius:6px; box-shadow:0 8px 18px rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.06); cursor:pointer}
-
-    /* FOOTER */
-    footer{margin-top:1.5rem;text-align:center;opacity:.9;font-size:.92rem}
-
-    /* small helpers */
-    label{display:block;font-weight:600;margin-bottom:.35rem}
-    .muted{opacity:.85;font-size:.95rem}
-    .mb{margin-bottom:.75rem}
-
-    /* ensure math svg contrast */
-    .mjx-svg-href, .mjx-chtml { color:var(--text) !important; fill:var(--text) !important; }
+    body{font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3)); color:var(--text); -webkit-font-smoothing:antialiased}
+    .glass{background:var(--card-bg);backdrop-filter:blur(8px);border:1px solid var(--card-border)}
+    .btn{padding:.6rem 1rem;border-radius:.7rem;font-weight:700;transition:filter .15s ease, transform .05s ease}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:linear-gradient(90deg,var(--btn1),var(--btn2));color:#fff}
+    .btn-primary:hover{filter:brightness(1.08)}
+    .btn-ghost{background:var(--ghost);color:#fff;border:1px solid var(--card-border)}
+    .btn-ghost:hover{filter:brightness(1.15)}
+    .btn-link{background:transparent;border:1px dashed var(--card-border);color:var(--text)}
+    .input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);padding:.6rem .8rem;border-radius:.55rem;color:var(--text);width:100%}
+    .label{display:flex;align-items:center;gap:.6rem}
+    .help{cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:1.2rem;height:1.2rem;border-radius:.3rem;background:#111;color:#fff;font-size:.75rem}
+    .help-popup{position:absolute;z-index:50;background:#0f0f10;color:#fff;padding:.75rem 1rem;border-radius:.55rem;max-width:360px;font-size:.85rem;box-shadow:0 8px 18px rgba(0,0,0,.55)}
+    .topic-card{min-height:320px}
+    .steps{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}
+    .steps p{margin:.35rem 0}
+    .steps .block{display:block}
+    .grid-large{display:grid;gap:1.5rem;grid-template-columns:1fr}
+    @media(min-width:980px){.grid-large{grid-template-columns:380px 1fr}}
+    .solid-divider{height:1px;background:var(--card-border);margin:1rem 0}
+    .theme-chip{height:12px;border-radius:999px;min-width:88px;display:inline-block;border:1px solid rgba(0,0,0,.2)}
+    table { border-collapse: collapse; width:100%; }
+    th, td { border: 1px solid rgba(255,255,255,0.06); padding: .35rem .5rem; text-align: left; font-size: .95rem }
+    .muted { opacity: .85; font-size: .95rem }
   </style>
 </head>
-<body>
-  <div class="container">
-    <header class="glass p-4 flex items-center justify-between mb-4">
+<body class="min-h-screen antialiased">
+  <header class="max-w-6xl mx-auto p-6">
+    <div class="flex items-center justify-between gap-4">
       <div>
-        <div class="brand-title">Interactive Stats Calculator</div>
-        <div class="muted">Step-by-step worked examples — by <strong>Moegamat Samsodien</strong>. <span style="font-style:italic">Version 1.2</span></div>
+        <h1 class="text-3xl md:text-4xl font-extrabold">Interactive Stats Calculator</h1>
+        <p class="mt-1 text-sm opacity-90">Step-by-step worked examples built by <strong>Moegamat Samsodien</strong>. <span class="italic">Hope it helps</span></p>
       </div>
-
       <div class="flex items-center gap-3">
-        <div class="muted">Theme</div>
-        <select id="theme-dropdown" class="select" aria-label="Choose theme">
-          <!-- many themes as requested -->
-          <option value="spiderman">Spiderman (default)</option>
-          <option value="bloodred" selected>Blood Red</option>
-          <option value="red-blue">Red & Blue</option>
-          <option value="purple-black">Purple & Black</option>
-          <option value="sapphire-steel">Sapphire & Steel</option>
-          <option value="emerald-charcoal">Emerald & Charcoal</option>
-          <option value="digital-twilight">Digital Twilight</option>
-          <option value="coral-aqua">Coral & Aqua</option>
-          <option value="electric-citrus">Electric Citrus</option>
-          <option value="artisan-clay">Artisan Clay</option>
-          <option value="forest-canopy">Forest Canopy</option>
-          <option value="ocean-depth">Ocean Depth</option>
-          <option value="desert-sunset">Desert Sunset</option>
-          <option value="monochrome-focus">Monochrome Focus</option>
-          <option value="soft-nordic">Soft Nordic</option>
-          <option value="neutral-peach">Neutral Peach</option>
-          <option value="retro-pop">Retro Pop</option>
-          <option value="cyberpunk-glow">Cyberpunk Glow</option>
-          <option value="plum-gold">Plum & Gold</option>
-        </select>
+        <div class="text-sm">Theme</div>
+        <div class="flex items-center gap-2">
+          <span id="theme-chip" class="theme-chip"></span>
+          <select id="theme-dropdown" class="input text-black max-w-[260px]">
+            <option value="spiderman">Spiderman (default)</option>
+            <option value="bloodred">Blood Theme</option>
+            <option value="red-blue">Red & Blue</option>
+            <option value="purple-black">Purple & Black</option>
+            <option value="sapphire-steel">Sapphire & Steel</option>
+            <option value="emerald-charcoal">Emerald & Charcoal</option>
+            <option value="digital-twilight">Digital Twilight</option>
+            <option value="coral-aqua">Coral & Aqua</option>
+            <option value="electric-citrus">Electric Citrus</option>
+            <option value="artisan-clay">Artisan Clay</option>
+            <option value="forest-canopy">Forest Canopy</option>
+            <option value="ocean-depth">Ocean Depth</option>
+            <option value="desert-sunset">Desert Sunset</option>
+            <option value="monochrome-focus">Monochrome Focus</option>
+            <option value="soft-nordic">Soft Nordic</option>
+            <option value="neutral-peach">Neutral Peach</option>
+            <option value="retro-pop">Retro Pop</option>
+            <option value="cyberpunk-glow">Cyberpunk Glow</option>
+            <option value="plum-gold">Plum & Gold</option>
+          </select>
+        </div>
         <button id="reset-theme" class="btn btn-ghost">Reset</button>
+        <a href="exam.html" class="btn btn-link" title="Open examples & exam-style questions" target="_blank">Examples/Exam ↗</a>
+        <button id="print-btn" class="btn btn-ghost" title="Print / Save PDF">Print / PDF</button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    
-    <main class="grid-main">
-      <!-- LEFT: topics -->
-      <aside class="glass p-4">
-        <h3 class="mb">Topics</h3>
-        <p class="muted mb">Pick a topic and fill the inputs. Each input has a help icon explaining what it's for. Click <strong>Explain</strong> to get step-by-step working (MathJax).</p>
+  <main class="max-w-6xl mx-auto p-6 grid-large">
+    <!-- Left: Controls & topics list -->
+    <aside class="glass p-6 rounded-xl">
+      <h2 class="text-xl font-semibold">Topics</h2>
+      <p class="mt-2 text-sm opacity-90">Pick a topic. Inputs include <span class="underline">help</span> buttons. Results show clear steps with MathJax.</p>
 
-        <div class="space-y-3">
-          <button class="btn btn-primary w-full topic-select" data-topic="prob">1 — Basic Probability</button>
-          <button class="btn btn-primary w-full topic-select" data-topic="perm">2 — Permutations & Combinations</button>
-          <button class="btn btn-primary w-full topic-select" data-topic="bayes">3 — Bayes' Theorem</button>
-          <button class="btn btn-primary w-full topic-select" data-topic="cond">4 — Conditional Probability</button>
-          
+      <nav class="mt-6 space-y-2" aria-label="topics">
+        <button class="topic-select btn btn-primary w-full py-3" data-topic="prob">1 — Basic Probability</button>
+        <button class="topic-select btn btn-primary w-full py-3" data-topic="perm">2 — Permutations, Combinations & Counting</button>
+        <button class="topic-select btn btn-primary w-full py-3" data-topic="atleast">3 — Probability of At Least One</button>
+        <button class="topic-select btn btn-primary w-full py-3" data-topic="cond">4 — Conditional Probability & Independence</button>
+        <button class="topic-select btn btn-primary w-full py-3" data-topic="bayes">5 — Bayes' Theorem</button>
+        <button class="topic-select btn btn-primary w-full py-3" data-topic="sets">6 — Set Theory Tools (A,B,C,...)</button>
+        <button class="topic-select btn btn-primary w-full py-3" data-topic="rv">7 — Random Variables (PMF / PDF)</button>
+        <button class="topic-select btn btn-primary w-full py-3" data-topic="house">8 — House Advantage & Betting</button>
+      </nav>
 
-        </div>
+      <div class="solid-divider"></div>
+      <p class="muted">Tip: each topic has a "Load example" and "Help" button explaining the inputs and showing step-by-step worked example.</p>
+    </aside>
 
-        <div class="mt-5">
-          <h4 class="mb">Quick examples</h4>
-          <div class="space-y-2">
-            <button class="btn btn-ghost w-full" id="load-bayes-example">Load Bayes example</button>
-            <button class="btn btn-ghost w-full" id="load-prob-example">Load Probability example</button>
-            <button class="btn btn-ghost w-full" id="load-pc-example">Load Perm/Comb example</button>
-            <button class="btn btn-ghost w-full" id="load-cond-example">Load Conditional example</button>
-            <button class="btn btn-black w-full mt-4" onclick="location.href='exam.html'">Practice STA1000 Questions</button>
-          </div>
-        </div>
-      </aside>
+    <!-- Right: Calculator area -->
+    <section class="glass p-6 rounded-xl">
+      <div id="topic-root"></div>
+    </section>
+  </main>
 
-      <!-- RIGHT: calculator area -->
-      <section class="glass p-4">
-        <div id="topic-root">
-          <!-- rendered by JS -->
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      © <span id="year"></span> Moegamat Samsodien — Interactive Stats Calculator. <span style="font-style:italic">Misha Calculator</span>
-    </footer>
-  </div>
-
-  <!-- Help popup element (single floating element reused) -->
-  <div id="help-popup" class="help-popup" role="dialog" aria-hidden="true"></div>
+  <footer class="max-w-6xl mx-auto p-6 text-sm opacity-90">© <span id="year"></span> Moegamat Samsodien — Interactive Stats Calculator.  </span></footer>
 
 <script>
-/* -----------------------------------------
-   Themes: palette data + applyTheme function
-   - When theme is applied it updates CSS vars for bg and button colors.
-   - Also updates primary button / ghost styles via CSS variables changed on :root.
------------------------------------------ */
+/* ---------------------------
+  Utility & theme handling
+   --------------------------- */
+document.getElementById('year').textContent = new Date().getFullYear();
+
 const themes = {
-  'spiderman': { bg:['#0b172a','#d62828','#e63946'], text:'#ffffff', btn1:'linear-gradient(90deg,#d62828,#e63946)', btn1hover:'linear-gradient(90deg,#ff3b3b,#ff6b6b)', ghost:'#111827', ghostHover:'rgba(255,255,255,0.06)'},
-  'bloodred': { bg:['#2a0000','#660000','#b30000'], text:'#ffeaea', btn1:'linear-gradient(90deg,#7f1d1d,#b91c1c)', btn1hover:'linear-gradient(90deg,#991b1b,#dc2626)', ghost:'#1a1a1a', ghostHover:'rgba(255,255,255,0.06)'},
-  'red-blue': { bg:['#2b2d42','#ef233c','#3a86ff'], text:'#ffffff', btn1:'linear-gradient(90deg,#ef233c,#3a86ff)', btn1hover:'linear-gradient(90deg,#ff4f5b,#4f7dff)', ghost:'#0f1724', ghostHover:'rgba(255,255,255,0.06)'},
-  'purple-black': { bg:['#0f0b1d','#3b0d54','#12002b'], text:'#ffffff', btn1:'linear-gradient(90deg,#3b0d54,#7928ca)', btn1hover:'linear-gradient(90deg,#5b21b6,#7c3aed)', ghost:'#0b1020', ghostHover:'rgba(255,255,255,0.06)'},
-  'sapphire-steel': { bg:['#13293d','#006494','#247ba0'], text:'#ffffff', btn1:'linear-gradient(90deg,#006494,#247ba0)', btn1hover:'linear-gradient(90deg,#0a6fb4,#4fb0df)', ghost:'#0b1220', ghostHover:'rgba(255,255,255,0.06)'},
-  'emerald-charcoal': { bg:['#004d40','#1c313a','#2e7d32'], text:'#ffffff', btn1:'linear-gradient(90deg,#005b4f,#2e7d32)', btn1hover:'linear-gradient(90deg,#0a966a,#3ba27b)', ghost:'#08201a', ghostHover:'rgba(255,255,255,0.06)'},
-  'digital-twilight': { bg:['#0f2027','#203a43','#2c5364'], text:'#ffffff', btn1:'linear-gradient(90deg,#203a43,#2c5364)', btn1hover:'linear-gradient(90deg,#264653,#2a9d8f)', ghost:'#071017', ghostHover:'rgba(255,255,255,0.06)'},
-  'coral-aqua': { bg:['#ff6f61','#6bc5d2','#004d61'], text:'#ffffff', btn1:'linear-gradient(90deg,#ff6f61,#6bc5d2)', btn1hover:'linear-gradient(90deg,#ff8b7a,#7fd0da)', ghost:'#0b1b1f', ghostHover:'rgba(255,255,255,0.06)'},
-  'electric-citrus': { bg:['#ff9f1c','#ffbf69','#ff4040'], text:'#ffffff', btn1:'linear-gradient(90deg,#ff9f1c,#ff4040)', btn1hover:'linear-gradient(90deg,#ffb84d,#ff6b6b)', ghost:'#1a0f0f', ghostHover:'rgba(255,255,255,0.06)'},
-  'artisan-clay': { bg:['#b3541e','#d9a066','#8c4a2f'], text:'#ffffff', btn1:'linear-gradient(90deg,#b3541e,#d9a066)', btn1hover:'linear-gradient(90deg,#c06f38,#e3b079)', ghost:'#1b0f0a', ghostHover:'rgba(255,255,255,0.06)'},
-  'forest-canopy': { bg:['#004b23','#006400','#228b22'], text:'#ffffff', btn1:'linear-gradient(90deg,#006400,#228b22)', btn1hover:'linear-gradient(90deg,#2bb673,#2dda7c)', ghost:'#071409', ghostHover:'rgba(255,255,255,0.06)'},
-  'ocean-depth': { bg:['#011f4b','#03396c','#005b96'], text:'#ffffff', btn1:'linear-gradient(90deg,#03396c,#005b96)', btn1hover:'linear-gradient(90deg,#19647e,#2a9d8f)', ghost:'#061226', ghostHover:'rgba(255,255,255,0.06)'},
-  'desert-sunset': { bg:['#ff7e5f','#feb47b','#ffcc70'], text:'#000000', btn1:'linear-gradient(90deg,#ff7e5f,#feb47b)', btn1hover:'linear-gradient(90deg,#ff986b,#ffd49b)', ghost:'#fff5eb', ghostHover:'rgba(0,0,0,0.06)'},
-  'monochrome-focus': { bg:['#111111','#333333','#555555'], text:'#ffffff', btn1:'linear-gradient(90deg,#444444,#222222)', btn1hover:'linear-gradient(90deg,#666666,#333333)', ghost:'#0c0c0c', ghostHover:'rgba(255,255,255,0.06)'},
-  'soft-nordic': { bg:['#a8dadc','#457b9d','#1d3557'], text:'#000000', btn1:'linear-gradient(90deg,#a8dadc,#457b9d)', btn1hover:'linear-gradient(90deg,#bfeceb,#5a9bdd)', ghost:'#ffffff', ghostHover:'rgba(0,0,0,0.06)'},
-  'neutral-peach': { bg:['#ffe0b2','#f48fb1','#f06292'], text:'#000000', btn1:'linear-gradient(90deg,#ffe0b2,#f06292)', btn1hover:'linear-gradient(90deg,#ffd9ad,#ff7aa3)', ghost:'#fff5f6', ghostHover:'rgba(0,0,0,0.06)'},
-  'retro-pop': { bg:['#ff00ff','#00ffff','#ffff00'], text:'#000000', btn1:'linear-gradient(90deg,#ff00ff,#00ffff)', btn1hover:'linear-gradient(90deg,#ff44ff,#44ffff)', ghost:'#fff', ghostHover:'rgba(0,0,0,0.06)'},
-  'cyberpunk-glow': { bg:['#0f0b1d','#ff0080','#7928ca'], text:'#ffffff', btn1:'linear-gradient(90deg,#ff0080,#7928ca)', btn1hover:'linear-gradient(90deg,#ff3aa0,#9d5df7)', ghost:'#07101a', ghostHover:'rgba(255,255,255,0.06)'},
-  'plum-gold': { bg:['#4b006e','#b07bac','#ffd700'], text:'#ffffff', btn1:'linear-gradient(90deg,#4b006e,#ffd700)', btn1hover:'linear-gradient(90deg,#7a2fb1,#ffd700)', ghost:'#12081a', ghostHover:'rgba(255,255,255,0.06)'}
+  'spiderman': {bg:['#0b172a','#d62828','#e63946'],text:'#ffffff',btn1:'#0ea5e9',btn2:'#ef4444',ghost:'#0b1220'},
+  'bloodred': {bg:['#2a0000','#660000','#b30000'],text:'#ffeaea',btn1:'#7f1d1d',btn2:'#b91c1c',ghost:'#1a1a1a'},
+  'red-blue': {bg:['#2b2d42','#ef233c','#3a86ff'],text:'#ffffff',btn1:'#ef233c',btn2:'#3a86ff',ghost:'#161a2b'},
+  'purple-black': {bg:['#0f0b1d','#3b0d54','#12002b'],text:'#ffffff',btn1:'#7c3aed',btn2:'#a21caf',ghost:'#0b0b12'},
+  'sapphire-steel': {bg:['#13293d','#006494','#247ba0'],text:'#ffffff',btn1:'#00a6fb',btn2:'#0582ca',ghost:'#0d1b2a'},
+  'emerald-charcoal': {bg:['#004d40','#1c313a','#2e7d32'],text:'#ffffff',btn1:'#10b981',btn2:'#065f46',ghost:'#0b1f1a'},
+  'digital-twilight': {bg:['#0f2027','#203a43','#2c5364'],text:'#ffffff',btn1:'#22d3ee',btn2:'#0ea5e9',ghost:'#0a151b'},
+  'coral-aqua': {bg:['#ff6f61','#6bc5d2','#004d61'],text:'#ffffff',btn1:'#ff8fa3',btn2:'#00bcd4',ghost:'#0f2a2f'},
+  'electric-citrus': {bg:['#ff9f1c','#ffbf69','#ff4040'],text:'#000000',btn1:'#ff7f50',btn2:'#ff4040',ghost:'#2b1a00'},
+  'artisan-clay': {bg:['#b3541e','#d9a066','#8c4a2f'],text:'#ffffff',btn1:'#b3541e',btn2:'#8c4a2f',ghost:'#2a140a'},
+  'forest-canopy': {bg:['#004b23','#006400','#228b22'],text:'#ffffff',btn1:'#16a34a',btn2:'#065f46',ghost:'#06220f'},
+  'ocean-depth': {bg:['#011f4b','#03396c','#005b96'],text:'#ffffff',btn1:'#3b82f6',btn2:'#0ea5e9',ghost:'#041024'},
+  'desert-sunset': {bg:['#ff7e5f','#feb47b','#ffcc70'],text:'#000000',btn1:'#f97316',btn2:'#fde68a',ghost:'#3a1d0b'},
+  'monochrome-focus': {bg:['#111111','#333333','#555555'],text:'#ffffff',btn1:'#6b7280',btn2:'#9ca3af',ghost:'#141414'},
+  'soft-nordic': {bg:['#a8dadc','#457b9d','#1d3557'],text:'#000000',btn1:'#1d3557',btn2:'#457b9d',ghost:'#0f2338'},
+  'neutral-peach': {bg:['#ffe0b2','#f48fb1','#f06292'],text:'#000000',btn1:'#f48fb1',btn2:'#f06292',ghost:'#3d2b2b'},
+  'retro-pop': {bg:['#ff00ff','#00ffff','#ffff00'],text:'#000000',btn1:'#ff00ff',btn2:'#00ffff',ghost:'#1a1020'},
+  'cyberpunk-glow': {bg:['#0f0b1d','#ff0080','#7928ca'],text:'#ffffff',btn1:'#ff0080',btn2:'#7928ca',ghost:'#0a0713'},
+  'plum-gold': {bg:['#4b006e','#b07bac','#ffd700'],text:'#ffffff',btn1:'#a855f7',btn2:'#f59e0b',ghost:'#1a0a26'}
 };
+
+const dropdown = document.getElementById('theme-dropdown');
+const themeChip = document.getElementById('theme-chip');
+dropdown.addEventListener('change', ()=> applyTheme(dropdown.value));
+document.getElementById('reset-theme').addEventListener('click', ()=> applyTheme('bloodred'));
+document.getElementById('print-btn').addEventListener('click', ()=> window.print());
 
 function applyTheme(name){
   const t = themes[name] || themes['bloodred'];
-  // page background variables
   document.documentElement.style.setProperty('--bg1', t.bg[0]);
   document.documentElement.style.setProperty('--bg2', t.bg[1]);
   document.documentElement.style.setProperty('--bg3', t.bg[2]);
-  // text color (used on non-white buttons etc.)
   document.documentElement.style.setProperty('--text', t.text);
-  // button and ghost colors
   document.documentElement.style.setProperty('--btn1', t.btn1);
-  document.documentElement.style.setProperty('--btn1-hover', t.btn1hover);
-  document.documentElement.style.setProperty('--ghost-bg', t.ghost || '#111827');
-  document.documentElement.style.setProperty('--ghost-hover', t.ghostHover || 'rgba(255,255,255,0.06)');
-  // update visible button styles directly for older browsers
-  document.querySelectorAll('.btn-primary').forEach(b => { b.style.background = t.btn1; });
-  document.querySelectorAll('.btn-primary').forEach(b => { b.onmouseover = () => b.style.background = t.btn1hover; b.onmouseout = () => b.style.background = t.btn1; });
-  document.querySelectorAll('.btn-ghost').forEach(b => { b.style.background = t.ghost; b.onmouseover = () => b.style.background = t.ghostHover; b.onmouseout = () => b.style.background = t.ghost; });
-  // persist
-  localStorage.setItem('statsTheme', name);
+  document.documentElement.style.setProperty('--btn2', t.btn2);
+  document.documentElement.style.setProperty('--ghost', t.ghost);
+  themeChip.style.background = `linear-gradient(90deg, ${t.bg.join(',')})`;
 }
+applyTheme('bloodred');
 
-// init theme from localStorage or default
-const savedTheme = localStorage.getItem('statsTheme') || 'bloodred';
-document.getElementById('theme-dropdown').value = savedTheme;
-applyTheme(savedTheme);
-document.getElementById('theme-dropdown').addEventListener('change', e => applyTheme(e.target.value));
-document.getElementById('reset-theme').addEventListener('click', ()=> { document.getElementById('theme-dropdown').value = 'bloodred'; applyTheme('bloodred'); });
+/* ---------------------------
+  Utilities
+   --------------------------- */
+function el(html){const t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstChild}
+const approxEq = (a,b,eps=1e-10)=> Math.abs(a-b) <= eps;
+const clamp01 = v => Math.max(0, Math.min(1, v));
+function fmt(n,dec=8){ if(!isFinite(n)) return 'NaN'; const as = Number(n); return (Math.abs(as) < 1e-12) ? '0' : (Number.isInteger(as) ? as.toString() : as.toPrecision(dec)); }
+function fact(n){ if(n<0) return NaN; if(n===0) return 1; let r=1; for(let i=1;i<=n;i++) r*=i; return r; }
+function nPk(n,k){ return fact(n)/fact(n-k); }
+function nCk(n,k){ return fact(n)/(fact(k)*fact(n-k)); }
 
-/* -----------------------------------------
-   Topic rendering + event handlers
------------------------------------------ */
+/* ---------------------------
+  Topic rendering
+   --------------------------- */
 const topicRoot = document.getElementById('topic-root');
-
-function el(html){
-  const template = document.createElement('template');
-  template.innerHTML = html.trim();
-  return template.content.firstChild;
-}
+const topicButtons = document.querySelectorAll('.topic-select');
+topicButtons.forEach(b=>b.addEventListener('click', ()=>renderTopic(b.dataset.topic)));
 
 function renderTopic(topic){
-  let html = '';
+  let html='';
   if(topic==='prob') html = probHTML();
   else if(topic==='perm') html = permHTML();
-  else if(topic==='bayes') html = bayesHTML();
+  else if(topic==='atleast') html = atleastHTML();
   else if(topic==='cond') html = condHTML();
-  topicRoot.innerHTML = '';
+  else if(topic==='bayes') html = bayesHTML();
+  else if(topic==='sets') html = setsHTML();
+  else if(topic==='rv') html = rvHTML();
+  else if(topic==='house') html = houseHTML();
+  topicRoot.innerHTML='';
   topicRoot.appendChild(el(html));
-  // attach handlers after render
   bindTopicEvents(topic);
-  // Typeset math if any
-  if(window.MathJax) MathJax.typesetPromise?.();
+  if(window.MathJax) MathJax.typesetPromise();
 }
 
-/* ---------- HTML fragments ---------- */
+/* ---------------------------
+  Help popup function (dark, non-transparent)
+   --------------------------- */
+function attachHelp(selector, text){
+  const target = document.querySelector(selector);
+  if(!target) return;
+  const btn = target.querySelector('.help');
+  if(!btn) return;
+  let pop;
+  btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    if(pop){ pop.remove(); pop=null; return; }
+    pop = document.createElement('div');
+    pop.className='help-popup';
+    pop.innerHTML=text;
+    target.style.position='relative';
+    target.appendChild(pop);
+    pop.style.top = '120%';
+    pop.style.left = '0';
+  });
+  document.addEventListener('click', ()=>{ if(pop){pop.remove(); pop=null;} });
+}
+
+/* ---------------------------
+  1) Basic Probability
+   --------------------------- */
 function probHTML(){
   return `
-  <div class="topic-card">
-    <h2 style="font-weight:800">Basic Probability</h2>
-    <p class="muted">Definition: $P(A)=\\dfrac{\\text{favourable outcomes}}{\\text{total outcomes}}$. Use counts or probabilities.</p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:.9rem">
-      <div>
-        <label>Favourable outcomes (k) <button class="help-inline" data-help="Number of successful outcomes (e.g. number of red cards in a deck).">?</button></label>
-        <input id="prob-k" class="input" type="number" min="0" value="1" />
-      </div>
-      <div>
-        <label>Total outcomes (n) <button class="help-inline" data-help="Size of the sample space (e.g. 52 cards).">?</button></label>
-        <input id="prob-n" class="input" type="number" min="1" value="52" />
-      </div>
+  <div>
+    <h2 class="text-2xl font-semibold">Basic Probability</h2>
+    <p class="mt-2 text-sm opacity-90">Definition: $P(A)=\\dfrac{\\text{favourable outcomes}}{\\text{total outcomes}}$</p>
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div class="label" id="help-k">Favourable outcomes (k) <span class="help">?</span></div>
+      <input id="prob-k" class="input" type="number" min="0" value="1" />
+      <div class="label" id="help-n">Total outcomes (n) <span class="help">?</span></div>
+      <input id="prob-n" class="input" type="number" min="1" value="52" />
     </div>
-
-    <div style="margin-top:.9rem;display:flex;gap:.6rem">
+    <div class="mt-4 flex gap-2">
       <button id="prob-explain" class="btn btn-primary">Explain</button>
-      <button id="prob-clear" class="btn btn-ghost">Clear</button>
+      <button id="prob-example" class="btn btn-ghost">Load example</button>
     </div>
-
-    <div id="prob-output" class="steps" aria-live="polite" style="margin-top:.9rem"></div>
+    <div id="prob-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
   </div>`;
 }
+function explainProb(){
+  const k = Number(document.getElementById('prob-k').value);
+  const n = Number(document.getElementById('prob-n').value);
+  const out = document.getElementById('prob-output');
+  if(n<=0 || k<0){ out.innerHTML = `<p>Please enter valid non-negative numbers.</p>`; return; }
+  const p = k/n;
+  out.innerHTML = `
+    <p><strong>Given</strong>: k=${k}, n=${n}</p>
+    <p>Definition:</p>
+    <p class="block">$P(A)=\\dfrac{\\text{favourable}}{\\text{total}}$</p>
+    <p>Compute:</p>
+    <p class="block">$P(A)=\\dfrac{${k}}{${n}} = ${fmt(p,8)}$</p>
+    <p>Decimal: ${fmt(p,8)} (i.e., ${(p*100).toFixed(4)}\\%)</p>`;
+  if(window.MathJax) MathJax.typesetPromise();
+}
 
+/* ---------------------------
+  2) Permutations / Combinations / Counting
+   --------------------------- */
 function permHTML(){
   return `
-  <div class="topic-card">
-    <h2 style="font-weight:800">Permutations & Combinations</h2>
-    <p class="muted">Permutations (order matters): $P(n,k)=\\dfrac{n!}{(n-k)!}$. Combinations (order doesn't): $C(n,k)=\\dfrac{n!}{k!(n-k)!}$</p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:.9rem">
-      <div>
-        <label>Total items (n) <button class="help-inline" data-help="Total number of items to choose from.">?</button></label>
-        <input id="pc-n" class="input" type="number" min="0" value="5" />
-      </div>
-      <div>
-        <label>Selected (k) <button class="help-inline" data-help="Number selected (k) must be ≤ n).">?</button></label>
-        <input id="pc-k" class="input" type="number" min="0" value="3" />
-      </div>
+  <div>
+    <h2 class="text-2xl font-semibold">Permutations, Combinations & Counting</h2>
+    <p class="mt-2 text-sm opacity-90">Permutations: order matters. Combinations: order doesn't. Options: with/without repetition.</p>
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div class="label" id="help-pn">Total items (n) <span class="help">?</span></div>
+      <input id="pc-n" class="input" type="number" min="0" value="5" />
+      <div class="label" id="help-pk">Selected (k) <span class="help">?</span></div>
+      <input id="pc-k" class="input" type="number" min="0" value="3" />
+      <div class="label" id="help-rep">Repetition allowed? <span class="help">?</span></div>
+      <select id="pc-rep" class="input text-black"><option value="no">No (without repetition)</option><option value="yes">Yes (with repetition)</option></select>
+      <div class="label" id="help-type">Counting type <span class="help">?</span></div>
+      <select id="pc-type" class="input text-black">
+        <option value="perm">Permutation (order matters)</option>
+        <option value="comb">Combination (order not important)</option>
+        <option value="arrangements">Arrangements (general)</option>
+      </select>
+      <div class="label" id="help-sample">Sample space size (optional for probability) <span class="help">?</span></div>
+      <input id="pc-space" class="input" type="number" min="0" value="0" />
     </div>
-
-    <div style="margin-top:.9rem;display:flex;gap:.6rem">
+    <div class="mt-4 flex gap-2">
       <button id="pc-explain" class="btn btn-primary">Explain</button>
-      <button id="pc-clear" class="btn btn-ghost">Clear</button>
+      <button id="pc-example" class="btn btn-ghost">Load example</button>
     </div>
-
-    <div id="pc-output" class="steps" style="margin-top:.9rem"></div>
+    <div id="pc-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
   </div>`;
 }
+function explainPC(){
+  const n = Number(document.getElementById('pc-n').value);
+  const k = Number(document.getElementById('pc-k').value);
+  const rep = document.getElementById('pc-rep').value;
+  const type = document.getElementById('pc-type').value;
+  const space = Number(document.getElementById('pc-space').value);
+  const out = document.getElementById('pc-output');
+  if(k>n && rep==='no' && type!=='arrangements'){ out.innerHTML = `<p>For <em>without repetition</em>, k cannot exceed n.</p>`; return; }
+  let count=0, formula='', expl='';
+  if(type==='perm'){
+    if(rep==='yes'){ count = Math.pow(n,k); formula = '$n^k$'; expl='With repetition and order matters.'; }
+    else { count = nPk(n,k); formula = '$P(n,k)=\\dfrac{n!}{(n-k)!}$'; expl='Without repetition and order matters.'; }
+  } else if(type==='comb'){
+    if(rep==='yes'){ count = nCk(n+k-1,k); formula = '$\\binom{n+k-1}{k}$'; expl='With repetition and order irrelevant (stars and bars).'; }
+    else { count = nCk(n,k); formula = '$\\binom{n}{k}=\\dfrac{n!}{k!(n-k)!}$'; expl='Without repetition and order irrelevant.'; }
+  } else {
+    if(rep==='yes'){ count = Math.pow(n,k); formula = '$n^k$'; expl='General product rule with repetition.'; }
+    else { count = nPk(n,k); formula = '$n\\cdot(n-1)\\cdot\\dots\\cdot(n-k+1)$'; expl='Product rule without repetition.'; }
+  }
+  let probHTML='';
+  if(space>0){ const p = count/space; probHTML = `<p class="block">Probability (if equally likely): $\\dfrac{${count}}{${space}} = ${fmt(p,8)}$</p>`; }
+  out.innerHTML = `
+    <p><strong>Inputs</strong>: n=${n}, k=${k}, repetition: ${rep}, type: ${type}</p>
+    <p><strong>Formula</strong>: ${formula}</p>
+    <p class="block">Count = ${fmt(count,12)}</p>
+    <p>${expl}</p>
+    ${probHTML}`;
+  if(window.MathJax) MathJax.typesetPromise();
+}
 
-function bayesHTML(){
+/* ---------------------------
+  3) At least one error
+   --------------------------- */
+function atleastHTML(){
   return `
-  <div class="topic-card">
-    <h2 style="font-weight:800">Bayes' Theorem</h2>
-    <p class="muted">Posterior: $P(A|B)=\\dfrac{P(B|A)P(A)}{P(B)}$ with $P(B)=P(B|A)P(A)+P(B|\\neg A)P(\\neg A)$</p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:.9rem">
-      <div>
-        <label>Prior $P(A)$ <button class="help-inline" data-help="Prior probability of event A (0 to 1).">?</button></label>
-        <input id="bayes-pa" class="input" type="number" min="0" max="1" step="any" value="0.01" />
-      </div>
-      <div>
-        <label>Likelihood $P(B|A)$ <button class="help-inline" data-help="Probability of observing B if A is true (sensitivity).">?</button></label>
-        <input id="bayes-l" class="input" type="number" min="0" max="1" step="any" value="0.95" />
-      </div>
-      <div>
-        <label>False positive $P(B|¬A)$ <button class="help-inline" data-help="Probability of observing B if A is false (false positive rate).">?</button></label>
-        <input id="bayes-fp" class="input" type="number" min="0" max="1" step="any" value="0.05" />
-      </div>
-      <div>
-        <label>Optional: Provide $P(B)$ <button class="help-inline" data-help="If you already know P(B) provide it; otherwise leave blank to compute from priors.">?</button></label>
-        <input id="bayes-pb" class="input" type="number" min="0" max="1" step="any" placeholder="auto" />
-      </div>
+  <div>
+    <h2 class="text-2xl font-semibold">Probability of At Least One</h2>
+    <p class="mt-2 text-sm opacity-90">For independent trials: $P(\\text{at least one error}) = 1-(1-p)^n$</p>
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div class="label" id="help-p">Error probability per trial p <span class="help">?</span></div>
+      <input id="al-p" class="input" type="number" step="any" min="0" max="1" value="0.1" />
+      <div class="label" id="help-nn">Number of trials n <span class="help">?</span></div>
+      <input id="al-n" class="input" type="number" min="1" value="5" />
     </div>
-
-    <div style="margin-top:.9rem;display:flex;gap:.6rem">
-      <button id="bayes-explain" class="btn btn-primary">Explain</button>
-      <button id="bayes-clear" class="btn btn-ghost">Clear</button>
+    <div class="mt-4 flex gap-2">
+      <button id="al-explain" class="btn btn-primary">Explain</button>
+      <button id="al-example" class="btn btn-ghost">Load example</button>
     </div>
-
-    <div id="bayes-output" class="steps" style="margin-top:.9rem"></div>
+    <div id="al-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
   </div>`;
 }
+function explainAtLeast(){
+  const p = clamp01(Number(document.getElementById('al-p').value));
+  const n = Math.max(1, Number(document.getElementById('al-n').value));
+  const out = document.getElementById('al-output');
+  const none = Math.pow(1-p,n);
+  const atleast = 1 - none;
+  out.innerHTML = `
+    <p><strong>Given</strong>: $p=${p}$, $n=${n}$</p>
+    <p>No error in one trial: $1-p$</p>
+    <p>No error in all $n$ independent trials: $(1-p)^n = ${fmt(none,10)}$</p>
+    <p class="block">At least one error: $1-(1-p)^n = ${fmt(atleast,10)}$</p>`;
+  if(window.MathJax) MathJax.typesetPromise();
+}
 
+/* ---------------------------
+  4) Conditional + Independence
+   --------------------------- */
 function condHTML(){
   return `
-  <div class="topic-card">
-    <h2 style="font-weight:800">Conditional Probability</h2>
-    <p class="muted">Definition: $P(A|B)=\\dfrac{P(A\\cap B)}{P(B)}$. Provide joint probability or joint count and P(B).</p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:.9rem">
-      <div>
-        <label>P(A ∩ B) (joint) <button class="help-inline" data-help="Joint probability or joint count. If counting, ensure you use same denominator units as P(B).">?</button></label>
-        <input id="cond-joint" class="input" type="number" min="0" step="any" value="0.02" />
-      </div>
-      <div>
-        <label>P(B) <button class="help-inline" data-help="Probability of B. If using counts, provide total outcomes instead. Must be > 0.">?</button></label>
-        <input id="cond-b" class="input" type="number" min="0" step="any" value="0.1" />
-      </div>
+  <div>
+    <h2 class="text-2xl font-semibold">Conditional Probability & Independence</h2>
+    <p class="mt-2 text-sm opacity-90">$P(A|B)=\\dfrac{P(A\\cap B)}{P(B)}$</p>
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div class="label" id="help-joint">Joint P(A∩B) <span class="help">?</span></div>
+      <input id="cond-joint" class="input" type="number" step="any" min="0" value="0.02" />
+      <div class="label" id="help-pb">Marginal P(B) <span class="help">?</span></div>
+      <input id="cond-b" class="input" type="number" step="any" min="0" value="0.1" />
+      <div class="label" id="help-pa">Marginal P(A) (for independence) <span class="help">?</span></div>
+      <input id="cond-a" class="input" type="number" step="any" min="0" value="0.2" />
     </div>
-
-    <div style="margin-top:.9rem;display:flex;gap:.6rem">
+    <div class="mt-4 flex gap-2">
       <button id="cond-explain" class="btn btn-primary">Explain</button>
-      <button id="cond-clear" class="btn btn-ghost">Clear</button>
+      <button id="cond-example" class="btn btn-ghost">Load example</button>
     </div>
-
-    <div id="cond-output" class="steps" style="margin-top:.9rem"></div>
+    <div id="cond-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
   </div>`;
 }
-
-/* ---------- Event binding + calculators ---------- */
-
-document.querySelectorAll('.topic-select').forEach(btn => {
-  btn.addEventListener('click', () => renderTopic(btn.dataset.topic));
-});
-
-// help popup behaviour (single floating element reused)
-const helpPopup = document.getElementById('help-popup');
-let helpTimeout = null;
-
-function showHelp(text, x, y){
-  helpPopup.innerHTML = `<h4>Help</h4><p>${text}</p>`;
-  helpPopup.style.left = (x + 12) + 'px';
-  helpPopup.style.top = (y + 12) + 'px';
-  helpPopup.style.display = 'block';
-  helpPopup.setAttribute('aria-hidden', 'false');
-  clearTimeout(helpTimeout);
+function explainCond(){
+  const joint = Number(document.getElementById('cond-joint').value);
+  const pb = Number(document.getElementById('cond-b').value);
+  const pa = Number(document.getElementById('cond-a').value);
+  const out = document.getElementById('cond-output');
+  if(pb<=0){ out.innerHTML = `<p>$P(B)$ must be positive.</p>`; return; }
+  const cond = joint/pb;
+  const indep = approxEq(joint, pa*pb, 1e-8);
+  out.innerHTML = `
+    <p><strong>Given</strong>: $P(A\\cap B)=${joint}$, $P(B)=${pb}$, $P(A)=${pa}$</p>
+    <p class="block">$P(A|B)=\\dfrac{P(A\\cap B)}{P(B)}=\\dfrac{${joint}}{${pb}}=${fmt(cond,10)}$</p>
+    <div class="solid-divider"></div>
+    <p><strong>Independence test</strong>:</p>
+    <p class="block">Compare $P(A\\cap B)$ with $P(A)P(B)$:</p>
+    <p class="block">${fmt(joint,10)} vs ${fmt(pa*pb,10)}</p>
+    <p>${indep ? '<strong>Conclusion:</strong> Events appear <strong>independent</strong>.' : '<strong>Conclusion:</strong> Events are <strong>not independent</strong>.'}</p>`;
+  if(window.MathJax) MathJax.typesetPromise();
 }
 
-function hideHelpSoon(){
-  clearTimeout(helpTimeout);
-  helpTimeout = setTimeout(()=>{ helpPopup.style.display = 'none'; helpPopup.setAttribute('aria-hidden','true'); }, 300);
+/* ---------------------------
+  5) Bayes
+   --------------------------- */
+function bayesHTML(){
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Bayes' Theorem</h2>
+    <p class="mt-2 text-sm opacity-90">$P(A|B)=\\dfrac{P(B|A)P(A)}{P(B)}$; $P(B)=P(B|A)P(A)+P(B|\\neg A)P(\\neg A)$</p>
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div class="label" id="help-pa-bayes">Prior P(A) <span class="help">?</span></div>
+      <input id="bayes-pa" class="input" type="number" step="any" min="0" max="1" value="0.01" />
+      <div class="label" id="help-like">Likelihood P(B|A) <span class="help">?</span></div>
+      <input id="bayes-l" class="input" type="number" step="any" min="0" max="1" value="0.95" />
+      <div class="label" id="help-fp">False positive P(B|¬A) <span class="help">?</span></div>
+      <input id="bayes-fp" class="input" type="number" step="any" min="0" max="1" value="0.05" />
+      <div class="label" id="help-pb">Optional: Provide P(B) <span class="help">?</span></div>
+      <input id="bayes-pb" class="input" type="number" step="any" min="0" max="1" placeholder="auto" />
+    </div>
+    <div class="mt-4 flex gap-2">
+      <button id="bayes-explain" class="btn btn-primary">Explain</button>
+      <button id="bayes-example" class="btn btn-ghost">Load example (disease test)</button>
+    </div>
+    <div id="bayes-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+function explainBayes(){
+  const pa = clamp01(Number(document.getElementById('bayes-pa').value));
+  const l = clamp01(Number(document.getElementById('bayes-l').value));
+  const fp = clamp01(Number(document.getElementById('bayes-fp').value));
+  const pbInput = document.getElementById('bayes-pb').value;
+  const out = document.getElementById('bayes-output');
+  if(isNaN(pa)||isNaN(l)||isNaN(fp)){ out.innerHTML = '<p>Please enter valid probabilities (0..1).</p>'; return; }
+  const pb = pbInput ? clamp01(Number(pbInput)) : (l*pa + fp*(1-pa));
+  const numerator = l*pa;
+  const posterior = numerator/pb;
+  out.innerHTML = `
+    <p><strong>Identify pieces</strong>:</p>
+    <ul class="list-disc ml-5">
+      <li>Prior: $P(A)=${pa}$</li>
+      <li>Likelihood: $P(B|A)=${l}$</li>
+      <li>False positive: $P(B|\\neg A)=${fp}$</li>
+    </ul>
+    <p class="mt-2">Denominator (law of total probability):</p>
+    <p class="block">$P(B)=P(B|A)P(A)+P(B|\\neg A)P(\\neg A) = ${fmt(l*pa,10)} + ${fmt(fp*(1-pa),10)} = ${fmt(pb,10)}$</p>
+    <p class="mt-2">Bayes' formula:</p>
+    <p class="block">$P(A|B)=\\dfrac{${fmt(numerator,10)}}{${fmt(pb,10)}} = ${fmt(posterior,12)}$</p>
+    <p>Interpretation: Posterior chance of $A$ given $B$ is ${(posterior*100).toFixed(4)}\\%.</p>`;
+  if(window.MathJax) MathJax.typesetPromise();
 }
 
-document.addEventListener('mousemove', ()=> {
-  // if popup is visible and mouse moves away quickly hide soon
-  if(helpPopup.style.display === 'block') hideHelpSoon();
-});
+/* ---------------------------
+  6) Set Theory Tools (A, B, C, ... dynamic)
+   --------------------------- */
+function setsHTML(){
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Set Theory Tools</h2>
+    <p class="mt-2 text-sm opacity-90">Work with A, B, C, ... (add/remove sets). Compute union, intersection, difference, symmetric difference, complement (requires U), Cartesian product, power set.</p>
+    <div class="mt-4" id="sets-dyn">
+      <div class="mb-2"><button id="add-set" class="btn btn-ghost">Add set</button> <button id="clear-sets" class="btn btn-ghost">Clear sets</button></div>
+      <div id="sets-list"></div>
+      <div class="mt-3 label" id="help-su">Universal set U (optional) <span class="help">?</span></div>
+      <input id="set-u" class="input" placeholder="e.g. 1,2,3,4,5" />
+      <div class="mt-3 label">Cartesian product display limit <input id="cp-limit" class="input max-w-[120px] ml-2" type="number" min="1" value="40" /></div>
+    </div>
+    <div class="mt-4 flex gap-2">
+      <button id="sets-explain" class="btn btn-primary">Compute</button>
+      <button id="sets-example" class="btn btn-ghost">Load example</button>
+    </div>
+    <div id="sets-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+function createSetRow(label) {
+  const idx = label || String.fromCharCode(65 + document.querySelectorAll('.set-row').length); // A, B, C...
+  return `
+    <div class="set-row mt-2 p-2 border border-transparent rounded-md">
+      <div class="flex gap-2 items-center">
+        <div class="font-semibold">${idx}</div>
+        <input class="input set-input flex-1" placeholder="e.g. 1,2,3 or a,b,c" />
+        <button class="btn btn-ghost remove-set">Remove</button>
+      </div>
+    </div>`;
+}
+function parseSet(v){ return new Set(String(v||'').split(',').map(s=>s.trim()).filter(s=>s!=='')); }
+function setToArray(s) { return Array.from(s.values()); }
+const setOps = {
+  union:(A,B)=> new Set([...A,...B]),
+  inter:(A,B)=> new Set([...A].filter(x=>B.has(x))),
+  diff:(A,B)=> new Set([...A].filter(x=>!B.has(x))),
+  symdiff:(A,B)=> { const U=new Set([...A,...B]); const I=new Set([...A].filter(x=>B.has(x))); return new Set([...U].filter(x=>!I.has(x))); }
+};
+function explainSets(){
+  const rows = document.querySelectorAll('.set-row');
+  const arr = [];
+  rows.forEach((r, i)=>{
+    const val = r.querySelector('.set-input').value;
+    arr.push({label: String.fromCharCode(65+i), set: parseSet(val)});
+  });
+  const Uraw = document.getElementById('set-u').value;
+  const U = Uraw ? parseSet(Uraw) : null;
+  const out = document.getElementById('sets-output');
+  if(arr.length===0){ out.innerHTML = `<p>Add at least one set.</p>`; return; }
+  // compute pairwise unions/intersections
+  let html = `<p><strong>Sets</strong>: ${arr.map(a=>`${a.label}={${setToArray(a.set).join(', ')}}`).join('; ')}`;
+  html += `</p><div class="solid-divider"></div>`;
+  for(let i=0;i<arr.length;i++){
+    for(let j=i+1;j<arr.length;j++){
+      const A=arr[i].set, B=arr[j].set;
+      const UAB = setOps.union(A,B), IAB = setOps.inter(A,B), DAB = setOps.diff(A,B), DBA = setOps.diff(B,A), XAB = setOps.symdiff(A,B);
+      html += `<p class="block"><strong>${arr[i].label} \\cup ${arr[j].label}</strong> = {${setToArray(UAB).join(', ')}}</p>`;
+      html += `<p class="block"><strong>${arr[i].label} \\cap ${arr[j].label}</strong> = {${setToArray(IAB).join(', ')}}</p>`;
+      html += `<p class="block"><strong>${arr[i].label} \\setminus ${arr[j].label}</strong> = {${setToArray(DAB).join(', ')}}; <strong>${arr[j].label} \\setminus ${arr[i].label}</strong> = {${setToArray(DBA).join(', ')}}</p>`;
+      html += `<p class="block"><strong>${arr[i].label} \\triangle ${arr[j].label}</strong> = {${setToArray(XAB).join(', ')}}</p><div class="solid-divider"></div>`;
+    }
+  }
+  if(U){
+    for(let i=0;i<arr.length;i++){
+      const comp = setOps.diff(U, arr[i].set);
+      html += `<p class="block"><strong>${arr[i].label}^c</strong> = {${setToArray(comp).join(', ')}}</p>`;
+    }
+  } else {
+    html += `<p class="block"><em>Provide universal set U to compute complements.</em></p>`;
+  }
+  // cartesian for first two sets (if available)
+  const cpLimit = Number(document.getElementById('cp-limit').value) || 40;
+  if(arr.length>=2){
+    const A = arr[0].set, B = arr[1].set;
+    const pairs = [];
+    for(const a of A) for(const b of B) pairs.push(`(${a},${b})`);
+    html += `<div class="solid-divider"></div><p><strong>${arr[0].label} \\times ${arr[1].label} (first two sets)</strong> (showing up to ${cpLimit} pairs):</p>`;
+    html += `<p class="block">${pairs.length <= cpLimit ? pairs.join(', ') : pairs.slice(0,cpLimit).join(', ') + ', ...'}</p>`;
+  }
+  // power sets for first set
+  const A0 = arr[0].set;
+  if(A0.size <= 12){
+    const arr0 = setToArray(A0); const subsets = (1<<arr0.length);
+    const list = [];
+    for(let m=0;m<subsets && list.length < 256; m++){
+      const sub=[]; for(let i=0;i<arr0.length;i++) if(m&(1<<i)) sub.push(arr0[i]); list.push(`{${sub.join(', ')}}`);
+    }
+    html += `<div class="solid-divider"></div><p><strong>Power set of ${arr[0].label}</strong> (capped at 256):</p><p class="block">${list.join(', ')}</p>`;
+  } else html += `<div class="solid-divider"></div><p>Power set of ${arr[0].label} is too large to display (size: ${Math.pow(2, A0.size)}).</p>`;
+  out.innerHTML = html;
+  if(window.MathJax) MathJax.typesetPromise();
+}
 
-// after content is rendered bind help-inline buttons
-function bindHelpInline(){
-  document.querySelectorAll('.help-inline').forEach(el => {
-    el.onmouseenter = (ev) => { showHelp(el.getAttribute('data-help'), ev.clientX, ev.clientY); };
-    el.onmousemove = (ev) => { helpPopup.style.left = (ev.clientX + 12) + 'px'; helpPopup.style.top = (ev.clientY + 12) + 'px'; };
-    el.onmouseleave = () => { hideHelpSoon(); };
-    el.onclick = (ev) => { // click will pin for 2.5s
-      showHelp(el.getAttribute('data-help'), ev.clientX, ev.clientY);
-      clearTimeout(helpTimeout);
-      helpTimeout = setTimeout(()=>{ helpPopup.style.display = 'none'; helpPopup.setAttribute('aria-hidden','true'); }, 2500);
+/* ---------------------------
+  7) Random Variables — PMF & PDF + PMF-by-formula
+   --------------------------- */
+function rvHTML(){
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Random Variables — Discrete PMF & Continuous PDF</h2>
+    <p class="mt-2 text-sm opacity-90">Compute $E[X]$, $Var[X]$, $E[X^2]$, and probabilities. Supports PMF-by-formula (enter formula in x) and range.</p>
+    <div class="mt-3 grid gap-3 md:grid-cols-2">
+      <div class="label" id="help-rv-kind">Type <span class="help">?</span></div>
+      <select id="rv-kind" class="input text-black"><option value="discrete">Discrete PMF</option><option value="continuous">Continuous PDF (piecewise constant)</option></select>
+      <div class="label">PMF by formula? <span class="help" id="help-pmf-by">?</span></div>
+      <select id="rv-by" class="input text-black"><option value="manual">Manual rows</option><option value="formula">Formula: p(x) expression</option></select>
+    </div>
+
+    <div id="rv-formula-area" class="mt-3"></div>
+
+    <div id="rv-table" class="mt-3"></div>
+
+    <div class="grid md:grid-cols-3 gap-3 mt-3">
+      <input id="rv-thresh-a" class="input" placeholder="a (for P[a < X < b])" />
+      <input id="rv-thresh-b" class="input" placeholder="b (for P[a < X < b])" />
+      <input id="rv-x0" class="input" placeholder="x₀ (for P[X>x₀] & P[X<x₀])" />
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button id="rv-add-row" class="btn btn-ghost">Add row</button>
+      <button id="rv-explain" class="btn btn-primary">Explain</button>
+      <button id="rv-normalize" class="btn btn-ghost">Auto-scale PDF/PMF (normalise)</button>
+    </div>
+
+    <div id="rv-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+function buildRVTable(kind, by){
+  const wrap = document.getElementById('rv-table');
+  wrap.innerHTML = '';
+  if(by === 'formula' && kind==='discrete'){
+    document.getElementById('rv-formula-area').innerHTML = `
+      <div class="grid md:grid-cols-3 gap-3">
+        <input id="rv-formula" class="input" placeholder="p(x) in variable x, e.g. x/15" value="x/15" />
+        <input id="rv-range-lo" class="input" placeholder="x start (inclusive)" value="1" />
+        <input id="rv-range-hi" class="input" placeholder="x end (inclusive)" value="5" />
+      </div>
+      <div class="mt-2"><button id="rv-generate" class="btn btn-ghost">Generate table from formula</button></div>`;
+    document.getElementById('rv-generate').onclick = generatePMFbyFormula;
+    // initial table fragment (will be filled by generate)
+    wrap.innerHTML = `<p class="muted">Press "Generate table from formula" to compute the pmf table.</p>`;
+    return;
+  } else {
+    document.getElementById('rv-formula-area').innerHTML = '';
+  }
+
+  if(kind==='continuous'){
+    wrap.innerHTML = `
+      <div class="grid md:grid-cols-4 gap-3">
+        <div class="label">Interval start a</div><div class="label">Interval end b</div><div class="label">Density c</div><div></div>
+        <input class="input rv-a" value="0"/><input class="input rv-b" value="1"/><input class="input rv-c" value="1"/><div class="flex items-center"><button class="btn btn-ghost rv-del">Delete</button></div>
+      </div>`;
+  } else {
+    wrap.innerHTML = `
+      <div class="grid md:grid-cols-4 gap-3">
+        <div class="label">x</div><div class="label">p(x)</div><div class="label">x^2 p(x) (auto)</div><div></div>
+        <input class="input rv-x" value="1"/><input class="input rv-p" value="0.2"/><input class="input rv-x2p" disabled value="0"/><div class="flex items-center"><button class="btn btn-ghost rv-del">Delete</button></div>
+      </div>`;
+  }
+}
+function attachRVHandlers(){
+  const kindSel = document.getElementById('rv-kind');
+  const bySel = document.getElementById('rv-by');
+  buildRVTable(kindSel.value, bySel.value);
+  kindSel.addEventListener('change', ()=> buildRVTable(kindSel.value, bySel.value));
+  bySel.addEventListener('change', ()=> buildRVTable(kindSel.value, bySel.value));
+  document.getElementById('rv-add-row').addEventListener('click', ()=>{
+    const wrap = document.querySelector('#rv-table > .grid');
+    const kind = document.getElementById('rv-kind').value;
+    if(!wrap){ buildRVTable(kind, document.getElementById('rv-by').value); return; }
+    if(kind==='continuous'){
+      wrap.insertAdjacentHTML('beforeend', `<input class="input rv-a"/><input class="input rv-b"/><input class="input rv-c"/><div class="flex items-center"><button class="btn btn-ghost rv-del">Delete</button></div>`);
+    } else {
+      wrap.insertAdjacentHTML('beforeend', `<input class="input rv-x"/><input class="input rv-p"/><input class="input rv-x2p" disabled/><div class="flex items-center"><button class="btn btn-ghost rv-del">Delete</button></div>`);
+    }
+  });
+  document.getElementById('rv-table').addEventListener('click', (e)=>{
+    if(e.target.classList.contains('rv-del')) {
+      const row = e.target.closest('.grid');
+      // remove the last 4 nodes (x, p, x2p, button container) of the grid
+      // remove by DOM approach: find button container and remove previous 3 siblings
+      const cont = e.target.closest('div');
+      const siblings = [];
+      // remove backwards until we've removed 4 elements (assumes structure kept)
+      let cur = cont.previousElementSibling;
+      for(let i=0;i<3 && cur;i++){
+        const prev = cur.previousElementSibling;
+        cur.remove();
+        cur = prev;
+      }
+      cont.remove();
+    }
+  });
+}
+function generatePMFbyFormula(){
+  const formula = document.getElementById('rv-formula').value;
+  const lo = parseInt(document.getElementById('rv-range-lo').value);
+  const hi = parseInt(document.getElementById('rv-range-hi').value);
+  const wrap = document.getElementById('rv-table');
+  if(isNaN(lo) || isNaN(hi) || lo>hi){ wrap.innerHTML = `<p>Invalid range.</p>`; return; }
+  // use math.js to compile formula
+  let compile;
+  try { compile = math.compile(formula); } catch(e){ wrap.innerHTML = `<p>Formula parse error: ${e.message}</p>`; return; }
+  const rows = [];
+  let sum = 0;
+  for(let x=lo;x<=hi;x++){
+    try {
+      const scope = {x: x};
+      const v = Number(compile.evaluate(scope));
+      rows.push({x, p: v});
+      sum += v;
+    } catch(e){
+      wrap.innerHTML = `<p>Evaluation error at x=${x}: ${e.message}</p>`; return;
+    }
+  }
+  // display table and normalization hint
+  let html = `<table><thead><tr><th>x</th><th>raw p(x)</th><th>normalized p(x)</th></tr></thead><tbody>`;
+  for(const r of rows){
+    const norm = (sum === 0) ? 0 : r.p / sum;
+    html += `<tr><td>${r.x}</td><td>${fmt(r.p,10)}</td><td>${fmt(norm,10)}</td></tr>`;
+  }
+  html += `</tbody></table><p class="mt-2 muted">Sum of raw p(x): ${fmt(sum,10)}. Normalized p(x) divides each raw value by this sum to make a valid PMF.</p>`;
+  wrap.innerHTML = html;
+}
+
+function explainRV(){
+  const kind = document.getElementById('rv-kind').value;
+  const out = document.getElementById('rv-output');
+  const a = parseFloat(document.getElementById('rv-thresh-a').value);
+  const b = parseFloat(document.getElementById('rv-thresh-b').value);
+  const x0 = parseFloat(document.getElementById('rv-x0').value);
+  // discrete manual
+  if(kind==='discrete' && document.getElementById('rv-by').value === 'manual'){
+    const xs = Array.from(document.querySelectorAll('.rv-x')).map(i=>parseFloat(i.value));
+    const ps = Array.from(document.querySelectorAll('.rv-p')).map(i=>parseFloat(i.value));
+    const pairs = xs.map((x,i)=>({x,p:ps[i]})).filter(o=>!isNaN(o.x)&&!isNaN(o.p));
+    const pSum = pairs.reduce((s,o)=>s+o.p,0);
+    const EX = pairs.reduce((s,o)=>s+o.x*o.p,0);
+    const EX2 = pairs.reduce((s,o)=>s+o.x*o.x*o.p,0);
+    const Var = EX2 - EX*EX;
+    const Pgt = isNaN(x0)? null : pairs.filter(o=>o.x>x0).reduce((s,o)=>s+o.p,0);
+    const Plt = isNaN(x0)? null : pairs.filter(o=>o.x<x0).reduce((s,o)=>s+o.p,0);
+    const Pab = (isNaN(a)||isNaN(b))? null : pairs.filter(o=>o.x>a && o.x<b).reduce((s,o)=>s+o.p,0);
+    out.innerHTML = `
+      <p><strong>Check PMF</strong>: $\\sum p(x) = ${fmt(pSum,10)}$ ${approxEq(pSum,1,1e-6)?'(valid)': '(⚠ should equal 1 — use Normalize)'}</p>
+      <p class="block">$E[X] = \\sum x p(x) = ${fmt(EX,10)}$</p>
+      <p class="block">$E[X^2] = \\sum x^2 p(x) = ${fmt(EX2,10)}$</p>
+      <p class="block">$Var[X] = E[X^2] - (E[X])^2 = ${fmt(Var,10)}$</p>
+      ${!isNaN(x0)? `<p class="block">$P[X>${x0}] = ${fmt(Pgt,10)}$, $P[X<${x0}] = ${fmt(Plt,10)}$</p>` : ''}
+      ${( !isNaN(a) && !isNaN(b))? `<p class="block">$P[${a} < X < ${b}] = ${fmt(Pab,10)}$</p>` : ''}
+      <div class="solid-divider"></div>
+      <p>Properties:</p>
+      <ul class="ml-5">
+        <li>$E[A+B] = E[A] + E[B]$</li>
+        <li>$E[A-B] = E[A] - E[B]$</li>
+        <li>$Var[A+B] = Var[A] + Var[B]$ (if independent)</li>
+        <li>$Var[cA] = c^2 Var[A]$, $E[cA] = c E[A]$</li>
+      </ul>
+    `;
+  } else if(kind==='continuous' || (kind==='discrete' && document.getElementById('rv-by').value === 'formula')){
+    // continuous piecewise constant or discrete formula-generated table
+    if(document.getElementById('rv-by').value === 'formula' && document.getElementById('rv-kind').value === 'discrete'){
+      // the table area contains normalized values; parse them
+      const rows = Array.from(document.querySelectorAll('#rv-table tbody tr')).map(tr=>{
+        const tds = tr.querySelectorAll('td');
+        return {x: Number(tds[0].textContent), p: Number(tds[2].textContent)};
+      });
+      if(rows.length===0){ out.innerHTML = '<p>Generate a PMF table first.</p>'; return; }
+      const pSum = rows.reduce((s,r)=>s+r.p,0);
+      const EX = rows.reduce((s,r)=>s+r.x*r.p,0);
+      const EX2 = rows.reduce((s,r)=>s+r.x*r.x*r.p,0);
+      const Var = EX2 - EX*EX;
+      const Pgt = isNaN(x0)? null : rows.filter(o=>o.x>x0).reduce((s,o)=>s+o.p,0);
+      const Plt = isNaN(x0)? null : rows.filter(o=>o.x<x0).reduce((s,o)=>s+o.p,0);
+      const Pab = (isNaN(a)||isNaN(b))? null : rows.filter(o=>o.x>a && o.x<b).reduce((s,o)=>s+o.p,0);
+      out.innerHTML = `
+        <p><strong>Check PMF</strong>: $\\sum p(x) = ${fmt(pSum,10)}$ ${approxEq(pSum,1,1e-6)?'(valid)': '(⚠ should equal 1)'}</p>
+        <p class="block">$E[X] = ${fmt(EX,10)}, E[X^2] = ${fmt(EX2,10)}, Var[X] = ${fmt(Var,10)}</p>
+        ${!isNaN(x0)? `<p class="block">$P[X>${x0}] = ${fmt(Pgt,10)}$, $P[X<${x0}] = ${fmt(Plt,10)}$</p>` : ''}
+        ${( !isNaN(a) && !isNaN(b))? `<p class="block">$P[${a} < X < ${b}] = ${fmt(Pab,10)}$</p>` : ''}
+      `;
+    } else {
+      // continuous piecewise-constant
+      const as = Array.from(document.querySelectorAll('.rv-a')).map(i=>parseFloat(i.value));
+      const bs = Array.from(document.querySelectorAll('.rv-b')).map(i=>parseFloat(i.value));
+      const cs = Array.from(document.querySelectorAll('.rv-c')).map(i=>parseFloat(i.value));
+      let total = 0; for(let i=0;i<as.length;i++){ total += (bs[i]-as[i])*cs[i]; }
+      const normWarn = approxEq(total,1,1e-6)? '' : `<p>⚠ Density integral ≠ 1 (currently ${fmt(total,10)}). Use "Auto-scale" to normalize.</p>`;
+      let EX=0, EX2=0;
+      for(let i=0;i<as.length;i++){ const a1=as[i], b1=bs[i], c=cs[i]; EX += c*( (b1*b1 - a1*a1)/2 ); EX2 += c*( (b1**3 - a1**3)/3 ); }
+      const Var = EX2 - EX*EX;
+      let Pgt=null, Plt=null, Pab=null;
+      const x0v = parseFloat(document.getElementById('rv-x0').value);
+      if(!isNaN(x0v)){
+        Pgt=0; Plt=0;
+        for(let i=0;i<as.length;i++){
+          const a1=as[i], b1=bs[i], c=cs[i];
+          if(x0v < a1) { Pgt += c*(b1-a1); }
+          else if(x0v >= b1){ Plt += c*(b1-a1); }
+          else { Pgt += c*(b1-x0v); Plt += c*(x0v-a1); }
+        }
+      }
+      if(!isNaN(a) && !isNaN(b)){
+        Pab = 0;
+        for(let i=0;i<as.length;i++){
+          const lo=Math.max(as[i],a), hi=Math.min(bs[i],b);
+          if(hi>lo) Pab += cs[i]*(hi-lo);
+        }
+      }
+      out.innerHTML = `
+        ${normWarn}
+        <p class="block">$E[X] = ${fmt(EX,10)}$</p>
+        <p class="block">$E[X^2] = ${fmt(EX2,10)}$</p>
+        <p class="block">$Var[X] = ${fmt(Var,10)}$</p>
+        ${!isNaN(x0v)? `<p class="block">$P[X>${x0v}] = ${fmt(Pgt,10)}$, $P[X<${x0v}] = ${fmt(Plt,10)}$</p>` : ''}
+        ${( !isNaN(a) && !isNaN(b))? `<p class="block">$P[${a} < X < ${b}] = ${fmt(Pab,10)}$</p>` : ''}
+      `;
+    }
+  }
+  if(window.MathJax) MathJax.typesetPromise();
+}
+
+function normalizeRV(){
+  const kind = document.getElementById('rv-kind').value;
+  const out = document.getElementById('rv-output');
+  if(kind==='discrete' && document.getElementById('rv-by').value === 'manual'){
+    const ps = Array.from(document.querySelectorAll('.rv-p')).map(i=>parseFloat(i.value));
+    const sum = ps.reduce((s,v)=>s+v,0);
+    if(sum === 0){ out.innerHTML = '<p>Cannot normalize: total probability is 0</p>'; return; }
+    document.querySelectorAll('.rv-p').forEach((input, i)=>{ input.value = (ps[i]/sum).toString(); });
+    explainRV();
+  } else if(kind==='continuous'){
+    const as = Array.from(document.querySelectorAll('.rv-a')).map(i=>parseFloat(i.value));
+    const bs = Array.from(document.querySelectorAll('.rv-b')).map(i=>parseFloat(i.value));
+    const cs = Array.from(document.querySelectorAll('.rv-c')).map(i=>parseFloat(i.value));
+    let total = 0; for(let i=0;i<as.length;i++){ total += (bs[i]-as[i])*cs[i]; }
+    if(total === 0){ out.innerHTML = '<p>Cannot normalize: integral is 0</p>'; return; }
+    // scale densities
+    document.querySelectorAll('.rv-c').forEach((input, i)=>{ input.value = (cs[i] / total).toString(); });
+    explainRV();
+  } else if(document.getElementById('rv-by').value === 'formula' && document.getElementById('rv-kind').value === 'discrete'){
+    // regenerate and show normalized column already displays normalized values
+    generatePMFbyFormula();
+    explainRV();
+  }
+}
+
+/* ---------------------------
+  8) House advantage & betting UI
+   --------------------------- */
+function houseHTML(){
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">House Advantage & Betting</h2>
+    <p class="mt-2 text-sm opacity-90">Enter bet size, decimal odds or fractional, and win rate to compute expected value, house edge, and loss scenarios.</p>
+    <div class="mt-3 grid gap-3 md:grid-cols-2">
+      <div class="label">Bet amount (stake) <span class="help">?</span></div>
+      <input id="bet-amt" class="input" type="number" min="0" value="10" />
+      <div class="label">Win probability (player) <span class="help">?</span></div>
+      <input id="bet-winrate" class="input" type="number" step="any" min="0" max="1" value="0.5" />
+      <div class="label">Payout odds (decimal) <span class="help">?</span></div>
+      <input id="bet-decimal" class="input" type="number" step="any" min="0" value="2.0" />
+      <div class="label">Optional: number of plays (n)</div>
+      <input id="bet-n" class="input" type="number" min="1" value="100" />
+    </div>
+    <div class="mt-3 flex gap-2">
+      <button id="bet-explain" class="btn btn-primary">Compute House Edge & EV</button>
+      <button id="bet-example" class="btn btn-ghost">Load example</button>
+    </div>
+    <div id="bet-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+function explainBet(){
+  const stake = Number(document.getElementById('bet-amt').value);
+  const p = clamp01(Number(document.getElementById('bet-winrate').value));
+  const decimal = Number(document.getElementById('bet-decimal').value);
+  const n = Math.max(1, Number(document.getElementById('bet-n').value));
+  const out = document.getElementById('bet-output');
+  // Expected payout per win = stake * (decimal - 1) (profit) or total return includes stake.
+  // Expected profit per play = p * (stake*(decimal-1)) - (1-p) * stake
+  const profitPerWin = stake * (decimal - 1);
+  const expectedProfit = p * profitPerWin - (1-p) * stake;
+  const expectedReturn = expectedProfit; // profit relative
+  const houseEdge = -expectedReturn / ( stake * (p*decimal + (1-p)*0) ) || 0; // approximate relative to turnover; alternative measure below
+  // More interpretable: Expected value per stake = expectedProfit / stake
+  const evPerStake = expectedProfit / stake;
+  // Over n plays expected total loss/gain
+  const totalEv = expectedProfit * n;
+  // Probability to lose entire bankroll impossible to calculate w/out bankroll; we show expected loss.
+  out.innerHTML = `
+    <p><strong>Inputs:</strong> stake = ${fmt(stake,6)}, player win rate p = ${fmt(p,6)}, decimal odds = ${fmt(decimal,6)}, plays n = ${n}</p>
+    <p class="block">Payout profit on win = stake * (decimal - 1) = ${fmt(profitPerWin,6)}</p>
+    <p class="block">Expected profit per play = $p \\times$ profit_on_win $-$ (1-p)$\\times$ stake = ${fmt(expectedProfit,8)}</p>
+    <p class="block">Expected return per stake = ${fmt(evPerStake,8)} (i.e., ${(evPerStake*100).toFixed(4)}%)</p>
+    <p class="block">Expected total after ${n} plays (expected profit) = ${fmt(totalEv,8)}</p>
+    <div class="solid-divider"></div>
+    <p><strong>House advantage (intuitive):</strong></p>
+    <p class="muted">If house sets odds so that fair decimal = 1 / p. House edge per stake = (fair_payout - actual_payout)/fair_payout.</p>
+    <p class="block">Fair decimal odds = ${fmt(1/p,6)}</p>
+    <p class="block">House edge (approx) = 1 - (actual decimal / fair decimal) = ${fmt(1 - decimal * p,6)}</p>
+    <p class="muted">Interpretation: positive value here means house expected profit fraction per stake.</p>
+    <div class="solid-divider"></div>
+    <p><strong>How much the house can expect to win (on average) from this bettor):</strong></p>
+    <p class="block">Per play: ${fmt(-expectedProfit,8)} (negative = house profit if player EV negative)</p>
+    <p class="block">Over ${n} plays: ${fmt(-totalEv,8)}</p>
+  `;
+}
+
+/* ---------------------------
+  Bind events for topics & help
+   --------------------------- */
+function bindTopicEvents(topic) {
+  // common help texts
+  attachHelp('#help-k', 'k is the number of favourable outcomes (successes). For example, number of red cards in a deck: 26.');
+  attachHelp('#help-n', 'n is the total number of equally likely outcomes (sample space size).');
+
+  if(topic==='prob'){
+    document.getElementById('prob-explain').onclick = explainProb;
+    document.getElementById('prob-example').onclick = ()=>{ document.getElementById('prob-k').value=13; document.getElementById('prob-n').value=52; explainProb(); };
+  }
+  if(topic==='perm'){
+    attachHelp('#help-pn', 'Total items available to choose from.');
+    attachHelp('#help-pk', 'Number of items chosen.');
+    attachHelp('#help-rep', 'With repetition: elements can repeat. Without: cannot.');
+    attachHelp('#help-type', 'Permutation: order matters. Combination: order doesn’t matter. Arrangements: general counting rules.');
+    attachHelp('#help-sample', 'If you know the total sample space size, enter it to compute probability from count.');
+    document.getElementById('pc-explain').onclick = explainPC;
+    document.getElementById('pc-example').onclick = ()=>{ document.getElementById('pc-n').value=10; document.getElementById('pc-k').value=3; document.getElementById('pc-rep').value='no'; document.getElementById('pc-type').value='perm'; explainPC(); };
+  }
+  if(topic==='atleast'){
+    attachHelp('#help-p', 'Probability of error on each independent trial.');
+    attachHelp('#help-nn', 'Number of independent trials.');
+    document.getElementById('al-explain').onclick = explainAtLeast;
+    document.getElementById('al-example').onclick = ()=>{ document.getElementById('al-p').value = 0.08; document.getElementById('al-n').value=10; explainAtLeast(); };
+  }
+  if(topic==='cond'){
+    attachHelp('#help-joint', 'Joint probability P(A∩B) — chance that both A and B occur.');
+    attachHelp('#help-pb', 'Marginal chance P(B).');
+    attachHelp('#help-pa', 'Marginal chance P(A) — used to test independence: check if P(A∩B) = P(A)P(B).');
+    document.getElementById('cond-explain').onclick = explainCond;
+    document.getElementById('cond-example').onclick = ()=>{ document.getElementById('cond-joint').value=0.06; document.getElementById('cond-b').value=0.2; document.getElementById('cond-a').value=0.3; explainCond(); };
+  }
+  if(topic==='bayes'){
+    attachHelp('#help-pa-bayes', 'Prior probability P(A) of the hypothesis (e.g., disease prevalence).');
+    attachHelp('#help-like', 'P(B|A): probability of evidence B if A is true (sensitivity).');
+    attachHelp('#help-fp', 'P(B|¬A): probability of evidence B if A is false (false positive rate).');
+    attachHelp('#help-pb', 'If unknown, we compute P(B) using the law of total probability.');
+    document.getElementById('bayes-explain').onclick = explainBayes;
+    document.getElementById('bayes-example').onclick = ()=>{ document.getElementById('bayes-pa').value=0.01; document.getElementById('bayes-l').value=0.9; document.getElementById('bayes-fp').value=0.08; explainBayes(); };
+  }
+  if(topic==='sets'){
+    // create initial set rows area
+    const list = document.getElementById('sets-list');
+    list.innerHTML = createSetRow('A') + createSetRow('B');
+    // attach add/remove
+    document.getElementById('add-set').addEventListener('click', ()=>{ list.insertAdjacentHTML('beforeend', createSetRow()); attachRemoveSet(); });
+    document.getElementById('clear-sets').addEventListener('click', ()=>{ list.innerHTML = ''; });
+    attachRemoveSet();
+    document.getElementById('sets-explain').onclick = explainSets;
+    document.getElementById('sets-example').onclick = ()=>{ document.querySelectorAll('.set-input')[0].value='1,2,3'; document.querySelectorAll('.set-input')[1].value='3,4,5'; document.getElementById('set-u').value='1,2,3,4,5'; explainSets(); };
+  }
+  if(topic==='rv'){
+    attachHelp('#help-rv-kind', 'Choose Discrete PMF or Continuous PDF (piecewise constant) for teaching purposes.');
+    attachHelp('#help-pmf-by', 'If "Formula" selected, enter a formula in x (e.g. x/15) and a range x=start..end. The system normalizes automatically.');
+    attachRVHandlers();
+    document.getElementById('rv-explain').onclick = explainRV;
+    document.getElementById('rv-normalize').onclick = normalizeRV;
+    document.getElementById('rv-add-row').onclick = ()=>{ document.querySelector('#rv-table > .grid') || buildRVTable(document.getElementById('rv-kind').value, document.getElementById('rv-by').value); };
+  }
+  if(topic==='house'){
+    document.getElementById('bet-explain').onclick = explainBet;
+    document.getElementById('bet-example').onclick = ()=>{ document.getElementById('bet-amt').value=10; document.getElementById('bet-winrate').value=0.48; document.getElementById('bet-decimal').value=2.0; document.getElementById('bet-n').value=100; explainBet(); };
+  }
+}
+
+/* remove-set helper */
+function attachRemoveSet(){
+  document.querySelectorAll('.remove-set').forEach(btn=>{
+    btn.onclick = (e)=>{
+      const row = e.target.closest('.set-row');
+      row.remove();
     };
   });
 }
 
-/* Formatting helper: render steps as HTML paragraphs (no newline artifacts) */
-function renderStepsContainer(container, steps){
-  container.innerHTML = '';
-  steps.forEach(step => {
-    const div = document.createElement('div');
-    div.className = 'step';
-    // step could be plain text or HTML; we use innerHTML safely because content is generated by us
-    div.innerHTML = step;
-    container.appendChild(div);
-  });
-  if(window.MathJax) MathJax.typesetPromise?.();
-}
-
-/* safe formatting of numbers */
-function fmt(n, dp=8){
-  if(typeof n !== 'number' || !isFinite(n)) return String(n);
-  if(Math.abs(n) < 1e-6 && n !== 0) return n.toExponential(6);
-  if(Number.isInteger(n)) return n.toString();
-  return Number.parseFloat(n).toPrecision(dp);
-}
-
-/* FACTORIAL (safe for moderately small n) */
-function fact(n){
-  n = Math.trunc(n);
-  if(n < 0) return NaN;
-  if(n === 0 || n === 1) return 1;
-  let r = 1;
-  for(let i=2;i<=n;i++) r *= i;
-  return r;
-}
-
-/* BIND events depending on topic */
-function bindTopicEvents(topic){
-  bindHelpInline(); // ensure help buttons work
-
-  if(topic === 'prob'){
-    document.getElementById('prob-explain').onclick = () => {
-      const k = Number(document.getElementById('prob-k').value);
-      const n = Number(document.getElementById('prob-n').value);
-      const out = document.getElementById('prob-output');
-      if(!isFinite(k) || !isFinite(n) || n <= 0 || k < 0){ out.innerHTML = `<div class="step"><p style="color:#ffb4b4">Please enter valid non-negative numbers with n > 0.</p></div>`; return; }
-      const p = k / n;
-      const steps = [];
-      steps.push(`<p><strong>Given</strong>:</p><p>- favourable outcomes: k = ${k}</p><p>- total outcomes: n = ${n}</p>`);
-      steps.push(`<p><strong>Definition</strong>: $P(A)=\\dfrac{\\text{favourable}}{\\text{total}}$</p>`);
-      steps.push(`<p><strong>Substitute</strong>: $P(A)=\\dfrac{${k}}{${n}}$</p>`);
-      steps.push(`<div class="formula">\\[P(A)=\\dfrac{${k}}{${n}} = ${fmt(p,8)}\\]</div><p><em>Interpretation</em>: ${(p*100).toFixed(4)}% chance.</p>`);
-      renderStepsContainer(out, steps);
-    };
-    document.getElementById('prob-clear').onclick = () => { document.getElementById('prob-k').value = 0; document.getElementById('prob-n').value = 1; document.getElementById('prob-output').innerHTML = ''; };
-  }
-
-  if(topic === 'perm'){
-    document.getElementById('pc-explain').onclick = () => {
-      const n = Number(document.getElementById('pc-n').value);
-      const k = Number(document.getElementById('pc-k').value);
-      const out = document.getElementById('pc-output');
-      if(!Number.isFinite(n) || !Number.isFinite(k) || n < 0 || k < 0){ out.innerHTML = `<div class="step"><p style="color:#ffb4b4">Please enter valid non-negative integers.</p></div>`; return; }
-      if(k > n){ out.innerHTML = `<div class="step"><p style="color:#ffb4b4">k cannot be greater than n.</p></div>`; return; }
-      const nf = fact(n), nkf = fact(n-k), kf = fact(k);
-      const perm = nf / nkf;
-      const comb = nf / (kf * nkf);
-      const steps = [];
-      steps.push(`<p><strong>Given</strong>: n = ${n}, k = ${k}</p>`);
-      steps.push(`<p><strong>Permutations (order matters)</strong>: $P(n,k)=\\dfrac{n!}{(n-k)!}$</p>`);
-      steps.push(`<p>Compute factorials: $n! = ${nf}$, $(n-k)! = ${nkf}$</p>`);
-      steps.push(`<div class="formula">\\[P(n,k)=\\dfrac{${nf}}{${nkf}} = ${fmt(perm,12)}\\]</div>`);
-      steps.push(`<p><strong>Combinations (order does NOT matter)</strong>: $C(n,k)=\\dfrac{n!}{k!(n-k)!}$</p>`);
-      steps.push(`<p>Compute k!: ${kf}</p>`);
-      steps.push(`<div class="formula">\\[C(n,k)=\\dfrac{${nf}}{${kf}\\cdot${nkf}} = ${fmt(comb,12)}\\]</div>`);
-      renderStepsContainer(out, steps);
-    };
-    document.getElementById('pc-clear').onclick = () => { document.getElementById('pc-n').value = 0; document.getElementById('pc-k').value = 0; document.getElementById('pc-output').innerHTML = ''; };
-  }
-
-  if(topic === 'bayes'){
-    document.getElementById('bayes-explain').onclick = () => {
-      const pa = Number(document.getElementById('bayes-pa').value);
-      const l = Number(document.getElementById('bayes-l').value);
-      const fp = Number(document.getElementById('bayes-fp').value);
-      const pbInputRaw = document.getElementById('bayes-pb').value;
-      const out = document.getElementById('bayes-output');
-
-      if([pa,l,fp].some(v => !isFinite(v) || v < 0 || v > 1)){ out.innerHTML = `<div class="step"><p style="color:#ffb4b4">Please provide probabilities between 0 and 1 for P(A), P(B|A), and P(B|¬A).</p></div>`; return; }
-
-      const pbInput = (pbInputRaw === '') ? null : Number(pbInputRaw);
-      let pb = (pbInput === null) ? (l * pa + fp * (1 - pa)) : pbInput;
-
-      if(pb === 0){ out.innerHTML = `<div class="step"><p style="color:#ffb4b4">P(B) is zero — posterior undefined (division by zero).</p></div>`; return; }
-
-      const numerator = l * pa;
-      const posterior = numerator / pb;
-
-      const steps = [];
-      steps.push(`<p><strong>Given</strong>:</p><p>- P(A) = ${pa}</p><p>- P(B|A) = ${l}</p><p>- P(B|¬A) = ${fp}</p>`);
-      steps.push(`<p><strong>If you don't provide P(B)</strong>, compute denominator:</p><div class="formula">\\[P(B)=P(B|A)P(A)+P(B|\\neg A)P(\\neg A)\\]</div>`);
-      steps.push(`<p><strong>Compute P(B)</strong>:</p><div class="formula">\\[P(B) = ${l}\\cdot ${pa} + ${fp}\\cdot(1 - ${pa}) = ${fmt(pb,12)}\\]</div>`);
-      steps.push(`<p><strong>Bayes' formula</strong>:</p><div class="formula">\\[P(A|B)=\\dfrac{P(B|A)P(A)}{P(B)}\\]</div>`);
-      steps.push(`<p><strong>Numerator</strong>: $P(B|A)P(A) = ${l} \\times ${pa} = ${fmt(numerator,12)}$</p>`);
-      steps.push(`<p><strong>Posterior</strong>:</p><div class="formula">\\[P(A|B)=\\dfrac{${fmt(numerator,12)}}{${fmt(pb,12)}} = ${fmt(posterior,12)}\\]</div>`);
-      steps.push(`<p><em>Interpretation</em>: ${(posterior*100).toFixed(6)}% probability after observing B.</p>`);
-
-      renderStepsContainer(out, steps);
-    };
-    document.getElementById('bayes-clear').onclick = () => { document.getElementById('bayes-pa').value = 0.01; document.getElementById('bayes-l').value = 0.95; document.getElementById('bayes-fp').value = 0.05; document.getElementById('bayes-pb').value = ''; document.getElementById('bayes-output').innerHTML = ''; };
-  }
-
-  if(topic === 'cond'){
-    document.getElementById('cond-explain').onclick = () => {
-      const joint = Number(document.getElementById('cond-joint').value);
-      const pb = Number(document.getElementById('cond-b').value);
-      const out = document.getElementById('cond-output');
-      if(!isFinite(joint) || !isFinite(pb) || pb <= 0){ out.innerHTML = `<div class="step"><p style="color:#ffb4b4">Please provide valid numbers and ensure P(B) > 0.</p></div>`; return; }
-      const posterior = joint / pb;
-      const steps = [];
-      steps.push(`<p><strong>Given</strong>:</p><p>- P(A \\cap B) = ${joint}</p><p>- P(B) = ${pb}</p>`);
-      steps.push(`<p><strong>Definition</strong>:</p><div class="formula">\\[P(A|B)=\\dfrac{P(A\\cap B)}{P(B)}\\]</div>`);
-      steps.push(`<p><strong>Compute</strong>:</p><div class="formula">\\[P(A|B)=\\dfrac{${joint}}{${pb}} = ${fmt(posterior,12)}\\]</div>`);
-      steps.push(`<p><em>Interpretation</em>: ${(posterior*100).toFixed(6)}%</p>`);
-      renderStepsContainer(out, steps);
-    };
-    document.getElementById('cond-clear').onclick = () => { document.getElementById('cond-joint').value = 0.02; document.getElementById('cond-b').value = 0.1; document.getElementById('cond-output').innerHTML = ''; };
-  }
-}
-
-/* ---------- Example loaders (quick) ---------- */
-document.getElementById('load-bayes-example').addEventListener('click', () => {
-  renderTopic('bayes');
-  setTimeout(()=>{ document.getElementById('bayes-pa').value = 0.01; document.getElementById('bayes-l').value = 0.95; document.getElementById('bayes-fp').value = 0.05; }, 80);
-});
-document.getElementById('load-prob-example').addEventListener('click', () => {
-  renderTopic('prob');
-  setTimeout(()=>{ document.getElementById('prob-k').value = 13; document.getElementById('prob-n').value = 52; }, 80);
-});
-document.getElementById('load-pc-example').addEventListener('click', () => {
-  renderTopic('perm');
-  setTimeout(()=>{ document.getElementById('pc-n').value = 10; document.getElementById('pc-k').value = 3; }, 80);
-});
-document.getElementById('load-cond-example').addEventListener('click', () => {
-  renderTopic('cond');
-  setTimeout(()=>{ document.getElementById('cond-joint').value = 0.02; document.getElementById('cond-b').value = 0.1; }, 80);
-});
-
-/* ---------- Kick off with bayes topic by default ---------- */
+/* Default: load Bayes */
 renderTopic('bayes');
-
-/* ---------- Ensure MathJax initial typeset after small delay ---------- */
-setTimeout(()=>{ if(window.MathJax) MathJax.typesetPromise?.(); document.getElementById('year').textContent = new Date().getFullYear(); }, 400);
 
 </script>
 </body>
