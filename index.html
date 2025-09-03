@@ -59,6 +59,22 @@
     .btn-primary:hover{background:var(--btn1-hover);transform:translateY(-2px)}
     .btn-ghost{background:var(--ghost-bg);color:var(--text);border:1px solid rgba(255,255,255,0.06)}
     .btn-ghost:hover{background:var(--ghost-hover);transform:translateY(-1px)}
+    .btn-black {
+  background: #000000;
+  color: #ffffff;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+  border-radius: 0.6rem;
+  padding: 0.55rem 0.9rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+.btn-black:hover {
+  background: #222222;
+  transform: translateY(-2px);
+}
+
     .input{
       width:100%;padding:.5rem .75rem;border-radius:8px;border:1px solid rgba(255,255,255,0.08);
       background:rgba(255,255,255,0.03);color:var(--text);outline:none;font-size:0.95rem;
@@ -138,6 +154,7 @@
       </div>
     </header>
 
+    
     <main class="grid-main">
       <!-- LEFT: topics -->
       <aside class="glass p-4">
@@ -149,6 +166,8 @@
           <button class="btn btn-primary w-full topic-select" data-topic="perm">2 — Permutations & Combinations</button>
           <button class="btn btn-primary w-full topic-select" data-topic="bayes">3 — Bayes' Theorem</button>
           <button class="btn btn-primary w-full topic-select" data-topic="cond">4 — Conditional Probability</button>
+          
+
         </div>
 
         <div class="mt-5">
@@ -158,6 +177,7 @@
             <button class="btn btn-ghost w-full" id="load-prob-example">Load Probability example</button>
             <button class="btn btn-ghost w-full" id="load-pc-example">Load Perm/Comb example</button>
             <button class="btn btn-ghost w-full" id="load-cond-example">Load Conditional example</button>
+            <button class="btn btn-black w-full mt-4" onclick="location.href='exam.html'">Practice STA1000 Questions</button>
           </div>
         </div>
       </aside>
