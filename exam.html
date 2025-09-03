@@ -1,265 +1,50 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Exam Tutor — STA1000 Practice</title>
-
-  <!-- Tailwind CDN (light usage) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- MathJax -->
-  <script>
-    window.MathJax = { tex: { inlineMath: [['$','$'], ['\\(','\\)']] }, svg: { fontCache: 'global' } };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-
-  <style>
-    :root{
-      --bg1:#2a0000;--bg2:#660000;--bg3:#b30000;--text:#ffeaea;
-      --card: rgba(255,255,255,0.03);
-      --btn: linear-gradient(90deg,#7f1d1d,#b91c1c);
-      --btn-hover: linear-gradient(90deg,#991b1b,#dc2626);
-    }
-    html,body{height:100%}
-    body{
-      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      margin:0;padding:0;background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));color:var(--text);
-    }
-    .container{max-width:1100px;margin:0 auto;padding:1.25rem}
-    .glass{background:var(--card);backdrop-filter:blur(6px);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:1rem}
-    .btn{display:inline-flex;align-items:center;justify-content:center;padding:.6rem .9rem;border-radius:.6rem;font-weight:700;border:none;cursor:pointer}
-    .btn-primary{background:var(--btn);color:white}
-    .btn-primary:hover{background:var(--btn-hover)}
-    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.08);color:var(--text)}
-    .question-list{max-height:60vh;overflow:auto;padding-right:.5rem}
-    .q-item{padding:.5rem;border-radius:.5rem;cursor:pointer}
-    .q-item:hover{background:rgba(255,255,255,0.02)}
-    .option{display:block;padding:.6rem;border-radius:.5rem;margin-bottom:.45rem;border:1px solid rgba(255,255,255,0.06);cursor:pointer}
-    .option.selected{outline:2px solid rgba(255,255,255,0.12)}
-    .option.correct{background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.25)}
-    .option.wrong{background:rgba(255,99,99,0.07);border-color:rgba(255,99,99,0.25)}
-    .steps{margin-top:.75rem;padding:.85rem;border-radius:8px;background:rgba(0,0,0,0.12);font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}
-    .help{font-size:.92rem;opacity:.9}
-    .theme-select{padding:.45rem .7rem;border-radius:.5rem}
-    /* responsive */
-    @media(max-width:900px){ .layout{display:block} .left,.right{width:100%;} }
-    @media(min-width:900px){ .layout{display:grid;grid-template-columns:320px 1fr;gap:1rem} .question-list{max-height:72vh} }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Practice Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- MathJax for formula rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 </head>
 <body>
-  <div class="container">
-    <header class="flex items-center justify-between mb-4">
-      <div>
-        <h1 class="text-2xl font-extrabold">Exam Tutor — STA1000 Practice</h1>
-        <div class="help">Practice MCQs and view step-by-step worked solutions. Built by Moegamat Samsodien</div>
-      </div>
-      <div class="flex items-center gap-3">
-        <label class="help">Theme</label>
-        <select id="themeDropdown" class="theme-select">
-          <option value="bloodred">Blood Red</option>
-          <option value="spiderman">Spiderman</option>
-          <option value="red-blue">Red & Blue</option>
-          <option value="purple-black">Purple & Black</option>
-          <option value="sapphire-steel">Sapphire & Steel</option>
-          <option value="emerald-charcoal">Emerald & Charcoal</option>
-          <option value="cyberpunk-glow">Cyberpunk Glow</option>
-          <option value="plum-gold">Plum & Gold</option>
-          <option value="monochrome-focus">Monochrome Focus</option>
-        </select>
-        <a href="index.html" class="btn btn-ghost" style="text-decoration:none;color:inherit">← Back to Calculator</a>
-      </div>
+    <header>
+        <h1>Statistics Practice Portal</h1>
+        <a href="index.html" class="back-button">← Back to Stats Calculator</a>
     </header>
 
-    <main class="layout">
-      <aside class="left glass">
-        <h3 class="mb-2">Questions</h3>
-        <div class="question-list" id="questionList"></div>
-        <div class="mt-3">
-          <button id="randomBtn" class="btn btn-primary mr-2">Pick Random</button>
-          <button id="resetSel" class="btn btn-ghost">Reset</button>
-        </div>
-      </aside>
+    <main>
+        <section id="mode-selection">
+            <button id="practice-mode-btn">Practice by Topic</button>
+            <button id="test-mode-btn">Start Timed Test</button>
+        </section>
 
-      <section class="right glass">
-        <div id="questionArea">
-          <h2 id="qTitle">Select a question to begin</h2>
-          <div id="qText" class="mt-2"></div>
+        <!-- Practice Mode Area -->
+        <section id="practice-area" style="display:none;">
+            <label for="topic-select">Select Topic:</label>
+            <select id="topic-select"></select>
+            <div id="practice-question-container"></div>
+            <button id="check-practice-answer-btn">Submit Answer</button>
+        </section>
 
-          <div id="optionsArea" class="mt-4"></div>
+        <!-- Test Mode Area -->
+        <section id="test-area" style="display:none;">
+            <div id="test-timer">Time Remaining: <span id="timer">25:00</span></div>
+            <div id="test-question-container"></div>
+            <button id="next-question-btn">Next Question</button>
+            <button id="submit-test-btn">Submit Test</button>
+        </section>
 
-          <div class="mt-4 flex gap-2">
-            <button id="checkBtn" class="btn btn-primary">Check Answer</button>
-            <button id="explainBtn" class="btn btn-ghost">Explain</button>
-            <button id="showAnsBtn" class="btn btn-ghost">Show Answer</button>
-          </div>
-
-          <div id="explanation" class="steps mt-4" style="display:none"></div>
-        </div>
-      </section>
+        <!-- Results Section -->
+        <section id="results-area" style="display:none;">
+            <h2>Test Results</h2>
+            <div id="score-summary"></div>
+            <div id="review-container"></div>
+            <button id="restart-btn">Return to Mode Selection</button>
+        </section>
     </main>
-  </div>
 
-<script>
-/* ---------- Theme system (same palettes as main app) ---------- */
-const themes = {
-  'bloodred': {bg:['#2a0000','#660000','#b30000'],text:'#ffeaea', btn:'linear-gradient(90deg,#7f1d1d,#b91c1c)', btnHover:'linear-gradient(90deg,#991b1b,#dc2626)'},
-  'spiderman': {bg:['#0b172a','#d62828','#e63946'],text:'#ffffff', btn:'linear-gradient(90deg,#d62828,#e63946)', btnHover:'linear-gradient(90deg,#ff3b3b,#ff6b6b)'},
-  'red-blue': {bg:['#2b2d42','#ef233c','#3a86ff'],text:'#ffffff', btn:'linear-gradient(90deg,#ef233c,#3a86ff)', btnHover:''},
-  'purple-black': {bg:['#0f0b1d','#3b0d54','#12002b'],text:'#fff', btn:'linear-gradient(90deg,#3b0d54,#7928ca)'},
-  'sapphire-steel': {bg:['#13293d','#006494','#247ba0'],text:'#fff', btn:'linear-gradient(90deg,#006494,#247ba0)'},
-  'emerald-charcoal': {bg:['#004d40','#1c313a','#2e7d32'],text:'#fff', btn:'linear-gradient(90deg,#005b4f,#2e7d32)'},
-  'cyberpunk-glow': {bg:['#0f0b1d','#ff0080','#7928ca'],text:'#fff', btn:'linear-gradient(90deg,#ff0080,#7928ca)'},
-  'plum-gold': {bg:['#4b006e','#b07bac','#ffd700'],text:'#fff', btn:'linear-gradient(90deg,#4b006e,#ffd700)'},
-  'monochrome-focus': {bg:['#111111','#333333','#555555'],text:'#fff', btn:'linear-gradient(90deg,#444,#222)'}
-};
-const themeDropdown = document.getElementById('themeDropdown');
-function applyTheme(name){
-  const t = themes[name] || themes['bloodred'];
-  document.documentElement.style.setProperty('--bg1', t.bg[0]);
-  document.documentElement.style.setProperty('--bg2', t.bg[1]);
-  document.documentElement.style.setProperty('--bg3', t.bg[2]);
-  document.documentElement.style.setProperty('--btn', t.btn);
-  document.documentElement.style.setProperty('--btn-hover', t.btnHover || t.btn);
-  localStorage.setItem('examTheme', name);
-}
-themeDropdown.value = localStorage.getItem('examTheme') || 'bloodred';
-applyTheme(themeDropdown.value);
-themeDropdown.addEventListener('change', ()=> applyTheme(themeDropdown.value));
-
-/* ---------- Questions loader ---------- */
-/* Primary method: fetch questions.json from same folder.
-   Fallback: look for inline embedded JSON (not included here). */
-let QUESTIONS = [];
-async function loadQuestions(){
-  try {
-    const res = await fetch('questions.json');
-    if(!res.ok) throw new Error('fetch failed');
-    QUESTIONS = await res.json();
-    initQuestionList();
-  } catch (err){
-    console.error('Could not load questions.json:', err);
-    // if fallback needed, empty list -> show message
-    document.getElementById('questionList').innerHTML = '<div class="muted">Could not load questions.json. Make sure the file is in the same folder as exam.html.</div>';
-  }
-}
-
-/* ---------- UI rendering ---------- */
-const qListEl = document.getElementById('questionList');
-const qTitle = document.getElementById('qTitle');
-const qText = document.getElementById('qText');
-const optionsArea = document.getElementById('optionsArea');
-const explanationEl = document.getElementById('explanation');
-let currentIndex = null;
-let selectedOption = null;
-
-function initQuestionList(){
-  qListEl.innerHTML = '';
-  QUESTIONS.forEach((q, i) => {
-    const item = document.createElement('div');
-    item.className = 'q-item';
-    item.innerHTML = `<strong>Q${q.id}</strong> — ${q.topic || q.type || ''}`;
-    item.onclick = () => selectQuestion(i);
-    qListEl.appendChild(item);
-  });
-  // auto-select first
-  if(QUESTIONS.length>0) selectQuestion(0);
-}
-
-function selectQuestion(idx){
-  currentIndex = idx;
-  selectedOption = null;
-  const q = QUESTIONS[idx];
-  qTitle.innerText = `Question ${q.id}`;
-  // Render question text as HTML (supports LaTeX inside $...$)
-  qText.innerHTML = q.question_html || ('<div>'+escapeHtml(q.question)+'</div>');
-  // options
-  optionsArea.innerHTML = '';
-  q.options.forEach((opt, j) => {
-    const o = document.createElement('div');
-    o.className = 'option';
-    o.dataset.idx = j;
-    o.innerHTML = `<strong>${String.fromCharCode(65+j)}.</strong> <span class="ml-2">${opt}</span>`;
-    o.onclick = () => {
-      // unselect others
-      optionsArea.querySelectorAll('.option').forEach(n => n.classList.remove('selected'));
-      o.classList.add('selected');
-      selectedOption = j;
-    };
-    optionsArea.appendChild(o);
-  });
-  explanationEl.style.display = 'none';
-  explanationEl.innerHTML = '';
-  if(window.MathJax) MathJax.typesetPromise();
-}
-
-document.getElementById('checkBtn').addEventListener('click', ()=>{
-  if(currentIndex === null) return alert('Select a question.');
-  if(selectedOption === null) return alert('Choose an option A–E first.');
-  const q = QUESTIONS[currentIndex];
-  const chosen = selectedOption;
-  const correct = q.answer;
-  // mark options
-  optionsArea.querySelectorAll('.option').forEach((el, i) => {
-    el.classList.remove('correct','wrong');
-    if(i === correct) el.classList.add('correct');
-    if(i === chosen && i !== correct) el.classList.add('wrong');
-  });
-  // show brief result
-  if(chosen === correct){
-    explanationEl.style.display = 'block';
-    explanationEl.innerHTML = `<p><strong>Correct ✅</strong> — ${String.fromCharCode(65+correct)} is right.</p><hr>`;
-    explanationEl.innerHTML += (q.explanation_html || '<p>'+escapeHtml(q.explanation||'')+'</p>');
-  } else {
-    explanationEl.style.display = 'block';
-    explanationEl.innerHTML = `<p><strong>Incorrect ❌</strong> — correct answer: <strong>${String.fromCharCode(65+correct)}</strong>.</p><hr>`;
-    explanationEl.innerHTML += (q.explanation_html || '<p>'+escapeHtml(q.explanation||'')+'</p>');
-  }
-  if(window.MathJax) MathJax.typesetPromise();
-});
-
-document.getElementById('explainBtn').addEventListener('click', ()=>{
-  if(currentIndex === null) return alert('Select a question.');
-  const q = QUESTIONS[currentIndex];
-  explanationEl.style.display = 'block';
-  explanationEl.innerHTML = q.explanation_html || ('<p>'+escapeHtml(q.explanation||'')+'</p>');
-  // highlight correct option
-  optionsArea.querySelectorAll('.option').forEach((el, i) => {
-    el.classList.remove('correct','wrong');
-    if(i === q.answer) el.classList.add('correct');
-  });
-  if(window.MathJax) MathJax.typesetPromise();
-});
-
-document.getElementById('showAnsBtn').addEventListener('click', ()=>{
-  if(currentIndex === null) return alert('Select a question.');
-  const q = QUESTIONS[currentIndex];
-  optionsArea.querySelectorAll('.option').forEach((el, i) => {
-    el.classList.remove('correct','wrong');
-    if(i === q.answer) el.classList.add('correct');
-  });
-  explanationEl.style.display = 'block';
-  explanationEl.innerHTML = `<p>Correct answer: <strong>${String.fromCharCode(65+q.answer)}</strong>.</p><hr>` + (q.explanation_html || '<p>'+escapeHtml(q.explanation||'')+'</p>');
-  if(window.MathJax) MathJax.typesetPromise();
-});
-
-document.getElementById('randomBtn').addEventListener('click', ()=>{
-  if(QUESTIONS.length===0) return;
-  const idx = Math.floor(Math.random()*QUESTIONS.length);
-  selectQuestion(idx);
-});
-document.getElementById('resetSel').addEventListener('click', ()=>{
-  selectedOption = null;
-  optionsArea.querySelectorAll('.option').forEach(n => n.classList.remove('selected','correct','wrong'));
-  explanationEl.style.display = 'none';
-  explanationEl.innerHTML = '';
-});
-
-/* small helper */
-function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
-
-/* kick off */
-loadQuestions();
-</script>
+    <script src="exam_script.js"></script>
 </body>
 </html>

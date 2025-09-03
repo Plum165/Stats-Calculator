@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "topic": "Conditional Probability",
+    "question_html": "Consider a fair 9-sided die with numbers 0-8. You bet R2 on an even number. What is the fair payout for a win?",
+    "correct_answer": "4.5",
+    "solution_html": "<h6>Step-by-Step Solution:</h6><p>Total outcomes ignoring 0: 8. Bet amount = 2. Fair payout x satisfies: 4*(x-2)+5*(0-2)=0 => x=4.5</p>"
+  },
+  {
+    "id": 2,
+    "topic": "Combinatorics",
+    "question_html": "Group of 8 accountants and 5 programmers. Committee of 5 with ≥2 programmers and ≥2 accountants. How many ways?",
+    "correct_answer": "840",
+    "solution_html": "<p>Cases: 2P3A + 3P2A = C(5,2)*C(8,3)+C(5,3)*C(8,2)=840</p>"
+  },
+  {
+    "id": 3,
+    "topic": "Probability",
+    "question_html": "33 candidates for 3-member committee. Probability Simone, Pamela, Rishay are selected?",
+    "correct_answer": "0.000183",
+    "solution_html": "<p>P = 1 / C(33,3) ≈ 0.000183</p>"
+  }
+
+]

@@ -1,202 +1,41 @@
 [
   {
-    "id": 5,
-    "topic": "Trays / Uniform probability",
-    "question": "Suppose assignments are submitted in one of 26 trays according to the first letter of students' surnames. Markers randomly select trays for marking. What is the probability that a marker starts marking the 'A' tray?",
-    "options": ["5/26", "1/2", "1/26", "6/20", "1/5"],
-    "answer": 2,
-    "explanation": "There are 26 trays (A to Z). If selection is random, each tray is equally likely. Probability of selecting A = 1/26 = option C.",
-    "explanation_html": "<p>There are 26 equally likely trays. So</p><div class=\"formula\">\\[P(\\text{A})=\\frac{1}{26}\\]</div><p>Therefore option <strong>C</strong> is correct.</p>"
-  },
-  {
-    "id": 6,
-    "topic": "Combinatorics",
-    "question": "How many different batches of marking are there if 2 examiners each choose 13 trays to mark?",
-    "options": ["${26 \\choose 2}", "${26 \\choose 13}", "${13 \\choose 2}", "${26 \\choose 13} (ordered?)", "${2 \\choose 13}"],
-    "answer": 1,
-    "explanation": "Two examiners choose disjoint sets of 13 trays each. Number of ways to choose which 13 trays go to examiner 1 (and the rest to examiner 2) is C(26,13). If examiners are indistinguishable then divide by 2 but typical interpretation (examiners distinct) gives C(26,13).",
-    "explanation_html": "<p>Assuming examiners are distinct, choose 13 trays for examiner A: \\( {26 \\choose 13} \\). The remaining 13 go to examiner B. So option <strong>B</strong> is correct.</p>"
-  },
-  {
-    "id": 7,
-    "topic": "Combinations",
-    "question": "From 6 men and 5 women, choose 5 people such that at least 2 women and at least 2 men are on the committee. How many ways?",
-    "options": ["350", "25", "150", "180", "151"],
-    "answer": 0,
-    "explanation": "Possible gender splits meeting criteria: (2 women,3 men) or (3 women,2 men). Count: C(5,2)*C(6,3) + C(5,3)*C(6,2) = (10*20) + (10*15) = 200+150=350.",
-    "explanation_html": "<p>Count two allowed cases:</p><div class=\"formula\">\\[\\binom{5}{2}\\binom{6}{3}+\\binom{5}{3}\\binom{6}{2}=10\\cdot20+10\\cdot15=350\\]</div><p>So <strong>A (350)</strong> is correct.</p>"
-  },
-  {
-    "id": 8,
-    "topic": "Probability / Law of total probability",
-    "question": "A mouse picks a door at random between d1 and d2. Traps at d1 and d2 catch the mouse with probabilities 0.3 and 0.2 respectively. What is the probability the mouse is trapped?",
-    "options": ["0.300", "0.500", "0.200", "0.750", "0.250"],
-    "answer": 4,
-    "explanation": "Mouse picks each door with probability 1/2. Total trapped probability = 0.5*0.3 + 0.5*0.2 = 0.15 + 0.10 = 0.25.",
-    "explanation_html": "<div class=\"formula\">\\[P(\\text{trapped})=\\tfrac12\\cdot0.3+\\tfrac12\\cdot0.2=0.25\\]</div><p>So option <strong>E</strong> (0.250) is correct.</p>"
-  },
-  {
-    "id": 9,
-    "topic": "Conditional probability / Bayes",
-    "question": "Given the mouse escapes, what is the probability that he chose door d2 to escape? (Use same trap probs: 0.3 at d1, 0.2 at d2; choice uniform.)",
-    "options": ["0.800", "0.533", "0.200", "0.175", "0.021"],
-    "answer": 1,
-    "explanation": "We want P(chose d2 | escaped) = P(escaped | d2)P(d2)/P(escaped). P(escaped|d1)=0.7, P(escaped|d2)=0.8. P(escaped) = 0.5*0.7 + 0.5*0.8 = 0.75. So posterior = (0.8*0.5)/0.75 = 0.4/0.75 = 8/15 ≈ 0.5333.",
-    "explanation_html": "<p>Compute denominator:</p><div class=\"formula\">\\[P(escape)=\\tfrac12(0.7)+\\tfrac12(0.8)=0.75.\\]</div><p>Thus</p><div class=\"formula\">\\[P(d2|escape)=\\frac{0.8\\cdot0.5}{0.75}=\\frac{0.4}{0.75}=\\frac{8}{15}\\approx0.5333.\\]</div><p>So option <strong>B</strong>.</p>"
-  },
-  {
-    "id": 10,
-    "topic": "Contingency table",
-    "question": "From a sample of 400, table: Attacked / Vaccinated: 60; Attacked / Not vaccinated: 85; Not attacked / Vaccinated: 190; Not attacked / Not vaccinated: 65. If a person is picked at random, what's the probability the person was attacked by influenza?",
-    "options": ["12/29","17/30","19/25","29/80","6/25"],
-    "answer": 3,
-    "explanation": "Total attacked = 60 + 85 = 145. Total sample = 400. Probability = 145/400 = 29/80 ≈ 0.3625. So option D.",
-    "explanation_html": "<div class=\"formula\">\\[P(\\text{attacked})=\\frac{60+85}{400}=\\frac{145}{400}=\\frac{29}{80}.\\]</div><p>So option <strong>D</strong>.</p>"
-  },
-  {
-    "id": 11,
-    "topic": "Conditional probability / contingency",
-    "question": "Using the same table, what is the probability that the person was attacked given that the person was vaccinated?",
-    "options": ["12/29","17/30","19/25","29/80","6/25"],
-    "answer": 4,
-    "explanation": "Given vaccinated: total vaccinated = 60 + 190 = 250. Attacked & vaccinated = 60. So P(attacked | vaccinated) = 60/250 = 6/25 = 0.24. Option E.",
-    "explanation_html": "<div class=\"formula\">\\[P(\\text{attacked}\\mid\\text{vaccinated})=\\frac{60}{250}=\\frac{6}{25}.\\]</div><p>So option <strong>E</strong>.</p>"
-  },
-  {
-    "id": 12,
-    "topic": "Independence",
-    "question": "Is being attacked by influenza independent of being vaccinated? (Based on previous table)",
-    "options": ["No, because P(random) != P(given vaccinated)","No, because counts differ","Yes, random sample","Yes, both can be attacked","No, fewer vaccinated attacked than not vaccinated"],
-    "answer": 0,
-    "explanation": "Independence requires P(attacked)=P(attacked | vaccinated). We found P(attacked)=145/400=0.3625 and P(attacked | vaccinated)=60/250=0.24. They are not equal, so not independent. Option A is correct.",
-    "explanation_html": "<p>P(attacked)=29/80≈0.3625 while P(attacked|vaccinated)=6/25=0.24. Because these are unequal, the events are not independent.</p><p>So <strong>A</strong>.</p>"
-  },
-  {
-    "id": 13,
-    "topic": "Independent events / product",
-    "question": "Tom flies CT→JNB (SAA) then JNB→LON (BA). P(SAA smooth)=0.95, P(BA smooth)=0.98. What is P(smooth in JNB AND bumpy in LON)?",
-    "options": ["0.020","0.970","0.019","0.049","0.068"],
-    "answer": 2,
-    "explanation": "We want P(SAA smooth AND BA bumpy) = 0.95 * (1 - 0.98) = 0.95 * 0.02 = 0.019. So option C.",
-    "explanation_html": "<div class=\"formula\">\\[0.95\\times(1-0.98)=0.95\\times0.02=0.019.\\]</div><p>Option <strong>C</strong>.</p>"
-  },
-  {
-    "id": 14,
-    "topic": "Independent events (product rule)",
-    "question": "Pick a digit from 1..9, roll fair die, toss biased coin (P(tails)=0.7). Find P(number>7, die multiple of 3, coin = head).",
-    "options": ["1/45","0","7/270","31/45","1/60"],
-    "answer": 0,
-    "explanation": "Probability number>7: digits are {8,9} => 2/9. Die multiple of 3: {3,6} => 2/6 = 1/3. Coin head probability = 0.3. Multiply: (2/9)*(1/3)*0.3 = (2/9)*(1/3)*(3/10)= (2/9)*(1/10)=2/90=1/45.",
-    "explanation_html": "<div class=\"formula\">\\[\\frac{2}{9}\\times\\frac{1}{3}\\times0.3=\\frac{1}{45}.\\]</div><p>Option <strong>A</strong>.</p>"
-  },
-  {
-    "id": 15,
-    "topic": "Conditional probabilities / sequences",
-    "question": "P(pass midterm)=0.6. Given fail midterm, P(pass final) = 0.8. What is P(fail both midterm and final)?",
-    "options": ["0.08","0.20","0.12","0.32","0.80"],
-    "answer": 0,
-    "explanation": "P(fail midterm)=1-0.6=0.4. Given that, probability fail final = 1 - 0.8 = 0.2. So P(fail both) = 0.4*0.2 = 0.08. Option A.",
-    "explanation_html": "<div class=\"formula\">\\[P(\\text{fail both})=(1-0.6)\\times(1-0.8)=0.4\\times0.2=0.08.\\]</div>"
-  },
-  {
-    "id": 16,
-    "topic": "Quartiles / interpretation",
-    "question": "Summary stats: Min=10, Q1=55, Median=66, Q3=78, Max=93. Which ONE is FALSE?",
-    "options": ["About 1/4 ≤ 55","About 3/4 ≤ 75%","About 50% between 55 and 78","Reflects relative performance","Half at or above median"],
-    "answer": 1,
-    "explanation": "Statement B refers to '75%' but Q3=78 means 75% of data are ≤ Q3=78 (not 75). The phrase '75% or less' vs '75%' is ambiguous; the key incorrect option is B (as listed). Option B is false per the original key.",
-    "explanation_html": "<p>Q3 = 78 so about 75% of the data are ≤ 78, not '75% or less' (ambiguous). The official key marks <strong>B</strong> as false.</p>"
-  },
-  {
-    "id": 17,
-    "topic": "Effect of corrections on mean/median",
-    "question": "Sample of 99 has mean 24 and median 24.5. One observation recorded 30 should be 3. After correction, what happens?",
-    "options": ["Mean same, median increased","Mean & median same","Median same, mean increased","Mean & median both increased","We don't know; variance increased"],
-    "answer": 2,
-    "explanation": "Changing 30 to 3 reduces the sum by 27, so mean decreases (not increases). The median likely unchanged because it's middle value for odd n (99) unless the corrected observation crosses the median position — but replacing a large value with a small one could change the median? For typical solution the official key indicated C; here keep official key: 'median remains same, mean is increased' — note this is from provided key. (Follow STA1000 answer key.)",
-    "explanation_html": "<p>Official answer key lists <strong>C</strong>. (In practice check dataset positions; here we rely on supplied key.)</p>"
-  },
-  {
-    "id": 18,
-    "topic": "Coefficient of variation",
-    "question": "Monthly earnings: Group A mean/SD vs Group B. Which ONE is correct? (Answer: X is relatively less variable if coefficient of variation smaller.)",
-    "options": ["X less variable because SD larger","X relatively less variable because CV smaller","X less variable because SD per tutor smaller","X relatively more variable because mean larger","X and Y equally variable"],
-    "answer": 1,
-    "explanation": "Use coefficient of variation (CV = SD/mean) to compare relative variability. Option B states X is relatively less variable because CV smaller — correct.",
-    "explanation_html": "<p>Compare CVs. If CV_X &lt; CV_Y then X is relatively less variable. So <strong>B</strong>.</p>"
-  },
-  {
-    "id": 19,
-    "topic": "Graphical displays / skewness",
-    "question": "Rainfall frequency over 35 years across bins: which statements are correct: I (data quantitative), II (data qualitative), III (counts listed), IV histogram appropriate, V bar graph appropriate, 'histogram skewed left' etc. (Official selection D).",
-    "options": ["I and IV","II and V","II and III","I, III and V","I and III"],
-    "answer": 3,
-    "explanation": "Rainfall is quantitative → I true. A histogram is appropriate → IV true. 'A histogram skewed to the left' was also listed as true per key, and V (bar graph) may also be true for categorical data but the key marked D (I, III and V). Use official key D.",
-    "explanation_html": "<p>Official key: <strong>D (I, III and V)</strong>.</p>"
-  },
-  {
-    "id": 20,
-    "topic": "Measures / median vs mean",
-    "question": "Which ONE is NOT true? (options include 'median always greater than mean' etc.)",
-    "options": ["In symmetric distribution mean=median","In symmetric distribution median halfway between Q1 & Q3","Median always greater than mean","Range is max-min","Mean not necessarily commonly occurring"],
-    "answer": 2,
-    "explanation": "Statement C ('The median is always greater than the mean') is false in general. So option C is correct choice for 'NOT true'.",
-    "explanation_html": "<p>Median is not always greater than the mean; depends on skew. So <strong>C</strong> is NOT true.</p>"
-  },
-  {
-    "id": 21,
-    "topic": "Skewed distribution — measure of center",
-    "question": "Histogram of days missed (skewed) — which measure of center to use?",
-    "options": ["Mean","Std dev","IQR","Quartile 1","Median"],
-    "answer": 4,
-    "explanation": "For skewed distributions median is preferred as the measure of center because it is robust to outliers. So option E is correct.",
-    "explanation_html": "<p>When distribution is skewed, median is robust and preferred. So <strong>E</strong>.</p>"
-  },
-  {
-    "id": 22,
-    "topic": "Boxplot & histogram match",
-    "question": "Which boxplot matches the histogram? (official key: C)",
-    "options": ["Plot a","Plot b","Plot c","Plot d","None of the above"],
-    "answer": 2,
-    "explanation": "Official key indicates Plot C corresponds to the histogram. Select option C.",
-    "explanation_html": "<p>Official key: <strong>C</strong>.</p>"
-  },
-  {
-    "id": 23,
-    "topic": "House advantage / expected value",
-    "question": "Game: fair 9-sided die (0..8). Bet R1 on a single number. Pays R8 for a winning R1 bet (i.e., net win R8?). What's % house advantage (nearest percent)?",
-    "options": ["0%","9%","10%","11%","12%"],
-    "answer": 3,
-    "explanation": "Probability win = 1/9. P(lose)=8/9. Expected payout to player per R1 bet: EV = (1/9)*(+8) + (8/9)*(-1) = 8/9 - 8/9 = 0. Wait careful: if bet R1 and you receive R8 (this may mean total back R8 or profit R8). Official key gives 11% as house advantage, so accept option D per provided key.",
-    "explanation_html": "<p>Using the official question key, the house advantage is listed as <strong>11%</strong> (option D).</p>"
-  },
-  {
-    "id": 24,
-    "topic": "House advantage / even bets",
-    "question": "Same 9-sided game: bet on 'even' (excluding 0). Pays R2 for a winning R1 bet. % house advantage?",
-    "options": ["0%","9%","10%","11%","12%"],
-    "answer": 3,
-    "explanation": "Official key marks D (11%) as the house advantage for even bets; we include that answer as provided.",
-    "explanation_html": "<p>Official key: <strong>D (11%)</strong>.</p>"
-  },
-  {
-    "id": 25,
-    "topic": "Expected loss over repeated plays",
-    "question": "Player bets R1 on each of the 9 numbers and repeats strategy 100 times. How much will player lose?",
-    "options": ["We cannot say","R90","R100","R110","R120"],
-    "answer": 2,
-    "explanation": "If house edge per round is known as (officially) 1% loss per R1 bet (per key), for 9 bets the expected loss per play is 9 * (house edge). Official key indicates option C (R100) is correct — accept the provided key.",
-    "explanation_html": "<p>Official key: <strong>C (R100)</strong>.</p>"
-  },
-
-  {
     "id": 1,
-    "topic": "Example / misc",
-    "question": "Sample question (example): placeholder to show indexing — ignore.",
+    "topic": "Basics",
+    "question": "What is the letter in the top right hand corner of your question sheet?",
     "options": ["A","B","C","D","E"],
     "answer": 0,
-    "explanation": "This is a placeholder example question."
+    "explanation_html": "<p>The question specifically asks for the top right corner letter, which is 'A'.</p>"
+  },
+  {
+    "id": 2,
+    "topic": "Probability",
+    "question": "A lecturer sets both a mid-term and a final exam. Probability to pass mid-term is 0.6. Probability to pass final given fail mid-term is 0.8. Probability that a student fails both exams?",
+    "options": ["0.08","0.20","0.12","0.32","0.80"],
+    "answer": 0,
+    "explanation_html": "<p>Fail both = P(fail mid-term) * P(fail final|fail mid-term) = (0.4)*(0.2)=0.08</p>"
+  },
+  {
+    "id": 3,
+    "topic": "Descriptive Statistics",
+    "question": "A sample of 99 distances has mean 24 and median 24.5. Corrected observation from 30 to 3. What happens to mean and median?",
+    "options": [
+      "Mean remains, median increased",
+      "Mean and median remain",
+      "Median remains, mean increased",
+      "Mean and median increased",
+      "Cannot tell"
+    ],
+    "answer": 2,
+    "explanation_html": "<p>Replacing 30 with 3 reduces the mean but median remains ~24.5.</p>"
+  },
+  {
+    "id": 4,
+    "topic": "Combinatorics",
+    "question": "From 6 men and 5 women, select 5 people with at least 2 women and 2 men. How many ways?",
+    "options": ["350","25","150","180","151"],
+    "answer": 0,
+    "explanation_html": "<p>Use combinations: 2W3M + 3W2M = C(5,2)*C(6,3)+C(5,3)*C(6,2)=350</p>"
   }
-
-
+  
 ]
