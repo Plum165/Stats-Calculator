@@ -1,265 +1,345 @@
-let questions = [];
-let complexQuestions = [];
-let currentQuestionIndex = 0;
-let userAnswers = [];
-let score = 0;
-let timerInterval;
-let testQuestions = [];
-let testDuration = 25 * 60; // 25 minutes in seconds
+document.addEventListener('DOMContentLoaded', () => {
+    // --- STATE MANAGEMENT ---
+    let ALL_MCQ = [];
+    let ALL_CALC = [];
+    let currentMcqIndex = null;
+    let selectedMcqOption = null;
+    let currentCalcIndex = 0;
+    
+    // Test State
+    let testQuestions = [];
+    let currentTestIndex = 0;
+    let userTestAnswers = [];
+    let timerInterval = null;
 
-document.addEventListener("DOMContentLoaded", async () => {
-    await loadQuestions();
-    populateTopics();
-    initTheme();
-
-    document.getElementById("practiceModeBtn").onclick = () => {
-        document.getElementById("modeSelection").style.display = "none";
-        document.getElementById("topicSelection").style.display = "block";
+    // --- DOM ELEMENTS ---
+    const themeDropdown = document.getElementById('themeDropdown');
+    const tabs = {
+        mcq: document.getElementById('tabMCQ'),
+        calc: document.getElementById('tabCalc'),
+        test: document.getElementById('tabTest')
+    };
+    const sections = {
+        mcq: document.getElementById('mcqSection'),
+        calc: document.getElementById('calcSection'),
+        test: document.getElementById('testSection')
     };
 
-    document.getElementById("complexModeBtn").onclick = () => {
-        startComplexPractice();
+    // MCQ Elements
+    const qListEl = document.getElementById('questionList');
+    const qTitle = document.getElementById('qTitle');
+    const qText = document.getElementById('qText');
+    const optionsArea = document.getElementById('optionsArea');
+    const explanationEl = document.getElementById('explanation');
+
+    // Calc Elements
+    const calcTitle = document.getElementById('calcTitle');
+    const calcText = document.getElementById('calcText');
+    const calcInput = document.getElementById('calcInput');
+    const calcExplanationEl = document.getElementById('calcExplanation');
+
+    // Test Elements
+    const testStartScreen = document.getElementById('testStartScreen');
+    const testInterface = document.getElementById('testInterface');
+    const testResultsScreen = document.getElementById('testResultsScreen');
+    const timerEl = document.getElementById('timer');
+    const testQTitle = document.getElementById('testQTitle');
+    const testQText = document.getElementById('testQText');
+    const testOptionsArea = document.getElementById('testOptionsArea');
+    const testScoreEl = document.getElementById('testScore');
+    const testReviewEl = document.getElementById('testReview');
+
+    // --- THEME ENGINE ---
+    const applyTheme = (themeName) => {
+        document.body.dataset.theme = themeName;
+        localStorage.setItem('examTheme', themeName);
     };
 
-    document.getElementById("testModeBtn").onclick = () => {
-        startTest();
+    const savedTheme = localStorage.getItem('examTheme') || 'spiderman';
+    themeDropdown.value = savedTheme;
+    applyTheme(savedTheme);
+    themeDropdown.addEventListener('change', () => applyTheme(themeDropdown.value));
+
+    // --- TAB MANAGEMENT ---
+    const switchTab = (activeTab) => {
+        Object.keys(tabs).forEach(key => {
+            const is_active = key === activeTab;
+            tabs[key].classList.toggle('btn-primary', is_active);
+            tabs[key].classList.toggle('btn-ghost', !is_active);
+            sections[key].style.display = is_active ? (key === 'mcq' ? 'grid' : 'block') : 'none';
+        });
     };
 
-    document.getElementById("startPracticeBtn").onclick = () => {
-        let topic = document.getElementById("topicSelect").value;
-        renderPracticeQuestion(topic);
-    };
-
-    document.getElementById("submitAnswerBtn").onclick = () => {
-        checkPracticeAnswer();
-    };
-
-    document.getElementById("nextQuestionBtn").onclick = () => {
-        nextPracticeQuestion();
-    };
-
-    document.getElementById("restartTestBtn").onclick = () => {
-        location.reload();
-    };
-
-    document.getElementById("themeSelect").onchange = () => {
-        applyTheme(document.getElementById("themeSelect").value);
-    };
-});
-
-async function loadQuestions() {
-    questions = await fetch('questions.json').then(res => res.json());
-    complexQuestions = await fetch('complex.json').then(res => res.json());
-}
-
-function populateTopics() {
-    let topics = [...new Set(questions.map(q => q.topic))];
-    let select = document.getElementById("topicSelect");
-    topics.forEach(t => {
-        let opt = document.createElement("option");
-        opt.value = t;
-        opt.textContent = t;
-        select.appendChild(opt);
+    Object.keys(tabs).forEach(key => {
+        tabs[key].addEventListener('click', () => switchTab(key));
     });
-}
 
-// ---------------- Practice Mode ----------------
-let currentPracticeQuestions = [];
-let currentPracticeTopic = "";
-
-function renderPracticeQuestion(topic) {
-    currentPracticeTopic = topic;
-    currentPracticeQuestions = questions.filter(q => q.topic === topic);
-    currentQuestionIndex = 0;
-    userAnswers = [];
-    document.getElementById("topicSelection").style.display = "none";
-    document.getElementById("questionArea").style.display = "block";
-    displayPracticeQuestion();
-}
-
-function displayPracticeQuestion() {
-    const q = currentPracticeQuestions[currentQuestionIndex];
-    document.getElementById("questionContainer").innerHTML = `<h3>${q.question}</h3>`;
-    const optionsDiv = document.getElementById("optionsContainer");
-    optionsDiv.innerHTML = "";
-    q.options.forEach((opt, i) => {
-        const btn = document.createElement("button");
-        btn.textContent = opt;
-        btn.onclick = () => {
-            userAnswers[currentQuestionIndex] = i;
-            checkPracticeAnswer();
-        };
-        optionsDiv.appendChild(btn);
-    });
-    document.getElementById("complexAnswerInput").style.display = "none";
-    document.getElementById("submitAnswerBtn").style.display = "none";
-    document.getElementById("nextQuestionBtn").style.display = "none";
-}
-
-function checkPracticeAnswer() {
-    const q = currentPracticeQuestions[currentQuestionIndex];
-    const userAnswer = userAnswers[currentQuestionIndex];
-    const container = document.getElementById("questionContainer");
-    if(userAnswer === q.answer) {
-        container.innerHTML += `<p style="color:green;"><b>Correct!</b></p>${q.explanation_html}`;
-    } else {
-        container.innerHTML += `<p style="color:red;"><b>Incorrect!</b></p>Your Answer: ${q.options[userAnswer] || 'None'}<br>${q.explanation_html}`;
-    }
-    document.getElementById("nextQuestionBtn").style.display = "inline-block";
-}
-
-function nextPracticeQuestion() {
-    currentQuestionIndex++;
-    if(currentQuestionIndex >= currentPracticeQuestions.length) {
-        alert("You've completed all questions in this topic!");
-        location.reload();
-    } else {
-        displayPracticeQuestion();
-    }
-}
-
-// ---------------- Complex Mode ----------------
-let currentComplexIndex = 0;
-
-function startComplexPractice() {
-    currentComplexIndex = 0;
-    userAnswers = [];
-    document.getElementById("modeSelection").style.display = "none";
-    document.getElementById("questionArea").style.display = "block";
-    displayComplexQuestion();
-}
-
-function displayComplexQuestion() {
-    const q = complexQuestions[currentComplexIndex];
-    document.getElementById("questionContainer").innerHTML = q.question_html;
-    document.getElementById("complexAnswerInput").style.display = "inline-block";
-    document.getElementById("submitAnswerBtn").style.display = "inline-block";
-    document.getElementById("nextQuestionBtn").style.display = "none";
-}
-
-function checkComplexAnswer() {
-    const q = complexQuestions[currentComplexIndex];
-    const userAnswer = document.getElementById("complexAnswerInput").value.trim();
-    userAnswers[currentComplexIndex] = userAnswer;
-    const container = document.getElementById("questionContainer");
-    if(userAnswer === q.correct_answer) {
-        container.innerHTML += `<p style="color:green;"><b>Correct!</b></p>${q.solution_html}`;
-    } else {
-        container.innerHTML += `<p style="color:red;"><b>Incorrect!</b></p>Your Answer: ${userAnswer}<br>${q.solution_html}`;
-    }
-    document.getElementById("nextQuestionBtn").style.display = "inline-block";
-    document.getElementById("submitAnswerBtn").style.display = "none";
-}
-
-document.getElementById("submitAnswerBtn").addEventListener("click", checkComplexAnswer);
-
-document.getElementById("nextQuestionBtn").addEventListener("click", () => {
-    currentComplexIndex++;
-    if(currentComplexIndex >= complexQuestions.length) {
-        alert("You've completed all complex questions!");
-        location.reload();
-    } else {
-        displayComplexQuestion();
-    }
-});
-
-// ---------------- Test Mode ----------------
-function startTest() {
-    userAnswers = [];
-    score = 0;
-    currentQuestionIndex = 0;
-    testQuestions = shuffleArray([...questions]).slice(0,25);
-    document.getElementById("modeSelection").style.display = "none";
-    document.getElementById("timerArea").style.display = "block";
-    document.getElementById("questionArea").style.display = "block";
-    renderTestQuestion();
-    startTimer();
-}
-
-function renderTestQuestion() {
-    const q = testQuestions[currentQuestionIndex];
-    document.getElementById("questionContainer").innerHTML = `<h3>Q${currentQuestionIndex+1}: ${q.question}</h3>`;
-    const optionsDiv = document.getElementById("optionsContainer");
-    optionsDiv.innerHTML = "";
-    q.options.forEach((opt, i) => {
-        const btn = document.createElement("button");
-        btn.textContent = opt;
-        btn.onclick = () => {
-            recordAnswer(i);
-        };
-        optionsDiv.appendChild(btn);
-    });
-    document.getElementById("complexAnswerInput").style.display = "none";
-    document.getElementById("submitAnswerBtn").style.display = "none";
-    document.getElementById("nextQuestionBtn").style.display = "none";
-}
-
-function recordAnswer(selected) {
-    userAnswers[currentQuestionIndex] = selected;
-    currentQuestionIndex++;
-    if(currentQuestionIndex >= testQuestions.length) {
-        submitTest();
-    } else {
-        renderTestQuestion();
-    }
-}
-
-function submitTest() {
-    clearInterval(timerInterval);
-    score = testQuestions.reduce((acc, q, idx) => acc + (userAnswers[idx] === q.answer ? 1 : 0), 0);
-    showResults();
-}
-
-function showResults() {
-    document.getElementById("questionArea").style.display = "none";
-    document.getElementById("timerArea").style.display = "none";
-    document.getElementById("resultsArea").style.display = "block";
-    document.getElementById("scoreDisplay").textContent = `Your Score: ${score} / ${testQuestions.length}`;
-    const review = document.getElementById("reviewContainer");
-    review.innerHTML = "";
-    testQuestions.forEach((q, idx) => {
-        const div = document.createElement("div");
-        div.innerHTML = `<h4>Q${idx+1}: ${q.question}</h4>
-                         <p>Your Answer: ${q.options[userAnswers[idx]] || 'None'}</p>
-                         <p>Correct Answer: ${q.options[q.answer]}</p>
-                         ${q.explanation_html}`;
-        review.appendChild(div);
-    });
-}
-
-// ---------------- Timer ----------------
-function startTimer() {
-    let timeLeft = testDuration;
-    const timerEl = document.getElementById("timer");
-    timerInterval = setInterval(() => {
-        let minutes = Math.floor(timeLeft / 60);
-        let seconds = timeLeft % 60;
-        timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-        if(timeLeft <= 0) {
-            clearInterval(timerInterval);
-            submitTest();
+    // --- DATA FETCHING ---
+    async function loadQuestions() {
+        try {
+            const [mcqRes, calcRes] = await Promise.all([
+                fetch('questions.json'),
+                fetch('complex.json')
+            ]);
+            ALL_MCQ = await mcqRes.json();
+            ALL_CALC = await calcRes.json();
+            console.log("Questions loaded successfully.");
+            initializeApp();
+        } catch (error) {
+            console.error("Failed to load questions:", error);
+            qListEl.innerHTML = "Error loading questions. Please refresh the page.";
         }
-        timeLeft--;
-    }, 1000);
-}
-
-// ---------------- Utilities ----------------
-function shuffleArray(array) {
-    for(let i = array.length -1; i>0; i--){
-        const j = Math.floor(Math.random() * (i+1));
-        [array[i], array[j]] = [array[j], array[i]];
     }
-    return array;
-}
 
-// ---------------- Theme ----------------
-function initTheme() {
-    const saved = localStorage.getItem("theme") || "spiderman";
-    applyTheme(saved);
-    document.getElementById("themeSelect").value = saved;
-}
+    // --- INITIALIZATION ---
+    function initializeApp() {
+        initMcqList();
+        initCalcQuestions();
+        switchTab('mcq'); // Default to MCQ tab
+    }
 
-function applyTheme(theme) {
-    document.body.className = theme;
-    localStorage.setItem("theme", theme);
-}
+    // --- MCQ PRACTICE MODE ---
+    function initMcqList() {
+        qListEl.innerHTML = '';
+        ALL_MCQ.forEach((q, index) => {
+            const item = document.createElement('div');
+            item.className = 'q-item';
+            item.innerHTML = `<strong>Q${q.id}</strong> — ${q.topic}`;
+            item.dataset.index = index;
+            item.addEventListener('click', () => selectMcq(index));
+            qListEl.appendChild(item);
+        });
+    }
+
+    function selectMcq(index) {
+        if (index < 0 || index >= ALL_MCQ.length) return;
+
+        currentMcqIndex = index;
+        selectedMcqOption = null;
+        const q = ALL_MCQ[index];
+
+        qListEl.querySelectorAll('.q-item').forEach(el => el.classList.remove('active'));
+        qListEl.querySelector(`[data-index="${index}"]`).classList.add('active');
+
+        qTitle.textContent = `Question ${q.id} — ${q.topic}`;
+        qText.innerHTML = q.question;
+        optionsArea.innerHTML = '';
+
+        q.options.forEach((opt, i) => {
+            const o = document.createElement('div');
+            o.className = 'option';
+            o.dataset.index = i;
+            o.innerHTML = `<strong>${String.fromCharCode(65 + i)}.</strong> <span class="ml-2">${opt}</span>`;
+            o.addEventListener('click', () => {
+                optionsArea.querySelectorAll('.option').forEach(n => n.classList.remove('selected'));
+                o.classList.add('selected');
+                selectedMcqOption = i;
+            });
+            optionsArea.appendChild(o);
+        });
+
+        explanationEl.style.display = 'none';
+        explanationEl.innerHTML = '';
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+    
+    document.getElementById('checkBtn').addEventListener('click', () => {
+        if (currentMcqIndex === null || selectedMcqOption === null) return alert('Please select an option first.');
+        const q = ALL_MCQ[currentMcqIndex];
+        const isCorrect = selectedMcqOption === q.answer;
+
+        optionsArea.querySelectorAll('.option').forEach((el, i) => {
+            el.classList.remove('correct', 'wrong');
+            if (i === q.answer) el.classList.add('correct');
+            if (i === selectedMcqOption && !isCorrect) el.classList.add('wrong');
+        });
+
+        explanationEl.style.display = 'block';
+        explanationEl.innerHTML = (isCorrect ? `<p><strong>Correct ✅</strong></p>` : `<p><strong>Incorrect ❌</strong> The correct answer is ${String.fromCharCode(65 + q.answer)}.</p>`) + `<hr class="my-2 border-white/20">` + q.explanation_html;
+        if (window.MathJax) MathJax.typesetPromise();
+    });
+
+    document.getElementById('explainBtn').addEventListener('click', () => {
+        if (currentMcqIndex === null) return;
+        const q = ALL_MCQ[currentMcqIndex];
+        explanationEl.style.display = 'block';
+        explanationEl.innerHTML = q.explanation_html;
+        optionsArea.querySelectorAll('.option').forEach(el => el.classList.remove('correct', 'wrong'));
+        optionsArea.querySelector(`[data-index="${q.answer}"]`).classList.add('correct');
+        if (window.MathJax) MathJax.typesetPromise();
+    });
+    
+    document.getElementById('showAnsBtn').addEventListener('click', () => {
+        if (currentMcqIndex === null) return;
+        const q = ALL_MCQ[currentMcqIndex];
+        optionsArea.querySelectorAll('.option').forEach(el => el.classList.remove('correct', 'wrong'));
+        optionsArea.querySelector(`[data-index="${q.answer}"]`).classList.add('correct');
+    });
+
+    document.getElementById('randomBtn').addEventListener('click', () => {
+        const randomIndex = Math.floor(Math.random() * ALL_MCQ.length);
+        selectMcq(randomIndex);
+    });
+
+    document.getElementById('resetSel').addEventListener('click', () => {
+        if (currentMcqIndex !== null) selectMcq(currentMcqIndex);
+    });
+
+    // --- CALCULATIONS PRACTICE MODE ---
+    function initCalcQuestions() {
+        selectCalcQuestion(0);
+    }
+    
+    function selectCalcQuestion(index) {
+        currentCalcIndex = index;
+        const q = ALL_CALC[index];
+        calcTitle.textContent = `Calculation — ${q.topic}`;
+        calcText.innerHTML = q.question_html;
+        calcInput.value = '';
+        calcExplanationEl.style.display = 'none';
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    document.getElementById('prevCalcBtn').addEventListener('click', () => {
+        if (currentCalcIndex > 0) selectCalcQuestion(currentCalcIndex - 1);
+    });
+
+    document.getElementById('nextCalcBtn').addEventListener('click', () => {
+        if (currentCalcIndex < ALL_CALC.length - 1) selectCalcQuestion(currentCalcIndex + 1);
+    });
+    
+    document.getElementById('calcCheckBtn').addEventListener('click', () => {
+        const q = ALL_CALC[currentCalcIndex];
+        const userVal = parseFloat(calcInput.value);
+        if (isNaN(userVal)) return alert('Please enter a numeric answer.');
+
+        const isCorrect = Math.abs(userVal - q.correct_answer) < 0.001;
+        calcExplanationEl.style.display = 'block';
+        calcExplanationEl.innerHTML = (isCorrect ? `<p><strong>Correct ✅</strong></p>` : `<p><strong>Incorrect ❌</strong> The correct answer is ${q.correct_answer}.</p>`) + `<hr class="my-2 border-white/20">` + q.solution_html;
+        if (window.MathJax) MathJax.typesetPromise();
+    });
+
+    document.getElementById('calcExplainBtn').addEventListener('click', () => {
+        const q = ALL_CALC[currentCalcIndex];
+        calcExplanationEl.style.display = 'block';
+        calcExplanationEl.innerHTML = q.solution_html;
+        if (window.MathJax) MathJax.typesetPromise();
+    });
+
+    // --- TIMED TEST MODE ---
+    document.getElementById('startTestBtn').addEventListener('click', startTest);
+    
+    function startTest() {
+        // Shuffle and slice questions
+        testQuestions = [...ALL_MCQ].sort(() => 0.5 - Math.random()).slice(0, 25);
+        currentTestIndex = 0;
+        userTestAnswers = new Array(25).fill(null);
+        
+        testStartScreen.style.display = 'none';
+        testResultsScreen.style.display = 'none';
+        testInterface.style.display = 'block';
+
+        renderTestQuestion();
+        startTimer(30 * 60);
+    }
+
+    function startTimer(duration) {
+        let timer = duration;
+        timerInterval = setInterval(() => {
+            const minutes = Math.floor(timer / 60);
+            const seconds = timer % 60;
+            timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                submitTest();
+            }
+        }, 1000);
+    }
+
+    function renderTestQuestion() {
+        const q = testQuestions[currentTestIndex];
+        testQTitle.textContent = `Question ${currentTestIndex + 1} of 25`;
+        testQText.innerHTML = q.question;
+        testOptionsArea.innerHTML = '';
+
+        q.options.forEach((opt, i) => {
+            const o = document.createElement('div');
+            o.className = 'option';
+            o.dataset.index = i;
+            o.innerHTML = `<strong>${String.fromCharCode(65 + i)}.</strong> <span class="ml-2">${opt}</span>`;
+            if (userTestAnswers[currentTestIndex] === i) {
+                o.classList.add('selected');
+            }
+            o.addEventListener('click', () => {
+                userTestAnswers[currentTestIndex] = i;
+                testOptionsArea.querySelectorAll('.option').forEach(n => n.classList.remove('selected'));
+                o.classList.add('selected');
+            });
+            testOptionsArea.appendChild(o);
+        });
+        
+        document.getElementById('prevTestBtn').style.display = currentTestIndex > 0 ? 'inline-flex' : 'none';
+        document.getElementById('nextTestBtn').style.display = currentTestIndex < 24 ? 'inline-flex' : 'none';
+        document.getElementById('submitTestBtn').style.display = currentTestIndex === 24 ? 'inline-flex' : 'none';
+
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    document.getElementById('nextTestBtn').addEventListener('click', () => {
+        if (currentTestIndex < 24) {
+            currentTestIndex++;
+            renderTestQuestion();
+        }
+    });
+
+    document.getElementById('prevTestBtn').addEventListener('click', () => {
+        if (currentTestIndex > 0) {
+            currentTestIndex--;
+            renderTestQuestion();
+        }
+    });
+
+    document.getElementById('submitTestBtn').addEventListener('click', submitTest);
+
+    function submitTest() {
+        clearInterval(timerInterval);
+        let score = 0;
+        userTestAnswers.forEach((answer, index) => {
+            if (answer === testQuestions[index].answer) {
+                score++;
+            }
+        });
+
+        testInterface.style.display = 'none';
+        testResultsScreen.style.display = 'block';
+
+        testScoreEl.innerHTML = `Your Score: <strong>${score} out of 25</strong> (${(score / 25 * 100).toFixed(1)}%)`;
+        renderTestReview();
+    }
+
+    function renderTestReview() {
+        testReviewEl.innerHTML = '<h3 class="font-bold text-xl mb-4">Question Review</h3>';
+        testQuestions.forEach((q, i) => {
+            const userAnswer = userTestAnswers[i];
+            const isCorrect = userAnswer === q.answer;
+            const reviewItem = document.createElement('div');
+            reviewItem.className = 'review-item';
+            
+            let resultIcon = isCorrect ? '✅' : '❌';
+            let userAnswerText = userAnswer !== null ? String.fromCharCode(65 + userAnswer) : "Not Answered";
+            let correctAnswerText = String.fromCharCode(65 + q.answer);
+
+            reviewItem.innerHTML = `
+                <p class="font-bold">Question ${i+1}: ${resultIcon}</p>
+                <p class="my-2">${q.question}</p>
+                <p>You answered: <strong>${userAnswerText}</strong>. Correct answer: <strong>${correctAnswerText}</strong>.</p>
+                ${!isCorrect ? `<div class="steps mt-2">${q.explanation_html}</div>` : ''}
+            `;
+            testReviewEl.appendChild(reviewItem);
+        });
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+
+    // --- LOAD INITIAL DATA ---
+    loadQuestions();
+});

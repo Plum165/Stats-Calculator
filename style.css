@@ -1,56 +1,82 @@
-/* Use the same CSS as index.html for theme consistency */
+:root {
+  /* Default: Spiderman */
+  --bg1: #0b172a;
+  --bg2: #d62828;
+  --bg3: #e63946;
+  --text: #ffffff;
+  --card: rgba(255, 255, 255, 0.05);
+  --btn: linear-gradient(90deg, #d62828, #e63946);
+  --btn-hover: linear-gradient(90deg, #ff3b3b, #ff6b6b);
+}
+
+/* --- THEME DEFINITIONS --- */
+[data-theme='blood-red'] { --bg1:#2a0000; --bg2:#660000; --bg3:#b30000; --text:#ffeaea; --card: rgba(255,255,255,0.03); --btn: linear-gradient(90deg,#7f1d1d,#b91c1c); --btn-hover: linear-gradient(90deg,#991b1b,#dc2626); }
+[data-theme='sapphire-steel'] { --bg1:#0A2463; --bg2:#3E92CC; --bg3:#1E1E1E; --text:#F5F5F5; --card: rgba(255,255,255,0.05); --btn: linear-gradient(90deg,#0A2463,#3E92CC); --btn-hover: linear-gradient(90deg,#3E92CC,#5FA8D3); }
+[data-theme='emerald-charcoal'] { --bg1:#1d3522; --bg2:#009B77; --bg3:#333333; --text:#E5E4E2; --card: rgba(255,255,255,0.05); --btn: linear-gradient(90deg,#009B77,#007f62); --btn-hover: linear-gradient(90deg,#00af88,#009B77); }
+[data-theme='digital-twilight'] { --bg1:#1A1A2E; --bg2:#0F3460; --bg3:#16213E; --text:#C0C0C0; --card: rgba(233,69,96,0.05); --btn: linear-gradient(90deg,#E94560,#c73a50); --btn-hover: linear-gradient(90deg,#ff5c77,#E94560); }
+[data-theme='coral-aqua'] { --bg1:#1A535C; --bg2:#4ECDC4; --bg3:#FF6B6B; --text:#F7FFF7; --card: rgba(26,83,92,0.4); --btn: linear-gradient(90deg,#FF6B6B,#ff8282); --btn-hover: linear-gradient(90deg,#ff9a9a,#FF6B6B); }
+[data-theme='electric-citrus'] { --bg1:#7B2CBF; --bg2:#F7B801; --bg3:#560BAD; --text:#F1FAEE; --card: rgba(0,0,0,0.1); --btn: linear-gradient(90deg,#F7B801,#ffc93c); --btn-hover: linear-gradient(90deg,#ffd466,#F7B801); }
+[data-theme='artisan-clay'] { --bg1:#3D405B; --bg2:#E07A5F; --bg3:#81B29A; --text:#F4F1DE; --card: rgba(61,64,91,0.4); --btn: linear-gradient(90deg,#E07A5F,#e68c75); --btn-hover: linear-gradient(90deg,#eb9d8a,#E07A5F); }
+[data-theme='forest-canopy'] { --bg1:#1c3d30; --bg2:#2D6A4F; --bg3:#40916C; --text:#B7E4C7; --card: rgba(0,0,0,0.15); --btn: linear-gradient(90deg,#2D6A4F,#40916C); --btn-hover: linear-gradient(90deg,#52b788,#40916C); }
+[data-theme='ocean-depth'] { --bg1:#001f23; --bg2:#003B46; --bg3:#07575B; --text:#C4DFE6; --card: rgba(102,165,173,0.1); --btn: linear-gradient(90deg,#07575B,#66A5AD); --btn-hover: linear-gradient(90deg,#66A5AD,#9ac3c9); }
+[data-theme='desert-sunset'] { --bg1:#6D6875; --bg2:#B56576; --bg3:#E88873; --text:#FDE2E4; --card: rgba(0,0,0,0.1); --btn: linear-gradient(90deg,#B56576,#E88873); --btn-hover: linear-gradient(90deg,#c47c8c,#f09a87); }
+[data-theme='monochrome-focus'] { --bg1:#000000; --bg2:#121212; --bg3:#222222; --text:#EAEAEA; --card: rgba(255,255,255,0.04); --btn: linear-gradient(90deg,#333,#555); --btn-hover: linear-gradient(90deg,#555,#777); }
+[data-theme='soft-nordic'] { --bg1:#EDF2F4; --bg2:#8D99AE; --bg3:#D3D3D3; --text:#2B2D42; --card: rgba(255,255,255,0.4); --btn: linear-gradient(90deg,#D90429,#ef233c); --btn-hover: linear-gradient(90deg,#ef233c,#ff4d6d); }
+[data-theme='neutral-peach'] { --bg1:#F5F5DC; --bg2:#F7CAC9; --bg3:#92A8D1; --text:#3E3E3E; --card: rgba(255,255,255,0.4); --btn: linear-gradient(90deg,#6B5B95,#8673b7); --btn-hover: linear-gradient(90deg,#8673b7,#a090d0); }
+[data-theme='retro-pop'] { --bg1:#53777A; --bg2:#D95F43; --bg3:#C02942; --text:#ECD078; --card: rgba(0,0,0,0.1); --btn: linear-gradient(90deg,#D95F43,#C02942); --btn-hover: linear-gradient(90deg,#e0755a,#d1415a); }
+[data-theme='cyberpunk-glow'] { --bg1:#0B0C10; --bg2:#1F2833; --bg3:#000000; --text:#66FCF1; --card: rgba(102,252,241,0.05); --btn: linear-gradient(90deg,#45A29E,#66FCF1); --btn-hover: linear-gradient(90deg,#66FCF1,#87ffff); }
+[data-theme='plum-gold'] { --bg1:#230C33; --bg2:#4C2A85; --bg3:#000000; --text:#F7F7FF; --card: rgba(253,184,51,0.05); --btn: linear-gradient(90deg,#FDB833,#ffc966); --btn-hover: linear-gradient(90deg,#ffc966,#ffd488); }
+[data-theme='red-blue'] { --bg1:#2b2d42; --bg2:#ef233c; --bg3:#3a86ff; --text:#ffffff; --card: rgba(0,0,0,0.1); --btn: linear-gradient(90deg,#ef233c,#3a86ff); --btn-hover: linear-gradient(90deg,#ff4d6d,#5c9cff); }
+[data-theme='purple-black'] { --bg1:#000000; --bg2:#4c00b0; --bg3:#2c0065; --text:#e0d0ff; --card: rgba(255,255,255,0.04); --btn: linear-gradient(90deg,#8e44ad,#9b59b6); --btn-hover: linear-gradient(90deg,#9b59b6,#af7ac5); }
+
+/* --- BASE STYLES --- */
+html, body { height: 100%; }
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    transition: all 0.3s ease;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+  color: var(--text);
+  transition: background 0.5s ease;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 1.25rem; }
+.glass { background: var(--card); backdrop-filter: blur(6px); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.06); padding: 1.5rem; transition: background 0.5s ease; }
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: .6rem 1rem; border-radius: .6rem; font-weight: 700; border: none; cursor: pointer; transition: background 0.2s ease, transform 0.1s ease; }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--btn); color: white; }
+.btn-primary:hover { background: var(--btn-hover); }
+.btn-ghost { background: transparent; border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text); }
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.05); }
+
+/* Layout & Components */
+.question-list { max-height: 60vh; overflow-y: auto; padding-right: .5rem; }
+.q-item { padding: .75rem; border-radius: .5rem; cursor: pointer; border: 1px solid transparent; transition: background 0.2s ease, border-color 0.2s ease; }
+.q-item.active { background: rgba(255, 255, 255, 0.08); border-color: rgba(255,255,255,0.1); }
+.q-item:hover { background: rgba(255, 255, 255, 0.04); }
+.option { display: block; padding: .75rem; border-radius: .5rem; margin-bottom: .5rem; border: 1px solid rgba(255, 255, 255, 0.1); cursor: pointer; transition: all 0.2s ease; }
+.option:hover { background: rgba(255, 255, 255, 0.05); }
+.option.selected { outline: 2px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.1); }
+.option.correct { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); }
+.option.wrong { background: rgba(255, 99, 99, 0.1); border-color: rgba(255, 99, 99, 0.25); }
+.steps { margin-top: 1rem; padding: 1rem; border-radius: 8px; background: rgba(0, 0, 0, 0.15); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; line-height: 1.6; }
+.help { font-size: .92rem; opacity: .9; }
+.theme-select { padding: .45rem .7rem; border-radius: .5rem; background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.2); }
+
+/* Responsive Layout */
+@media(max-width: 900px) {
+  .layout { display: block; }
+  .left, .right { width: 100%; margin-top: 1rem; }
+  .left { margin-top: 0; }
+}
+@media(min-width: 900px) {
+  .layout { display: grid; grid-template-columns: 320px 1fr; gap: 1rem; }
+  .question-list { max-height: 72vh; }
 }
 
-/* Header & Navigation */
-header {
-    padding: 1em;
-    background: linear-gradient(to bottom right, #2a0000, #660000, #b30000);
-    color: #ffeaea;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5em;
-}
-
-.nav-button {
-    background: #ffeaea;
-    color: #660000;
-    padding: 0.5em 1em;
-    text-decoration: none;
+/* Test Review Styles */
+.review-item {
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    margin-top: 0.5em;
+    padding: 1rem;
+    margin-bottom: 1rem;
 }
-
-/* Main content */
-main {
-    padding: 2em;
-}
-
-#questionArea, #resultsArea, #topicSelection {
-    margin-top: 1em;
-    border: 2px solid #660000;
-    border-radius: 12px;
-    padding: 1em;
-    background-color: #fff5f5;
-}
-
-/* Buttons */
-button {
-    padding: 0.5em 1em;
-    margin: 0.5em 0.2em;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-}
-
-/* Theme overrides */
-body.spiderman { background: linear-gradient(to bottom right, #ff0000, #000000); color: #fff; }
-body.blood { background: linear-gradient(to bottom right, #2a0000, #660000, #b30000); color: #ffeaea; }
-body.sapphire { background: linear-gradient(to bottom right, #0f52ba, #8c92ac); color: #f0f0f0; }
-body.emerald { background: linear-gradient(to bottom right, #50c878, #333333); color: #f0f0f0; }
-/* Add other themes similarly */

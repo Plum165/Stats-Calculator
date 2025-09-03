@@ -1,75 +1,150 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statistics Practice Portal</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- MathJax for equations -->
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Exam Tutor — STA1000 Practice</title>
+
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Tailwind CDN (for utility classes like flex, items-center, etc.) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
 </head>
-<body>
-    <header>
-        <h1>Statistics Practice Portal</h1>
-        <nav>
-            <a href="index.html" class="nav-button">Back to Stats Calculator</a>
-        </nav>
-        <label for="themeSelect">Select Theme:</label>
-        <select id="themeSelect">
-            <option value="spiderman">Spiderman (Default)</option>
-            <option value="blood">Blood Red</option>
-            <option value="sapphire">Sapphire & Steel</option>
-            <option value="emerald">Emerald & Charcoal</option>
-            <option value="digital">Digital Twilight</option>
-            <option value="coral">Coral & Aqua</option>
-            <option value="electric">Electric Citrus</option>
-            <option value="artisan">Artisan Clay</option>
-            <option value="forest">Forest Canopy</option>
-            <option value="ocean">Ocean Depth</option>
-            <option value="desert">Desert Sunset</option>
-            <option value="monochrome">Monochrome Focus</option>
-            <option value="soft">Soft Nordic</option>
-            <option value="neutral">Neutral Peach</option>
-            <option value="retro">Retro Pop</option>
-            <option value="cyberpunk">Cyberpunk Glow</option>
-            <option value="plum">Plum & Gold</option>
+<body data-theme="spiderman">
+  <div class="container">
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row items-center justify-between mb-4 gap-4">
+      <div>
+        <h1 class="text-2xl font-extrabold">Exam Tutor — STA1000 Practice</h1>
+        <div class="help">Practice MCQs and Calculations with step-by-step solutions.</div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="btn btn-ghost">Calculator</a>
+        <select id="themeDropdown" class="theme-select text-black">
+          <option value="spiderman">Spiderman</option>
+          <option value="blood-red">Blood Red</option>
+          <option value="sapphire-steel">Sapphire & Steel</option>
+          <option value="emerald-charcoal">Emerald & Charcoal</option>
+          <option value="digital-twilight">Digital Twilight</option>
+          <option value="coral-aqua">Coral & Aqua</option>
+          <option value="electric-citrus">Electric Citrus</option>
+          <option value="artisan-clay">Artisan Clay</option>
+          <option value="forest-canopy">Forest Canopy</option>
+          <option value="ocean-depth">Ocean Depth</option>
+          <option value="desert-sunset">Desert Sunset</option>
+          <option value="monochrome-focus">Monochrome Focus</option>
+          <option value="soft-nordic">Soft Nordic</option>
+          <option value="neutral-peach">Neutral Peach</option>
+          <option value="retro-pop">Retro Pop</option>
+          <option value="cyberpunk-glow">Cyberpunk Glow</option>
+          <option value="plum-gold">Plum & Gold</option>
+          <option value="red-blue">Red & Blue</option>
+          <option value="purple-black">Purple & Black</option>
         </select>
+      </div>
     </header>
 
-    <main>
-        <section id="modeSelection">
-            <h2>Choose Mode</h2>
-            <button id="practiceModeBtn">Practice by Topic</button>
-            <button id="complexModeBtn">Complex Questions</button>
-            <button id="testModeBtn">Start Timed Test</button>
-        </section>
+    <!-- Tabs -->
+    <div class="flex gap-3 mb-4">
+      <button id="tabMCQ" class="btn btn-primary">MCQs</button>
+      <button id="tabCalc" class="btn btn-ghost">Calculations</button>
+      <button id="tabTest" class="btn btn-ghost">Timed Test</button>
+    </div>
 
-        <section id="topicSelection" style="display:none;">
-            <h3>Select Topic</h3>
-            <select id="topicSelect"></select>
-            <button id="startPracticeBtn">Start Practice</button>
-        </section>
+    <!-- MCQ Practice Section -->
+    <div id="mcqSection" class="layout">
+      <aside class="left glass">
+        <h3 class="font-bold mb-2">Questions</h3>
+        <div class="question-list" id="questionList">Loading questions...</div>
+        <div class="mt-3">
+          <button id="randomBtn" class="btn btn-primary mr-2">Pick Random</button>
+          <button id="resetSel" class="btn btn-ghost">Reset</button>
+        </div>
+      </aside>
 
-        <section id="questionArea" style="display:none;">
-            <div id="questionContainer"></div>
-            <div id="optionsContainer"></div>
-            <input type="text" id="complexAnswerInput" placeholder="Type your answer here" style="display:none;">
-            <button id="submitAnswerBtn">Submit Answer</button>
-            <button id="nextQuestionBtn" style="display:none;">Next Question</button>
-        </section>
+      <section class="right glass">
+        <div id="questionArea">
+          <h2 id="qTitle" class="font-bold text-xl">Select a question to begin</h2>
+          <div id="qText" class="mt-2 text-lg"></div>
+          <div id="optionsArea" class="mt-4"></div>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button id="checkBtn" class="btn btn-primary">Check Answer</button>
+            <button id="explainBtn" class="btn btn-ghost">Explain</button>
+            <button id="showAnsBtn" class="btn btn-ghost">Show Answer</button>
+          </div>
+          <div id="explanation" class="steps mt-4" style="display:none"></div>
+        </div>
+      </section>
+    </div>
 
-        <section id="timerArea" style="display:none;">
-            <p>Time Remaining: <span id="timer">00:00</span></p>
-        </section>
+    <!-- Calculations Practice Section -->
+    <div id="calcSection" class="glass" style="display:none">
+        <div class="flex justify-between items-center mb-4">
+            <h2 id="calcTitle" class="font-bold text-xl">Calculation Question</h2>
+            <div>
+                <button id="prevCalcBtn" class="btn btn-ghost">&lt; Prev</button>
+                <button id="nextCalcBtn" class="btn btn-ghost">Next &gt;</button>
+            </div>
+        </div>
+        <div id="calcText" class="mt-2 text-lg"></div>
+        <input type="text" id="calcInput" placeholder="Enter your answer here" class="w-full mt-4 p-2 rounded text-black"/>
+        <div class="mt-4 flex gap-2">
+            <button id="calcCheckBtn" class="btn btn-primary">Check Answer</button>
+            <button id="calcExplainBtn" class="btn btn-ghost">Show Solution</button>
+        </div>
+        <div id="calcExplanation" class="steps mt-4" style="display:none"></div>
+    </div>
 
-        <section id="resultsArea" style="display:none;">
-            <h2>Test Results</h2>
-            <p id="scoreDisplay"></p>
-            <div id="reviewContainer"></div>
-            <button id="restartTestBtn">Restart Test</button>
-        </section>
-    </main>
+    <!-- Timed Test Section -->
+    <div id="testSection" class="glass" style="display:none">
+        <!-- Test Start Screen -->
+        <div id="testStartScreen">
+            <h2 class="font-bold text-2xl">Timed Test Simulation</h2>
+            <p class="mt-2 help">This test consists of 25 randomly selected multiple-choice questions. You will have 30 minutes to complete it. Your results will be shown after you submit.</p>
+            <button id="startTestBtn" class="btn btn-primary mt-6">Start 30-Minute Test</button>
+        </div>
 
-    <script src="exam_script.js"></script>
+        <!-- Test Interface -->
+        <div id="testInterface" style="display:none;">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="testQTitle" class="font-bold text-xl">Question 1 of 25</h2>
+                <div id="timer" class="font-bold text-xl">30:00</div>
+            </div>
+            <div id="testQText" class="mt-2 text-lg"></div>
+            <div id="testOptionsArea" class="mt-4"></div>
+            <div class="mt-6 flex justify-between">
+                <button id="prevTestBtn" class="btn btn-ghost">Previous</button>
+                <button id="nextTestBtn" class="btn btn-primary">Next</button>
+                <button id="submitTestBtn" class="btn btn-primary" style="display:none;">Submit Test</button>
+            </div>
+        </div>
+        
+        <!-- Test Results Screen -->
+        <div id="testResultsScreen" style="display:none;">
+            <h2 class="font-bold text-2xl">Test Complete!</h2>
+            <div id="testScore" class="text-xl mt-2"></div>
+            <div id="testReview" class="mt-6"></div>
+        </div>
+    </div>
+
+  </div>
+
+  <!-- JavaScript file -->
+  <script src="exam_script.js"></script>
 </body>
 </html>
