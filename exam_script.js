@@ -227,34 +227,48 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- TIMED TEST MODE ---
-    document.getElementById('startTestBtn').addEventListener('click', startTest);
-    
-    function startTest() {
-        // Shuffle and slice questions
-        testQuestions = [...ALL_MCQ].sort(() => 0.5 - Math.random()).slice(0, 25);
-        currentTestIndex = 0;
-        userTestAnswers = new Array(25).fill(null);
-        
-        testStartScreen.style.display = 'none';
-        testResultsScreen.style.display = 'none';
-        testInterface.style.display = 'block';
+document.getElementById('startTestBtn').addEventListener('click', startTest);
 
-        renderTestQuestion();
-        startTimer(30 * 60);
+function startTest() {
+    // Number of questions in test
+    const numQuestions = 25;
+
+    // Shuffle and slice questions
+    const totalQuestions = ALL_MCQ.length; // could be 108
+    if (totalQuestions < numQuestions) {
+        alert(`Not enough questions in the pool! Only ${totalQuestions} available.`);
+        return;
     }
 
-    function startTimer(duration) {
-        let timer = duration;
-        timerInterval = setInterval(() => {
-            const minutes = Math.floor(timer / 60);
-            const seconds = timer % 60;
-            timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            if (--timer < 0) {
-                clearInterval(timerInterval);
-                submitTest();
-            }
-        }, 1000);
-    }
+    // Randomly pick 25 unique questions
+    const shuffled = [...ALL_MCQ].sort(() => 0.5 - Math.random());
+    testQuestions = shuffled.slice(0, numQuestions);
+
+    currentTestIndex = 0;
+    userTestAnswers = new Array(numQuestions).fill(null);
+
+    testStartScreen.style.display = 'none';
+    testResultsScreen.style.display = 'none';
+    testInterface.style.display = 'block';
+
+    renderTestQuestion();
+    startTimer(45 * 60); // 45 minutes in seconds
+}
+
+function startTimer(duration) {
+    let timer = duration;
+    timerInterval = setInterval(() => {
+        const minutes = Math.floor(timer / 60);
+        const seconds = timer % 60;
+        timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+        if (--timer < 0) {
+            clearInterval(timerInterval);
+            alert("Time's up! Submitting test...");
+            submitTest();
+        }
+    }, 1000);
+}
+
 
     function renderTestQuestion() {
         const q = testQuestions[currentTestIndex];
