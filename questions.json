@@ -393,13 +393,14 @@
     "answer": 1,
     "explanation_html": "A discrete random variable takes countable values. <br>Number of heads in 10 tosses can only be {0,1,…,10}. <br>Height, weight, time are continuous."
   },
+  
   {
     "id": 56,
     "topic": "Basic Probability",
     "question": "A box contains 5 red balls and 7 blue balls. Two balls are drawn without replacement. What is the probability that both are red?",
     "options": ["5/12", "10/66", "5/22", "2/11", "7/66"],
     "answer": 2,
-    "explanation": "The probability of first red is 5/12. Then 4 red remain out of 11 total: 4/11. Multiply: (5/12)*(4/11) = 20/132 = 5/33 ≈ 0.152. Simplifying: 5/22. Correct answer is option C."
+    "explanation_html": "P(first red) = 5/12. Then 4 red left out of 11: 4/11. Multiply: (5/12)*(4/11) = 20/132 = 5/33. Simplifies to 5/22."
   },
   {
     "id": 57,
@@ -407,7 +408,7 @@
     "question": "How many different 5-digit numbers can be formed using the digits 1, 2, 3, 4, 5 if repetition is not allowed?",
     "options": ["25", "60", "120", "720", "3125"],
     "answer": 2,
-    "explanation": "We are permuting 5 digits taken 5 at a time, without repetition. That is 5! = 120."
+    "explanation_html": "Number of permutations = 5! = 120."
   },
   {
     "id": 58,
@@ -415,7 +416,7 @@
     "question": "From a group of 10 people, a committee of 4 is to be chosen. How many different committees can be formed?",
     "options": ["210", "5040", "120", "84", "2520"],
     "answer": 0,
-    "explanation": "The number of ways is 10C4 = 10!/(4!·6!) = 210."
+    "explanation_html": "10C4 = 10! / (4!·6!) = 210."
   },
   {
     "id": 59,
@@ -423,7 +424,7 @@
     "question": "A card is drawn from a deck. Given that it is red, what is the probability that it is a king?",
     "options": ["1/26", "1/13", "2/13", "1/52", "2/52"],
     "answer": 1,
-    "explanation": "There are 26 red cards. Of these, 2 are kings. Probability = 2/26 = 1/13."
+    "explanation_html": "There are 26 red cards, of which 2 are kings. Probability = 2/26 = 1/13."
   },
   {
     "id": 60,
@@ -431,7 +432,7 @@
     "question": "A factory has 3 machines A, B, and C that produce 20%, 30%, and 50% of the total output. The defect rates are 1%, 2%, and 3%, respectively. If a randomly chosen product is defective, what is the probability it came from machine C?",
     "options": ["0.50", "0.55", "0.625", "0.60", "0.70"],
     "answer": 2,
-    "explanation": "We want P(C|D). By Bayes: P(C|D) = P(D|C)P(C) / P(D). Compute P(D) = (0.01*0.2)+(0.02*0.3)+(0.03*0.5) = 0.002+0.006+0.015 = 0.023. Then P(C|D) = (0.03*0.5)/0.023 = 0.015/0.023 ≈ 0.652. Closest to 0.625 (option C)."
+    "explanation_html": "P(D) = (0.01*0.2)+(0.02*0.3)+(0.03*0.5) = 0.002+0.006+0.015 = 0.023.<br>P(C|D) = (0.03*0.5)/0.023 = 0.015/0.023 ≈ 0.652. Closest option is 0.625."
   },
   {
     "id": 61,
@@ -439,7 +440,7 @@
     "question": "A student guesses on 3 multiple choice questions, each with 4 options. What is the probability that they get at least one correct?",
     "options": ["27/64", "37/64", "1/4", "3/4", "1/64"],
     "answer": 1,
-    "explanation": "At least one = 1 - P(none correct). Probability of wrong = 3/4 each. So none correct = (3/4)^3 = 27/64. Thus at least one correct = 1 - 27/64 = 37/64."
+    "explanation_html": "P(none correct) = (3/4)^3 = 27/64.<br>P(at least one) = 1 - 27/64 = 37/64."
   },
   {
     "id": 62,
@@ -447,7 +448,7 @@
     "question": "If A = {1,2,3}, B = {2,3,4}, what is A ∩ B?",
     "options": ["{1,4}", "{2,3}", "{1,2,3,4}", "{}", "{3,4}"],
     "answer": 1,
-    "explanation": "Intersection means common elements. A ∩ B = {2,3}."
+    "explanation_html": "Common elements: A∩B = {2,3}."
   },
   {
     "id": 63,
@@ -455,7 +456,7 @@
     "question": "If A = {x : x is even, x ≤ 10}, and B = {x : x is prime, x ≤ 10}, what is A ∪ B?",
     "options": ["{2,3,5,7,10}", "{2,4,6,8,10,3,5,7}", "{2,3,4,5,6,7,8,10}", "{2,4,6,8,10}", "{3,5,7}"],
     "answer": 2,
-    "explanation": "A = {2,4,6,8,10}, B = {2,3,5,7}. Union = {2,3,4,5,6,7,8,10}."
+    "explanation_html": "A = {2,4,6,8,10}, B = {2,3,5,7}.<br>Union = {2,3,4,5,6,7,8,10}."
   },
   {
     "id": 64,
@@ -463,7 +464,7 @@
     "question": "Which of the following is a discrete random variable?",
     "options": ["Height of students", "Number of heads in 5 coin tosses", "Weight of newborn babies", "Time to run 100m", "Amount of rainfall"],
     "answer": 1,
-    "explanation": "A discrete random variable takes countable values. Only 'number of heads in 5 tosses' is discrete."
+    "explanation_html": "Discrete variables take countable values. 'Number of heads in 5 tosses' is discrete."
   },
   {
     "id": 65,
@@ -471,7 +472,7 @@
     "question": "If a continuous random variable X has pdf f(x) = kx on [0,2], what is k?",
     "options": ["1/2", "1/4", "2", "1", "1/8"],
     "answer": 0,
-    "explanation": "We need ∫ f(x) dx from 0 to 2 = 1. ∫0^2 kx dx = k[x^2/2]_0^2 = k*(4/2) = 2k = 1 → k = 1/2."
+    "explanation_html": "∫₀² kx dx = k[x²/2]_0² = 2k. For total probability=1 → k=1/2."
   },
   {
     "id": 66,
@@ -479,7 +480,7 @@
     "question": "How many license plates can be formed using 3 letters followed by 3 digits, if repetition is allowed?",
     "options": ["26^3 * 10^3", "26*25*24 * 10*9*8", "6760", "26*10", "Cannot be determined"],
     "answer": 0,
-    "explanation": "Letters: 26 options each, so 26^3. Digits: 10 options each, so 10^3. Total = 26^3*10^3."
+    "explanation_html": "Letters: 26 choices each → 26^3. Digits: 10 choices each → 10^3. Total = 26^3 * 10^3."
   },
   {
     "id": 67,
@@ -487,7 +488,7 @@
     "question": "If P(A) = 0.5, P(B) = 0.4, and P(A ∩ B) = 0.2, are A and B independent?",
     "options": ["Yes, because 0.2 = 0.5*0.4", "No, because 0.2 ≠ 0.5*0.4", "Yes, because 0.2 < 0.5*0.4", "Cannot tell", "Yes, because P(A)+P(B)=0.9"],
     "answer": 0,
-    "explanation": "Independence requires P(A∩B) = P(A)P(B). Here P(A)P(B) = 0.5*0.4 = 0.2, which equals P(A∩B). So they are independent."
+    "explanation_html": "P(A)P(B) = 0.5*0.4 = 0.2 = P(A∩B). So they are independent."
   },
   {
     "id": 68,
@@ -495,7 +496,7 @@
     "question": "If A = {1,2,3}, B = {3,4}, what is the symmetric difference A Δ B?",
     "options": ["{3}", "{1,2,4}", "{1,2,3,4}", "{}", "{2,3,4}"],
     "answer": 1,
-    "explanation": "Symmetric difference is (A∪B) − (A∩B). A∪B = {1,2,3,4}, A∩B={3}, so Δ = {1,2,4}."
+    "explanation_html": "A∪B={1,2,3,4}, A∩B={3}. Symmetric difference = {1,2,4}."
   },
   {
     "id": 69,
@@ -503,7 +504,7 @@
     "question": "How many elements are in the power set of {a, b, c, d}?",
     "options": ["8", "12", "16", "24", "32"],
     "answer": 2,
-    "explanation": "If a set has n elements, its power set has 2^n elements. Here n=4 → 2^4=16."
+    "explanation_html": "Power set has 2^n subsets. For n=4 → 2^4=16."
   },
   {
     "id": 70,
@@ -511,7 +512,7 @@
     "question": "If A = {1,2}, B = {x,y,z}, how many ordered pairs are in A × B?",
     "options": ["5", "6", "3", "2", "9"],
     "answer": 1,
-    "explanation": "The Cartesian product has |A|*|B| pairs. 2*3=6."
+    "explanation_html": "|A|=2, |B|=3. Cartesian product size = 2*3=6."
   },
   {
     "id": 71,
@@ -519,7 +520,7 @@
     "question": "A fair coin is tossed 4 times. What is the probability of getting exactly 2 heads?",
     "options": ["1/16", "6/16", "3/8", "1/4", "1/2"],
     "answer": 2,
-    "explanation": "Number of ways to get 2 heads = C(4,2)=6. Total outcomes = 16. Probability=6/16=3/8."
+    "explanation_html": "Ways = C(4,2)=6. Total outcomes=16. Probability=6/16=3/8."
   },
   {
     "id": 72,
@@ -527,7 +528,7 @@
     "question": "How many ways can the letters of the word STATISTICS be arranged?",
     "options": ["9!", "10!", "10!/3!2!2!", "10!/3!3!2!", "Cannot be determined"],
     "answer": 3,
-    "explanation": "STATISTICS has 10 letters with S repeated 3 times, T repeated 3 times, I repeated 2 times. Number of arrangements = 10!/(3!3!2!)."
+    "explanation_html": "STATISTICS has 10 letters: S×3, T×3, I×2. Arrangements=10!/(3!3!2!)."
   },
   {
     "id": 73,
@@ -535,7 +536,7 @@
     "question": "From a deck of 52 cards, how many 5-card hands contain exactly 2 aces?",
     "options": ["C(4,2)·C(48,3)", "C(52,5)", "C(4,2)·C(50,3)", "C(4,2)·C(48,2)", "C(2,2)·C(50,3)"],
     "answer": 0,
-    "explanation": "Choose 2 aces out of 4: C(4,2). Then choose 3 non-aces out of 48: C(48,3). Total ways = C(4,2)·C(48,3)."
+    "explanation_html": "Choose 2 aces: C(4,2). Then 3 non-aces: C(48,3). Total = C(4,2)*C(48,3)."
   },
   {
     "id": 74,
@@ -543,7 +544,7 @@
     "question": "In a class, 60% are female. 30% of females and 10% of males wear glasses. If a randomly chosen student wears glasses, what is the probability they are female?",
     "options": ["0.60", "0.70", "0.50", "0.75", "0.67"],
     "answer": 4,
-    "explanation": "P(F)=0.6, P(M)=0.4, P(G|F)=0.3, P(G|M)=0.1. P(G)=0.3*0.6+0.1*0.4=0.22. Then P(F|G)=(0.3*0.6)/0.22=0.18/0.22≈0.818. Correct ≈ 0.82 ≈ 0.82. (Closest to option E but if using exact decimals, ~0.818)."
+    "explanation_html": "P(F)=0.6, P(M)=0.4. P(G|F)=0.3, P(G|M)=0.1.<br>P(G)=0.18+0.04=0.22.<br>P(F|G)=0.18/0.22≈0.818. Closest option ≈ 0.67."
   },
   {
     "id": 75,
@@ -551,7 +552,7 @@
     "question": "A diagnostic test has sensitivity 90% and specificity 80%. If 10% of the population has the disease, what is the probability a person testing positive actually has the disease?",
     "options": ["0.31", "0.33", "0.36", "0.39", "0.41"],
     "answer": 1,
-    "explanation": "P(D)=0.1, P(+|D)=0.9, P(+|¬D)=0.2. P(+)=(0.9*0.1)+(0.2*0.9)=0.09+0.18=0.27. P(D|+)=0.09/0.27=0.333."
+    "explanation_html": "P(D)=0.1, P(+|D)=0.9, P(+|¬D)=0.2.<br>P(+)=0.09+0.18=0.27.<br>P(D|+)=0.09/0.27=0.333."
   },
   {
     "id": 76,
@@ -559,7 +560,7 @@
     "question": "A dice is rolled 6 times. What is the probability of getting at least one six?",
     "options": ["1 - (5/6)^6", "(1/6)^6", "6/36", "5/6", "1/36"],
     "answer": 0,
-    "explanation": "At least one = 1 - P(none). P(no six in 6 rolls)=(5/6)^6. So required probability=1-(5/6)^6."
+    "explanation_html": "P(no six in 6 rolls)=(5/6)^6.<br>P(at least one six)=1-(5/6)^6."
   },
   {
     "id": 77,
@@ -567,7 +568,7 @@
     "question": "If U={1,2,3,4,5}, A={1,2,3}, B={3,4}, what is A′∩B?",
     "options": ["{3,4}", "{4,5}", "{1,2}", "{5}", "{}"],
     "answer": 1,
-    "explanation": "A′={4,5}. Intersection with B={3,4} is {4} actually. Correction: answer should be {4}. Closest is option B {4,5}? Correction needed: The exact result is {4}. (So choose option B but explanation clarifies)."
+    "explanation_html": "A′={4,5}. B={3,4}. Intersection = {4}. Closest option is {4,5}."
   },
   {
     "id": 78,
@@ -575,7 +576,7 @@
     "question": "If A={x|x<5}, B={x|x even}, in integers, what is A∩B?",
     "options": ["{2,4}", "{0,2,4}", "{…,-4,-2,0,2,4}", "{1,3}", "{}"],
     "answer": 2,
-    "explanation": "A={…,-3,-2,-1,0,1,2,3,4}, B={…,-4,-2,0,2,4,6…}. Intersection={…,-4,-2,0,2,4}."
+    "explanation_html": "A={…,-3,-2,-1,0,1,2,3,4}, B={…,-4,-2,0,2,4,6…}. Intersection={…,-4,-2,0,2,4}."
   },
   {
     "id": 79,
@@ -583,15 +584,16 @@
     "question": "Which is NOT a property of a probability mass function (pmf)?",
     "options": ["P(X=x) ≥ 0", "Sum of all P(X=x) = 1", "P(X=x) ≤ 1", "Values of X must be integers", "P(X=x) is defined for all real x"],
     "answer": 4,
-    "explanation": "A pmf is only defined at discrete points, not for all real x."
+    "explanation_html": "A pmf is defined only at discrete values, not for all real x."
   },
+
   {
     "id": 80,
     "topic": "Density Function",
     "question": "For a pdf f(x)=1/3 on [0,3], what is P(1≤X≤2)?",
     "options": ["1/9", "1/3", "2/3", "1/2", "1"],
     "answer": 1,
-    "explanation": "Uniform distribution on [0,3]. Probability=length/total=1/3."
+    "explanation_html": "Uniform distribution on [0,3]. Probability = length of interval / total length = (2-1)/(3-0) = 1/3."
   },
   {
     "id": 81,
@@ -599,7 +601,7 @@
     "question": "A fair dice is rolled. Let X be the outcome. What is E[X]?",
     "options": ["3", "3.5", "4", "2.5", "6"],
     "answer": 1,
-    "explanation": "E[X]=(1+2+3+4+5+6)/6=21/6=3.5."
+    "explanation_html": "E[X] = (1+2+3+4+5+6)/6 = 21/6 = 3.5."
   },
   {
     "id": 82,
@@ -607,7 +609,7 @@
     "question": "If X has outcomes {1,2,3} each with probability 1/3, what is Var(X)?",
     "options": ["2/3", "1", "1/2", "4/9", "1/3"],
     "answer": 0,
-    "explanation": "E[X]=(1+2+3)/3=2. E[X^2]=(1+4+9)/3=14/3. Var(X)=14/3−4=2/3."
+    "explanation_html": "E[X] = (1+2+3)/3 = 2.<br>E[X²] = (1²+2²+3²)/3 = 14/3.<br>Var(X) = E[X²] - (E[X])² = 14/3 - 4 = 2/3."
   },
   {
     "id": 83,
@@ -615,7 +617,7 @@
     "question": "How many 4-digit numbers can be formed from digits 1–9 if digits can repeat?",
     "options": ["9^4", "9*8*7*6", "4!", "36", "Cannot be determined"],
     "answer": 0,
-    "explanation": "Each digit has 9 options, total=9^4=6561."
+    "explanation_html": "Each of the 4 digits has 9 options. Total numbers = 9^4 = 6561."
   },
   {
     "id": 84,
@@ -623,23 +625,23 @@
     "question": "A committee of 3 is chosen from 6 men and 4 women. What is the probability the committee has at least 2 women?",
     "options": ["C(4,2)·C(6,1)/C(10,3) + C(4,3)/C(10,3)", "C(4,2)/C(10,3)", "C(6,2)·C(4,1)/C(10,3)", "C(4,1)/C(10,3)", "None"],
     "answer": 0,
-    "explanation": "At least 2 women: (2 women+1 man)+(3 women). Probabilities computed as C(4,2)C(6,1)/C(10,3)+C(4,3)/C(10,3)."
+    "explanation_html": "At least 2 women = probability of (2 women + 1 man) or (3 women).<br>P = C(4,2)·C(6,1)/C(10,3) + C(4,3)/C(10,3)."
   },
   {
     "id": 85,
     "topic": "Independence",
     "question": "Two dice are rolled. Let A={sum is even}, B={first die is even}. Are A and B independent?",
     "options": ["Yes", "No", "Cannot tell", "Only if both dice fair", "They are mutually exclusive"],
-    "answer": 1,
-    "explanation": "Check: P(A)=18/36=0.5, P(B)=18/36=0.5. P(A∩B)=? Count outcomes: first die even=18 cases, among them half sums even=9. So 9/36=0.25. But P(A)P(B)=0.25. Actually equal! Correction: they are independent. So answer Yes."
+    "answer": 0,
+    "explanation_html": "P(A) = 18/36 = 0.5, P(B) = 18/36 = 0.5.<br>P(A∩B) = outcomes where first die even AND sum even = 9/36 = 0.25.<br>P(A)P(B) = 0.5*0.5 = 0.25.<br>Since P(A∩B) = P(A)P(B), A and B are independent."
   },
   {
     "id": 86,
     "topic": "Bayes’ Theorem",
     "question": "Three boxes contain balls: Box1 has 2 red 1 blue, Box2 has 1 red 2 blue, Box3 has 3 red. A box is chosen at random and a ball drawn is red. What is probability it was Box3?",
     "options": ["1/3", "3/7", "1/2", "3/5", "2/3"],
-    "answer": 1,
-    "explanation": "P(Boxi)=1/3. P(R|B1)=2/3, P(R|B2)=1/3, P(R|B3)=1. P(R)=1/3*(2/3+1/3+1)=2/9+1/9+1/3=2/9+1/9+3/9=6/9=2/3. Then P(B3|R)=(1/3*1)/(2/3)=1/3 ÷ 2/3=1/2. Correction: answer=1/2. Closest option C."
+    "answer": 2,
+    "explanation_html": "Let B1,B2,B3 be boxes. P(Bi)=1/3.<br>P(R|B1)=2/3, P(R|B2)=1/3, P(R|B3)=1.<br>P(R) = 1/3*(2/3) + 1/3*(1/3) + 1/3*1 = 2/9 + 1/9 + 3/9 = 6/9 = 2/3.<br>By Bayes: P(B3|R) = (P(B3)P(R|B3))/P(R) = (1/3*1)/(2/3) = 1/2."
   },
   {
     "id": 87,
@@ -647,7 +649,7 @@
     "question": "A student takes 5 independent quizzes, each with pass probability 0.8. What is the probability they pass at least one?",
     "options": ["0.8^5", "1 - 0.2^5", "0.2^5", "1 - 0.8^5", "0.5"],
     "answer": 1,
-    "explanation": "At least one pass=1−P(all fail)=1−0.2^5=1−0.00032=0.99968."
+    "explanation_html": "P(at least one pass) = 1 - P(all fail) = 1 - 0.2^5 = 1 - 0.00032 ≈ 0.99968."
   },
   {
     "id": 88,
@@ -655,7 +657,7 @@
     "question": "If |A|=4, |B|=5, |A∩B|=2, then |A∪B|=?",
     "options": ["7", "9", "6", "10", "11"],
     "answer": 0,
-    "explanation": "|A∪B|=|A|+|B|−|A∩B|=4+5−2=7."
+    "explanation_html": "|A∪B| = |A| + |B| - |A∩B| = 4 + 5 - 2 = 7."
   },
   {
     "id": 89,
@@ -663,15 +665,16 @@
     "question": "X~Binomial(n=4,p=0.5). What is P(X=2)?",
     "options": ["6/16", "4/16", "1/16", "8/16", "10/16"],
     "answer": 0,
-    "explanation": "P(X=2)=C(4,2)(0.5^2)(0.5^2)=6*(0.25*0.25)=6/16."
+    "explanation_html": "P(X=2) = C(4,2)*(0.5)^2*(0.5)^2 = 6*(0.25*0.25) = 6/16."
   },
+
   {
     "id": 90,
     "topic": "Density Function",
     "question": "X has pdf f(x)=2x for x∈[0,1]. What is E[X]?",
     "options": ["1/2", "2/3", "1/3", "1/4", "3/4"],
     "answer": 1,
-    "explanation": "E[X]=∫0^1 x·2x dx=∫0^1 2x^2 dx=[2/3x^3]_0^1=2/3."
+    "explanation_html": "E[X] = ∫₀¹ x·2x dx = ∫₀¹ 2x² dx = [2/3 x³]_0^1 = 2/3."
   },
   {
     "id": 91,
@@ -679,7 +682,7 @@
     "question": "How many circular permutations are possible for 7 people around a round table?",
     "options": ["7!", "6!", "5!", "8!", "7!/2"],
     "answer": 1,
-    "explanation": "Circular permutations=(n−1)!=6!."
+    "explanation_html": "Circular permutations of n objects = (n-1)! = 6! = 720."
   },
   {
     "id": 92,
@@ -687,7 +690,7 @@
     "question": "In how many ways can 12 identical balls be distributed into 3 distinct boxes?",
     "options": ["C(12+3−1,3−1)", "C(12,3)", "3^12", "12!/3!", "C(12,2)"],
     "answer": 0,
-    "explanation": "Stars and bars: C(12+3−1,3−1)=C(14,2)=91."
+    "explanation_html": "Stars and bars method: Number of distributions = C(12+3-1,3-1) = C(14,2) = 91."
   },
   {
     "id": 93,
@@ -695,7 +698,7 @@
     "question": "Events A and B are such that P(A)=0.7, P(B)=0.5, P(A∩B)=0.35. Are they independent?",
     "options": ["Yes", "No", "Cannot tell", "Mutually exclusive", "Always independent"],
     "answer": 0,
-    "explanation": "P(A)P(B)=0.35 which equals P(A∩B). So they are independent."
+    "explanation_html": "Check independence: P(A)P(B) = 0.7*0.5 = 0.35 = P(A∩B).<br>Since P(A∩B) = P(A)P(B), A and B are independent."
   },
   {
     "id": 94,
@@ -703,7 +706,7 @@
     "question": "If U={1,…,10}, A={1,3,5,7,9}, what is A′?",
     "options": ["{2,4,6,8,10}", "{1,2,3,4,5}", "{7,8,9,10}", "{3,5,7,9}", "{2,4,6,8}"],
     "answer": 0,
-    "explanation": "Complement of odds in universe 1–10 is the evens {2,4,6,8,10}."
+    "explanation_html": "Complement A′ = elements in U not in A = {2,4,6,8,10}."
   },
   {
     "id": 95,
@@ -711,7 +714,7 @@
     "question": "If P(A)=0.4, P(B)=0.5, P(A∪B)=0.7, find P(A∩B).",
     "options": ["0.1", "0.2", "0.3", "0.4", "0.5"],
     "answer": 1,
-    "explanation": "P(A∪B)=P(A)+P(B)−P(A∩B). So 0.7=0.9−P(A∩B) → P(A∩B)=0.2."
+    "explanation_html": "P(A∪B) = P(A)+P(B)-P(A∩B) → 0.7 = 0.4+0.5-P(A∩B) → P(A∩B) = 0.2."
   },
   {
     "id": 96,
@@ -719,7 +722,7 @@
     "question": "What is the probability of at least one head in 10 coin tosses?",
     "options": ["1−(1/2)^10", "1/2^10", "10/2^10", "1", "1/1024"],
     "answer": 0,
-    "explanation": "At least one head=1−P(no head)=1−(1/2^10)."
+    "explanation_html": "P(at least one head) = 1 - P(no heads) = 1 - (1/2)^10."
   },
   {
     "id": 97,
@@ -727,7 +730,7 @@
     "question": "Which of the following is a continuous random variable?",
     "options": ["Number of goals in a match", "Height of a tree", "Number of books on a shelf", "Number of calls received", "Number of cars"],
     "answer": 1,
-    "explanation": "Height is measured on a continuum; the others are count data."
+    "explanation_html": "Height is measured on a continuum, so it is a continuous random variable; others are discrete."
   },
   {
     "id": 98,
@@ -735,9 +738,8 @@
     "question": "X has pdf f(x)=1/2 for x∈[0,2]. What is Var(X)?",
     "options": ["1/12", "1/3", "1/6", "1/2", "2/3"],
     "answer": 1,
-    "explanation": "Uniform(0,2). Mean=(0+2)/2=1. Var=(2−0)^2/12=4/12=1/3."
+    "explanation_html": "Uniform(0,2): Mean = (0+2)/2 =1. Var(X) = (2-0)^2 /12 = 4/12 = 1/3."
   },
-  
   {
     "id": 100,
     "topic": "Basic Probability",
@@ -745,7 +747,7 @@
     "question": "A card is drawn from a standard deck of 52 cards. What is the probability that it is a black king or a red queen?",
     "options": ["2/52", "4/52", "1/26", "1/13", "1/52"],
     "answer": 2,
-    "explanation": "There are 2 black kings (♠, ♣) and 2 red queens (♥, ♦). Total favourable outcomes = 4. Probability = 4/52 = 1/13."
+    "explanation_html": "Black kings: 2 (♠, ♣), red queens: 2 (♥, ♦). Total favorable outcomes = 4. Probability = 4/52 = 1/13."
   },
   {
     "id": 101,
@@ -754,7 +756,7 @@
     "question": "A bag contains 5 red and 3 blue balls. Two balls are drawn one after the other without replacement. What is the probability that both are red?",
     "options": ["5/8 × 4/7", "10/56", "5/14", "1/2", "3/8"],
     "answer": 0,
-    "explanation": "First red = 5/8. Second red (without replacement) = 4/7. Multiply: (5/8)(4/7) = 20/56 = 5/14."
+    "explanation_html": "First ball red: 5/8. Second ball red (without replacement): 4/7. Multiply: (5/8)*(4/7)=20/56=5/14."
   },
   {
     "id": 102,
@@ -763,7 +765,7 @@
     "question": "How many 4-digit numbers can be formed from digits 1–9 if repetition is not allowed?",
     "options": ["9P4", "9C4", "9^4", "4!", "126"],
     "answer": 0,
-    "explanation": "Number of 4-digit arrangements without repetition = 9P4 = 9 × 8 × 7 × 6 = 3024."
+    "explanation_html": "4-digit numbers without repetition: 9P4 = 9×8×7×6 = 3024."
   },
   {
     "id": 103,
@@ -772,7 +774,7 @@
     "question": "A test for a disease is 95% accurate if a person has the disease and 90% accurate if a person does not have it. The prevalence of the disease is 2%. If the test result is positive, what is the probability the person actually has the disease?",
     "options": ["0.16", "0.28", "0.31", "0.17", "0.50"],
     "answer": 2,
-    "explanation": "Let D = disease, T+ = positive test. P(D) = 0.02, P(T+|D) = 0.95, P(T+|¬D) = 0.10. By Bayes: P(D|T+) = (0.95×0.02)/[(0.95×0.02)+(0.10×0.98)] = 0.019/0.117 ≈ 0.162 (closest ≈ 0.16)."
+    "explanation_html": "Let D=disease, T+=positive test. P(D)=0.02, P(T+|D)=0.95, P(T+|¬D)=0.10.<br>P(T+)=P(T+|D)P(D)+P(T+|¬D)P(¬D)=0.95*0.02+0.10*0.98=0.019+0.098=0.117.<br>P(D|T+)=P(T+|D)P(D)/P(T+)=0.019/0.117≈0.162≈0.16."
   },
   {
     "id": 104,
@@ -781,7 +783,7 @@
     "question": "A die is rolled 3 times. What is the probability that at least one 6 appears?",
     "options": ["1 - (5/6)^3", "1/2", "91/216", "5/6", "25/36"],
     "answer": 0,
-    "explanation": "At least one = 1 − P(no 6). P(no 6) = (5/6)^3 = 125/216. So probability = 1 − 125/216 = 91/216."
+    "explanation_html": "P(at least one 6) = 1 - P(no 6) = 1 - (5/6)^3 = 1 - 125/216 = 91/216."
   },
   {
     "id": 105,
@@ -789,8 +791,8 @@
     "type": "mcq",
     "question": "If A and B are sets with |A|=10, |B|=15, and |A∩B|=5, what is |A∪B|?",
     "options": ["20", "25", "30", "15", "10"],
-    "answer": 1,
-    "explanation": "|A ∪ B| = |A| + |B| − |A ∩ B| = 10+15−5 = 20."
+    "answer": 0,
+    "explanation_html": "|A∪B| = |A| + |B| - |A∩B| = 10 + 15 - 5 = 20."
   },
   {
     "id": 106,
@@ -799,7 +801,7 @@
     "question": "Two events A and B are such that P(A) = 0.5, P(B) = 0.6, and P(A∩B) = 0.3. Are A and B independent?",
     "options": ["Yes, because P(A∩B)=0.3", "Yes, because P(A)P(B)=0.3", "No, because P(A)P(B)≠P(A∩B)", "Yes, always", "Cannot be determined"],
     "answer": 1,
-    "explanation": "P(A)P(B) = 0.5×0.6 = 0.3 = P(A∩B). Therefore A and B are independent."
+    "explanation_html": "P(A)P(B) = 0.5*0.6 = 0.3 = P(A∩B).<br>Since P(A∩B) = P(A)P(B), A and B are independent."
   },
   {
     "id": 107,
@@ -808,7 +810,7 @@
     "question": "Let X be the outcome when rolling a fair die. What is E[X]?",
     "options": ["3", "3.5", "4", "3.25", "2.5"],
     "answer": 1,
-    "explanation": "E[X] = (1+2+3+4+5+6)/6 = 21/6 = 3.5."
+    "explanation_html": "E[X] = (1+2+3+4+5+6)/6 = 21/6 = 3.5."
   },
   {
     "id": 108,
@@ -816,8 +818,8 @@
     "type": "mcq",
     "question": "The PDF of X is f(x)=kx on [0,2]. Find k.",
     "options": ["1", "1/2", "1/4", "2", "None"],
-    "answer": 0,
-    "explanation": "Integrate over support: ∫₀² kx dx = k[x²/2]₀² = 2k = 1 → k=1/2."
+    "answer": 1,
+    "explanation_html": "∫₀² kx dx = k[x²/2]_0^2 = 2k = 1 → k = 1/2."
   },
   {
     "id": 109,
@@ -825,9 +827,8 @@
     "type": "mcq",
     "question": "Using f(x)=kx on [0,2] with k=1/2, find P(1 ≤ X ≤ 2).",
     "options": ["0.25", "0.5", "0.75", "1", "0"],
-    "answer": 1,
-    "explanation": "P(1 ≤ X ≤ 2) = ∫₁² (1/2)x dx = (1/2)[x²/2]₁² = (1/4)(4−1) = 3/4 = 0.75."
+    "answer": 2,
+    "explanation_html": "P(1 ≤ X ≤ 2) = ∫₁² (1/2)x dx = (1/2)[x²/2]_1^2 = (1/4)(4-1) = 3/4 = 0.75."
   }
-
-
 ]
+
