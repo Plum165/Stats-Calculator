@@ -1,60 +1,56 @@
-/* Same as index.html, adding quiz-specific overrides */
+/* Use the same CSS as index.html for theme consistency */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background: var(--bg-gradient, linear-gradient(to bottom right, #2a0000, #660000, #b30000));
-    color: var(--text-color, #ffeaea);
+    transition: all 0.3s ease;
 }
 
+/* Header & Navigation */
 header {
-    padding: 1rem;
-    text-align: center;
-    background: rgba(0,0,0,0.3);
+    padding: 1em;
+    background: linear-gradient(to bottom right, #2a0000, #660000, #b30000);
+    color: #ffeaea;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
 }
 
-.back-button {
-    display: inline-block;
-    margin-top: 0.5rem;
-    padding: 0.5rem 1rem;
-    background-color: #000;
-    color: #ffeaea;
+.nav-button {
+    background: #ffeaea;
+    color: #660000;
+    padding: 0.5em 1em;
     text-decoration: none;
-    border-radius: 5px;
+    border-radius: 8px;
+    margin-top: 0.5em;
 }
 
-button {
-    padding: 0.5rem 1rem;
-    margin: 0.5rem;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #660000;
-    color: #ffeaea;
-    font-weight: bold;
-}
-
-button:hover {
-    background-color: #b30000;
-}
-
+/* Main content */
 main {
-    padding: 1rem;
+    padding: 2em;
 }
 
-#practice-question-container, #test-question-container, #review-container {
-    margin-top: 1rem;
-    padding: 1rem;
-    border: 1px solid #ffeaea;
-    border-radius: 5px;
-    background: rgba(0,0,0,0.2);
+#questionArea, #resultsArea, #topicSelection {
+    margin-top: 1em;
+    border: 2px solid #660000;
+    border-radius: 12px;
+    padding: 1em;
+    background-color: #fff5f5;
 }
 
-input[type="radio"] {
-    margin-right: 0.5rem;
+/* Buttons */
+button {
+    padding: 0.5em 1em;
+    margin: 0.5em 0.2em;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
 }
 
-#timer {
-    font-weight: bold;
-    font-size: 1.2rem;
-}
+/* Theme overrides */
+body.spiderman { background: linear-gradient(to bottom right, #ff0000, #000000); color: #fff; }
+body.blood { background: linear-gradient(to bottom right, #2a0000, #660000, #b30000); color: #ffeaea; }
+body.sapphire { background: linear-gradient(to bottom right, #0f52ba, #8c92ac); color: #f0f0f0; }
+body.emerald { background: linear-gradient(to bottom right, #50c878, #333333); color: #f0f0f0; }
+/* Add other themes similarly */

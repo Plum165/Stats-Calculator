@@ -1,152 +1,265 @@
-let mcqData = [];
-let complexData = [];
-let currentPracticeTopic = '';
-let currentPracticeIndex = 0;
+let questions = [];
+let complexQuestions = [];
+let currentQuestionIndex = 0;
+let userAnswers = [];
+let score = 0;
+let timerInterval;
 let testQuestions = [];
-let currentTestIndex = 0;
-let userTestAnswers = [];
-let testTimer;
-let timeRemaining = 25 * 60; // 25 minutes in seconds
+let testDuration = 25 * 60; // 25 minutes in seconds
 
-// Load questions on page load
-async function loadQuestions() {
-    mcqData = await fetch('questions.json').then(res => res.json());
-    complexData = await fetch('complex.json').then(res => res.json());
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadQuestions();
     populateTopics();
+    initTheme();
+
+    document.getElementById("practiceModeBtn").onclick = () => {
+        document.getElementById("modeSelection").style.display = "none";
+        document.getElementById("topicSelection").style.display = "block";
+    };
+
+    document.getElementById("complexModeBtn").onclick = () => {
+        startComplexPractice();
+    };
+
+    document.getElementById("testModeBtn").onclick = () => {
+        startTest();
+    };
+
+    document.getElementById("startPracticeBtn").onclick = () => {
+        let topic = document.getElementById("topicSelect").value;
+        renderPracticeQuestion(topic);
+    };
+
+    document.getElementById("submitAnswerBtn").onclick = () => {
+        checkPracticeAnswer();
+    };
+
+    document.getElementById("nextQuestionBtn").onclick = () => {
+        nextPracticeQuestion();
+    };
+
+    document.getElementById("restartTestBtn").onclick = () => {
+        location.reload();
+    };
+
+    document.getElementById("themeSelect").onchange = () => {
+        applyTheme(document.getElementById("themeSelect").value);
+    };
+});
+
+async function loadQuestions() {
+    questions = await fetch('questions.json').then(res => res.json());
+    complexQuestions = await fetch('complex.json').then(res => res.json());
 }
 
 function populateTopics() {
-    const topicSelect = document.getElementById('topic-select');
-    const topics = [...new Set([...mcqData.map(q => q.topic), ...complexData.map(q => q.topic)])];
+    let topics = [...new Set(questions.map(q => q.topic))];
+    let select = document.getElementById("topicSelect");
     topics.forEach(t => {
-        const option = document.createElement('option');
-        option.value = t;
-        option.textContent = t;
-        topicSelect.appendChild(option);
+        let opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t;
+        select.appendChild(opt);
     });
 }
 
-// Theme persistence
-function applyTheme() {
-    const theme = localStorage.getItem('theme') || 'blood-red';
-    if(theme === 'blood-red'){
-        document.documentElement.style.setProperty('--bg-gradient', 'linear-gradient(to bottom right, #2a0000, #660000, #b30000)');
-        document.documentElement.style.setProperty('--text-color', '#ffeaea');
-    }
-}
-
 // ---------------- Practice Mode ----------------
+let currentPracticeQuestions = [];
+let currentPracticeTopic = "";
+
 function renderPracticeQuestion(topic) {
     currentPracticeTopic = topic;
-    const questions = mcqData.filter(q => q.topic === topic);
-    if(questions.length === 0) return;
-    const q = questions[currentPracticeIndex % questions.length];
-    const container = document.getElementById('practice-question-container');
-    container.innerHTML = `<p>${q.question}</p>` + q.options.map((opt,i) => `
-        <label><input type="radio" name="practice-answer" value="${i}">${opt}</label><br>
-    `).join('');
+    currentPracticeQuestions = questions.filter(q => q.topic === topic);
+    currentQuestionIndex = 0;
+    userAnswers = [];
+    document.getElementById("topicSelection").style.display = "none";
+    document.getElementById("questionArea").style.display = "block";
+    displayPracticeQuestion();
+}
+
+function displayPracticeQuestion() {
+    const q = currentPracticeQuestions[currentQuestionIndex];
+    document.getElementById("questionContainer").innerHTML = `<h3>${q.question}</h3>`;
+    const optionsDiv = document.getElementById("optionsContainer");
+    optionsDiv.innerHTML = "";
+    q.options.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => {
+            userAnswers[currentQuestionIndex] = i;
+            checkPracticeAnswer();
+        };
+        optionsDiv.appendChild(btn);
+    });
+    document.getElementById("complexAnswerInput").style.display = "none";
+    document.getElementById("submitAnswerBtn").style.display = "none";
+    document.getElementById("nextQuestionBtn").style.display = "none";
 }
 
 function checkPracticeAnswer() {
-    const selected = document.querySelector('input[name="practice-answer"]:checked');
-    if(!selected) return alert('Select an answer first!');
-    const answerIndex = parseInt(selected.value);
-    const questions = mcqData.filter(q => q.topic === currentPracticeTopic);
-    const q = questions[currentPracticeIndex % questions.length];
-    const container = document.getElementById('practice-question-container');
-    container.innerHTML += `<div class="explanation"><h4>Explanation:</h4><p>${q.explanation_html || q.explanation}</p></div>`;
-    MathJax.typeset();
-    currentPracticeIndex++;
+    const q = currentPracticeQuestions[currentQuestionIndex];
+    const userAnswer = userAnswers[currentQuestionIndex];
+    const container = document.getElementById("questionContainer");
+    if(userAnswer === q.answer) {
+        container.innerHTML += `<p style="color:green;"><b>Correct!</b></p>${q.explanation_html}`;
+    } else {
+        container.innerHTML += `<p style="color:red;"><b>Incorrect!</b></p>Your Answer: ${q.options[userAnswer] || 'None'}<br>${q.explanation_html}`;
+    }
+    document.getElementById("nextQuestionBtn").style.display = "inline-block";
 }
+
+function nextPracticeQuestion() {
+    currentQuestionIndex++;
+    if(currentQuestionIndex >= currentPracticeQuestions.length) {
+        alert("You've completed all questions in this topic!");
+        location.reload();
+    } else {
+        displayPracticeQuestion();
+    }
+}
+
+// ---------------- Complex Mode ----------------
+let currentComplexIndex = 0;
+
+function startComplexPractice() {
+    currentComplexIndex = 0;
+    userAnswers = [];
+    document.getElementById("modeSelection").style.display = "none";
+    document.getElementById("questionArea").style.display = "block";
+    displayComplexQuestion();
+}
+
+function displayComplexQuestion() {
+    const q = complexQuestions[currentComplexIndex];
+    document.getElementById("questionContainer").innerHTML = q.question_html;
+    document.getElementById("complexAnswerInput").style.display = "inline-block";
+    document.getElementById("submitAnswerBtn").style.display = "inline-block";
+    document.getElementById("nextQuestionBtn").style.display = "none";
+}
+
+function checkComplexAnswer() {
+    const q = complexQuestions[currentComplexIndex];
+    const userAnswer = document.getElementById("complexAnswerInput").value.trim();
+    userAnswers[currentComplexIndex] = userAnswer;
+    const container = document.getElementById("questionContainer");
+    if(userAnswer === q.correct_answer) {
+        container.innerHTML += `<p style="color:green;"><b>Correct!</b></p>${q.solution_html}`;
+    } else {
+        container.innerHTML += `<p style="color:red;"><b>Incorrect!</b></p>Your Answer: ${userAnswer}<br>${q.solution_html}`;
+    }
+    document.getElementById("nextQuestionBtn").style.display = "inline-block";
+    document.getElementById("submitAnswerBtn").style.display = "none";
+}
+
+document.getElementById("submitAnswerBtn").addEventListener("click", checkComplexAnswer);
+
+document.getElementById("nextQuestionBtn").addEventListener("click", () => {
+    currentComplexIndex++;
+    if(currentComplexIndex >= complexQuestions.length) {
+        alert("You've completed all complex questions!");
+        location.reload();
+    } else {
+        displayComplexQuestion();
+    }
+});
 
 // ---------------- Test Mode ----------------
 function startTest() {
-    testQuestions = shuffleArray(mcqData).slice(0,25);
-    currentTestIndex = 0;
-    userTestAnswers = Array(25).fill(null);
-    document.getElementById('test-area').style.display = 'block';
-    document.getElementById('mode-selection').style.display = 'none';
+    userAnswers = [];
+    score = 0;
+    currentQuestionIndex = 0;
+    testQuestions = shuffleArray([...questions]).slice(0,25);
+    document.getElementById("modeSelection").style.display = "none";
+    document.getElementById("timerArea").style.display = "block";
+    document.getElementById("questionArea").style.display = "block";
     renderTestQuestion();
     startTimer();
 }
 
 function renderTestQuestion() {
-    const q = testQuestions[currentTestIndex];
-    const container = document.getElementById('test-question-container');
-    container.innerHTML = `<p>Q${currentTestIndex+1}: ${q.question}</p>` + q.options.map((opt,i) => `
-        <label><input type="radio" name="test-answer" value="${i}" ${userTestAnswers[currentTestIndex]===i?'checked':''}>${opt}</label><br>
-    `).join('');
+    const q = testQuestions[currentQuestionIndex];
+    document.getElementById("questionContainer").innerHTML = `<h3>Q${currentQuestionIndex+1}: ${q.question}</h3>`;
+    const optionsDiv = document.getElementById("optionsContainer");
+    optionsDiv.innerHTML = "";
+    q.options.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => {
+            recordAnswer(i);
+        };
+        optionsDiv.appendChild(btn);
+    });
+    document.getElementById("complexAnswerInput").style.display = "none";
+    document.getElementById("submitAnswerBtn").style.display = "none";
+    document.getElementById("nextQuestionBtn").style.display = "none";
 }
 
-function recordAnswer() {
-    const selected = document.querySelector('input[name="test-answer"]:checked');
-    userTestAnswers[currentTestIndex] = selected ? parseInt(selected.value) : null;
-    if(currentTestIndex < testQuestions.length - 1){
-        currentTestIndex++;
+function recordAnswer(selected) {
+    userAnswers[currentQuestionIndex] = selected;
+    currentQuestionIndex++;
+    if(currentQuestionIndex >= testQuestions.length) {
+        submitTest();
+    } else {
         renderTestQuestion();
     }
 }
 
 function submitTest() {
-    clearInterval(testTimer);
-    let score = 0;
-    testQuestions.forEach((q,i) => {
-        if(userTestAnswers[i] === q.answer) score++;
+    clearInterval(timerInterval);
+    score = testQuestions.reduce((acc, q, idx) => acc + (userAnswers[idx] === q.answer ? 1 : 0), 0);
+    showResults();
+}
+
+function showResults() {
+    document.getElementById("questionArea").style.display = "none";
+    document.getElementById("timerArea").style.display = "none";
+    document.getElementById("resultsArea").style.display = "block";
+    document.getElementById("scoreDisplay").textContent = `Your Score: ${score} / ${testQuestions.length}`;
+    const review = document.getElementById("reviewContainer");
+    review.innerHTML = "";
+    testQuestions.forEach((q, idx) => {
+        const div = document.createElement("div");
+        div.innerHTML = `<h4>Q${idx+1}: ${q.question}</h4>
+                         <p>Your Answer: ${q.options[userAnswers[idx]] || 'None'}</p>
+                         <p>Correct Answer: ${q.options[q.answer]}</p>
+                         ${q.explanation_html}`;
+        review.appendChild(div);
     });
-    showResults(score);
 }
 
-function showResults(score) {
-    document.getElementById('test-area').style.display = 'none';
-    const resultsArea = document.getElementById('results-area');
-    resultsArea.style.display = 'block';
-    document.getElementById('score-summary').textContent = `You scored ${score} out of ${testQuestions.length}`;
-    const review = document.getElementById('review-container');
-    review.innerHTML = testQuestions.map((q,i)=>`
-        <div class="review-question">
-            <p>Q${i+1}: ${q.question}</p>
-            <p>Your answer: ${q.options[userTestAnswers[i]] || 'No Answer'}</p>
-            <p>Correct answer: ${q.options[q.answer]}</p>
-            <div class="explanation">${q.explanation_html || q.explanation}</div>
-        </div>
-    `).join('');
-    MathJax.typeset();
-}
-
+// ---------------- Timer ----------------
 function startTimer() {
-    timeRemaining = 25 * 60;
-    testTimer = setInterval(() => {
-        const min = Math.floor(timeRemaining/60);
-        const sec = timeRemaining % 60;
-        document.getElementById('timer').textContent = `${min}:${sec.toString().padStart(2,'0')}`;
-        if(timeRemaining-- <= 0){
-            clearInterval(testTimer);
+    let timeLeft = testDuration;
+    const timerEl = document.getElementById("timer");
+    timerInterval = setInterval(() => {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+        if(timeLeft <= 0) {
+            clearInterval(timerInterval);
             submitTest();
         }
-    },1000);
+        timeLeft--;
+    }, 1000);
 }
 
 // ---------------- Utilities ----------------
-function shuffleArray(arr){
-    return arr.map(a=>[Math.random(),a]).sort((a,b)=>a[0]-b[0]).map(a=>a[1]);
+function shuffleArray(array) {
+    for(let i = array.length -1; i>0; i--){
+        const j = Math.floor(Math.random() * (i+1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
 }
 
-// ---------------- Event Listeners ----------------
-document.getElementById('practice-mode-btn').addEventListener('click', ()=>{
-    document.getElementById('practice-area').style.display = 'block';
-    document.getElementById('mode-selection').style.display = 'none';
-    renderPracticeQuestion(document.getElementById('topic-select').value);
-});
+// ---------------- Theme ----------------
+function initTheme() {
+    const saved = localStorage.getItem("theme") || "spiderman";
+    applyTheme(saved);
+    document.getElementById("themeSelect").value = saved;
+}
 
-document.getElementById('test-mode-btn').addEventListener('click', startTest);
-document.getElementById('check-practice-answer-btn').addEventListener('click', checkPracticeAnswer);
-document.getElementById('next-question-btn').addEventListener('click', recordAnswer);
-document.getElementById('submit-test-btn').addEventListener('click', submitTest);
-document.getElementById('restart-btn').addEventListener('click', ()=>{
-    document.getElementById('results-area').style.display = 'none';
-    document.getElementById('mode-selection').style.display = 'block';
-});
-
-// Initialize
-applyTheme();
-loadQuestions();
+function applyTheme(theme) {
+    document.body.className = theme;
+    localStorage.setItem("theme", theme);
+}

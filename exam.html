@@ -5,43 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistics Practice Portal</title>
     <link rel="stylesheet" href="style.css">
-    <!-- MathJax for formula rendering -->
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+    <!-- MathJax for equations -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     <header>
         <h1>Statistics Practice Portal</h1>
-        <a href="index.html" class="back-button">← Back to Stats Calculator</a>
+        <nav>
+            <a href="index.html" class="nav-button">Back to Stats Calculator</a>
+        </nav>
+        <label for="themeSelect">Select Theme:</label>
+        <select id="themeSelect">
+            <option value="spiderman">Spiderman (Default)</option>
+            <option value="blood">Blood Red</option>
+            <option value="sapphire">Sapphire & Steel</option>
+            <option value="emerald">Emerald & Charcoal</option>
+            <option value="digital">Digital Twilight</option>
+            <option value="coral">Coral & Aqua</option>
+            <option value="electric">Electric Citrus</option>
+            <option value="artisan">Artisan Clay</option>
+            <option value="forest">Forest Canopy</option>
+            <option value="ocean">Ocean Depth</option>
+            <option value="desert">Desert Sunset</option>
+            <option value="monochrome">Monochrome Focus</option>
+            <option value="soft">Soft Nordic</option>
+            <option value="neutral">Neutral Peach</option>
+            <option value="retro">Retro Pop</option>
+            <option value="cyberpunk">Cyberpunk Glow</option>
+            <option value="plum">Plum & Gold</option>
+        </select>
     </header>
 
     <main>
-        <section id="mode-selection">
-            <button id="practice-mode-btn">Practice by Topic</button>
-            <button id="test-mode-btn">Start Timed Test</button>
+        <section id="modeSelection">
+            <h2>Choose Mode</h2>
+            <button id="practiceModeBtn">Practice by Topic</button>
+            <button id="complexModeBtn">Complex Questions</button>
+            <button id="testModeBtn">Start Timed Test</button>
         </section>
 
-        <!-- Practice Mode Area -->
-        <section id="practice-area" style="display:none;">
-            <label for="topic-select">Select Topic:</label>
-            <select id="topic-select"></select>
-            <div id="practice-question-container"></div>
-            <button id="check-practice-answer-btn">Submit Answer</button>
+        <section id="topicSelection" style="display:none;">
+            <h3>Select Topic</h3>
+            <select id="topicSelect"></select>
+            <button id="startPracticeBtn">Start Practice</button>
         </section>
 
-        <!-- Test Mode Area -->
-        <section id="test-area" style="display:none;">
-            <div id="test-timer">Time Remaining: <span id="timer">25:00</span></div>
-            <div id="test-question-container"></div>
-            <button id="next-question-btn">Next Question</button>
-            <button id="submit-test-btn">Submit Test</button>
+        <section id="questionArea" style="display:none;">
+            <div id="questionContainer"></div>
+            <div id="optionsContainer"></div>
+            <input type="text" id="complexAnswerInput" placeholder="Type your answer here" style="display:none;">
+            <button id="submitAnswerBtn">Submit Answer</button>
+            <button id="nextQuestionBtn" style="display:none;">Next Question</button>
         </section>
 
-        <!-- Results Section -->
-        <section id="results-area" style="display:none;">
+        <section id="timerArea" style="display:none;">
+            <p>Time Remaining: <span id="timer">00:00</span></p>
+        </section>
+
+        <section id="resultsArea" style="display:none;">
             <h2>Test Results</h2>
-            <div id="score-summary"></div>
-            <div id="review-container"></div>
-            <button id="restart-btn">Return to Mode Selection</button>
+            <p id="scoreDisplay"></p>
+            <div id="reviewContainer"></div>
+            <button id="restartTestBtn">Restart Test</button>
         </section>
     </main>
 
