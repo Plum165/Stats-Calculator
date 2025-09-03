@@ -252,7 +252,7 @@ function startTest() {
     testInterface.style.display = 'block';
 
     renderTestQuestion();
-    startTimer(45 * 60); // 45 minutes in seconds
+    startTimer(90 * 60); // 90 minutes in seconds
 }
 
 function startTimer(duration) {
