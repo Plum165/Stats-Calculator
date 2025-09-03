@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en" data-theme="bloodred">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Interactive Stats Calculator — Moegamat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- MathJax for clean math rendering -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$','$'], ['\\(','\\)']], macros: {RR: "\\mathbb{R}"} },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+    :root{
+      --bg1:#2a0000;--bg2:#660000;--bg3:#b30000;--text:#ffeaea;
+      --card-bg: rgba(255,255,255,0.03);
+      --card-border: rgba(255,255,255,0.06);
+      --btn1: linear-gradient(90deg,#7f1d1d,#b91c1c);
+      --btn1-hover: linear-gradient(90deg,#991b1b,#dc2626);
+      --ghost-bg: #1a1a1a;
+      --ghost-hover: rgba(255,255,255,0.06);
+    }
+
+    /* PAGE */
+    html,body{height:100%}
+    body{
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      margin:0;padding:0;
+      background: linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+      color: var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* CARDS & LAYOUT */
+    .container{max-width:1100px;margin:0 auto;padding:1.25rem}
+    .glass{
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+    }
+    header .brand-title{font-weight:800;font-size:1.6rem}
+    .grid-main{display:grid;gap:1.25rem;grid-template-columns:1fr}
+    @media(min-width:1000px){ .grid-main{grid-template-columns:360px 1fr} }
+
+    /* CONTROLS */
+    .btn {
+      display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+      padding:.55rem .9rem;border-radius:.6rem;font-weight:700;border:none;cursor:pointer;
+      transition:all .14s ease;
+    }
+    .btn-primary{background:var(--btn1);color:white;box-shadow:0 8px 20px rgba(0,0,0,0.35)}
+    .btn-primary:hover{background:var(--btn1-hover);transform:translateY(-2px)}
+    .btn-ghost{background:var(--ghost-bg);color:var(--text);border:1px solid rgba(255,255,255,0.06)}
+    .btn-ghost:hover{background:var(--ghost-hover);transform:translateY(-1px)}
+    .input{
+      width:100%;padding:.5rem .75rem;border-radius:8px;border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.03);color:var(--text);outline:none;font-size:0.95rem;
+    }
+    .select{
+      appearance:none;padding:.5rem .8rem;border-radius:8px;border:1px solid rgba(0,0,0,0.08);
+      background:white;color:#000;font-weight:600;
+    }
+
+    /* HELP POPUP */
+    .help-inline{display:inline-block;margin-left:.45rem;background:transparent;border-radius:6px;padding:.1rem .35rem;border:1px solid rgba(255,255,255,0.06);cursor:pointer}
+    .help-popup{
+      position:fixed;z-index:1200;display:none;max-width:320px;background:#0f1724;color:#fff;padding:.8rem;border-radius:8px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.6);font-size:.92rem;line-height:1.35;border:1px solid rgba(255,255,255,0.04)
+    }
+    .help-popup h4{margin:0 0 .35rem 0;font-weight:700;font-size:1rem}
+    .help-popup p{margin:0}
+
+    /* OUTPUT STEPS */
+    .steps { margin-top:.5rem; padding:.85rem; border-radius:8px; background:rgba(0,0,0,0.12); font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-size:.95rem; color:var(--text) }
+    .step { margin-bottom:.75rem }
+    .step p{ margin:0; padding:0.08rem 0 }
+    .formula { margin-top:.4rem; padding:.45rem; background:rgba(255,255,255,0.02); border-radius:6px }
+
+    /* TOPIC CARD */
+    .topic-card { padding:1rem; min-height:280px; border-radius:10px; background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.03)); border:1px solid rgba(255,255,255,0.03) }
+
+    /* THEME SWATCH ROW (for accessibility preview) */
+    .swatches { display:flex; gap:.5rem; align-items:center }
+    .swatch{ width:46px; height:30px; border-radius:6px; box-shadow:0 8px 18px rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.06); cursor:pointer}
+
+    /* FOOTER */
+    footer{margin-top:1.5rem;text-align:center;opacity:.9;font-size:.92rem}
+
+    /* small helpers */
+    label{display:block;font-weight:600;margin-bottom:.35rem}
+    .muted{opacity:.85;font-size:.95rem}
+    .mb{margin-bottom:.75rem}
+
+    /* ensure math svg contrast */
+    .mjx-svg-href, .mjx-chtml { color:var(--text) !important; fill:var(--text) !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="glass p-4 flex items-center justify-between mb-4">
+      <div>
+        <div class="brand-title">Interactive Stats Calculator</div>
+        <div class="muted">Step-by-step worked examples — by <strong>Moegamat Samsodien</strong>. <span style="font-style:italic">Version 1.2</span></div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="muted">Theme</div>
+        <select id="theme-dropdown" class="select" aria-label="Choose theme">
+          <!-- many themes as requested -->
+          <option value="spiderman">Spiderman (default)</option>
+          <option value="bloodred" selected>Blood Red</option>
+          <option value="red-blue">Red & Blue</option>
+          <option value="purple-black">Purple & Black</option>
+          <option value="sapphire-steel">Sapphire & Steel</option>
+          <option value="emerald-charcoal">Emerald & Charcoal</option>
+          <option value="digital-twilight">Digital Twilight</option>
+          <option value="coral-aqua">Coral & Aqua</option>
+          <option value="electric-citrus">Electric Citrus</option>
+          <option value="artisan-clay">Artisan Clay</option>
+          <option value="forest-canopy">Forest Canopy</option>
+          <option value="ocean-depth">Ocean Depth</option>
+          <option value="desert-sunset">Desert Sunset</option>
+          <option value="monochrome-focus">Monochrome Focus</option>
+          <option value="soft-nordic">Soft Nordic</option>
+          <option value="neutral-peach">Neutral Peach</option>
+          <option value="retro-pop">Retro Pop</option>
+          <option value="cyberpunk-glow">Cyberpunk Glow</option>
+          <option value="plum-gold">Plum & Gold</option>
+        </select>
+        <button id="reset-theme" class="btn btn-ghost">Reset</button>
+      </div>
+    </header>
+
+    <main class="grid-main">
+      <!-- LEFT: topics -->
+      <aside class="glass p-4">
+        <h3 class="mb">Topics</h3>
+        <p class="muted mb">Pick a topic and fill the inputs. Each input has a help icon explaining what it's for. Click <strong>Explain</strong> to get step-by-step working (MathJax).</p>
+
+        <div class="space-y-3">
+          <button class="btn btn-primary w-full topic-select" data-topic="prob">1 — Basic Probability</button>
+          <button class="btn btn-primary w-full topic-select" data-topic="perm">2 — Permutations & Combinations</button>
+          <button class="btn btn-primary w-full topic-select" data-topic="bayes">3 — Bayes' Theorem</button>
+          <button class="btn btn-primary w-full topic-select" data-topic="cond">4 — Conditional Probability</button>
+        </div>
+
+        <div class="mt-5">
+          <h4 class="mb">Quick examples</h4>
+          <div class="space-y-2">
+            <button class="btn btn-ghost w-full" id="load-bayes-example">Load Bayes example</button>
+            <button class="btn btn-ghost w-full" id="load-prob-example">Load Probability example</button>
+            <button class="btn btn-ghost w-full" id="load-pc-example">Load Perm/Comb example</button>
+            <button class="btn btn-ghost w-full" id="load-cond-example">Load Conditional example</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- RIGHT: calculator area -->
+      <section class="glass p-4">
+        <div id="topic-root">
+          <!-- rendered by JS -->
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      © <span id="year"></span> Moegamat Samsodien — Interactive Stats Calculator. <span style="font-style:italic">Misha Calculator</span>
+    </footer>
+  </div>
+
+  <!-- Help popup element (single floating element reused) -->
+  <div id="help-popup" class="help-popup" role="dialog" aria-hidden="true"></div>
+
+<script>
+/* -----------------------------------------
+   Themes: palette data + applyTheme function
+   - When theme is applied it updates CSS vars for bg and button colors.
+   - Also updates primary button / ghost styles via CSS variables changed on :root.
+----------------------------------------- */
+const themes = {
+  'spiderman': { bg:['#0b172a','#d62828','#e63946'], text:'#ffffff', btn1:'linear-gradient(90deg,#d62828,#e63946)', btn1hover:'linear-gradient(90deg,#ff3b3b,#ff6b6b)', ghost:'#111827', ghostHover:'rgba(255,255,255,0.06)'},
+  'bloodred': { bg:['#2a0000','#660000','#b30000'], text:'#ffeaea', btn1:'linear-gradient(90deg,#7f1d1d,#b91c1c)', btn1hover:'linear-gradient(90deg,#991b1b,#dc2626)', ghost:'#1a1a1a', ghostHover:'rgba(255,255,255,0.06)'},
+  'red-blue': { bg:['#2b2d42','#ef233c','#3a86ff'], text:'#ffffff', btn1:'linear-gradient(90deg,#ef233c,#3a86ff)', btn1hover:'linear-gradient(90deg,#ff4f5b,#4f7dff)', ghost:'#0f1724', ghostHover:'rgba(255,255,255,0.06)'},
+  'purple-black': { bg:['#0f0b1d','#3b0d54','#12002b'], text:'#ffffff', btn1:'linear-gradient(90deg,#3b0d54,#7928ca)', btn1hover:'linear-gradient(90deg,#5b21b6,#7c3aed)', ghost:'#0b1020', ghostHover:'rgba(255,255,255,0.06)'},
+  'sapphire-steel': { bg:['#13293d','#006494','#247ba0'], text:'#ffffff', btn1:'linear-gradient(90deg,#006494,#247ba0)', btn1hover:'linear-gradient(90deg,#0a6fb4,#4fb0df)', ghost:'#0b1220', ghostHover:'rgba(255,255,255,0.06)'},
+  'emerald-charcoal': { bg:['#004d40','#1c313a','#2e7d32'], text:'#ffffff', btn1:'linear-gradient(90deg,#005b4f,#2e7d32)', btn1hover:'linear-gradient(90deg,#0a966a,#3ba27b)', ghost:'#08201a', ghostHover:'rgba(255,255,255,0.06)'},
+  'digital-twilight': { bg:['#0f2027','#203a43','#2c5364'], text:'#ffffff', btn1:'linear-gradient(90deg,#203a43,#2c5364)', btn1hover:'linear-gradient(90deg,#264653,#2a9d8f)', ghost:'#071017', ghostHover:'rgba(255,255,255,0.06)'},
+  'coral-aqua': { bg:['#ff6f61','#6bc5d2','#004d61'], text:'#ffffff', btn1:'linear-gradient(90deg,#ff6f61,#6bc5d2)', btn1hover:'linear-gradient(90deg,#ff8b7a,#7fd0da)', ghost:'#0b1b1f', ghostHover:'rgba(255,255,255,0.06)'},
+  'electric-citrus': { bg:['#ff9f1c','#ffbf69','#ff4040'], text:'#ffffff', btn1:'linear-gradient(90deg,#ff9f1c,#ff4040)', btn1hover:'linear-gradient(90deg,#ffb84d,#ff6b6b)', ghost:'#1a0f0f', ghostHover:'rgba(255,255,255,0.06)'},
+  'artisan-clay': { bg:['#b3541e','#d9a066','#8c4a2f'], text:'#ffffff', btn1:'linear-gradient(90deg,#b3541e,#d9a066)', btn1hover:'linear-gradient(90deg,#c06f38,#e3b079)', ghost:'#1b0f0a', ghostHover:'rgba(255,255,255,0.06)'},
+  'forest-canopy': { bg:['#004b23','#006400','#228b22'], text:'#ffffff', btn1:'linear-gradient(90deg,#006400,#228b22)', btn1hover:'linear-gradient(90deg,#2bb673,#2dda7c)', ghost:'#071409', ghostHover:'rgba(255,255,255,0.06)'},
+  'ocean-depth': { bg:['#011f4b','#03396c','#005b96'], text:'#ffffff', btn1:'linear-gradient(90deg,#03396c,#005b96)', btn1hover:'linear-gradient(90deg,#19647e,#2a9d8f)', ghost:'#061226', ghostHover:'rgba(255,255,255,0.06)'},
+  'desert-sunset': { bg:['#ff7e5f','#feb47b','#ffcc70'], text:'#000000', btn1:'linear-gradient(90deg,#ff7e5f,#feb47b)', btn1hover:'linear-gradient(90deg,#ff986b,#ffd49b)', ghost:'#fff5eb', ghostHover:'rgba(0,0,0,0.06)'},
+  'monochrome-focus': { bg:['#111111','#333333','#555555'], text:'#ffffff', btn1:'linear-gradient(90deg,#444444,#222222)', btn1hover:'linear-gradient(90deg,#666666,#333333)', ghost:'#0c0c0c', ghostHover:'rgba(255,255,255,0.06)'},
+  'soft-nordic': { bg:['#a8dadc','#457b9d','#1d3557'], text:'#000000', btn1:'linear-gradient(90deg,#a8dadc,#457b9d)', btn1hover:'linear-gradient(90deg,#bfeceb,#5a9bdd)', ghost:'#ffffff', ghostHover:'rgba(0,0,0,0.06)'},
+  'neutral-peach': { bg:['#ffe0b2','#f48fb1','#f06292'], text:'#000000', btn1:'linear-gradient(90deg,#ffe0b2,#f06292)', btn1hover:'linear-gradient(90deg,#ffd9ad,#ff7aa3)', ghost:'#fff5f6', ghostHover:'rgba(0,0,0,0.06)'},
+  'retro-pop': { bg:['#ff00ff','#00ffff','#ffff00'], text:'#000000', btn1:'linear-gradient(90deg,#ff00ff,#00ffff)', btn1hover:'linear-gradient(90deg,#ff44ff,#44ffff)', ghost:'#fff', ghostHover:'rgba(0,0,0,0.06)'},
+  'cyberpunk-glow': { bg:['#0f0b1d','#ff0080','#7928ca'], text:'#ffffff', btn1:'linear-gradient(90deg,#ff0080,#7928ca)', btn1hover:'linear-gradient(90deg,#ff3aa0,#9d5df7)', ghost:'#07101a', ghostHover:'rgba(255,255,255,0.06)'},
+  'plum-gold': { bg:['#4b006e','#b07bac','#ffd700'], text:'#ffffff', btn1:'linear-gradient(90deg,#4b006e,#ffd700)', btn1hover:'linear-gradient(90deg,#7a2fb1,#ffd700)', ghost:'#12081a', ghostHover:'rgba(255,255,255,0.06)'}
+};
+
+function applyTheme(name){
+  const t = themes[name] || themes['bloodred'];
+  // page background variables
+  document.documentElement.style.setProperty('--bg1', t.bg[0]);
+  document.documentElement.style.setProperty('--bg2', t.bg[1]);
+  document.documentElement.style.setProperty('--bg3', t.bg[2]);
+  // text color (used on non-white buttons etc.)
+  document.documentElement.style.setProperty('--text', t.text);
+  // button and ghost colors
+  document.documentElement.style.setProperty('--btn1', t.btn1);
+  document.documentElement.style.setProperty('--btn1-hover', t.btn1hover);
+  document.documentElement.style.setProperty('--ghost-bg', t.ghost || '#111827');
+  document.documentElement.style.setProperty('--ghost-hover', t.ghostHover || 'rgba(255,255,255,0.06)');
+  // update visible button styles directly for older browsers
+  document.querySelectorAll('.btn-primary').forEach(b => { b.style.background = t.btn1; });
+  document.querySelectorAll('.btn-primary').forEach(b => { b.onmouseover = () => b.style.background = t.btn1hover; b.onmouseout = () => b.style.background = t.btn1; });
+  document.querySelectorAll('.btn-ghost').forEach(b => { b.style.background = t.ghost; b.onmouseover = () => b.style.background = t.ghostHover; b.onmouseout = () => b.style.background = t.ghost; });
+  // persist
+  localStorage.setItem('statsTheme', name);
+}
+
+// init theme from localStorage or default
+const savedTheme = localStorage.getItem('statsTheme') || 'bloodred';
+document.getElementById('theme-dropdown').value = savedTheme;
+applyTheme(savedTheme);
+document.getElementById('theme-dropdown').addEventListener('change', e => applyTheme(e.target.value));
+document.getElementById('reset-theme').addEventListener('click', ()=> { document.getElementById('theme-dropdown').value = 'bloodred'; applyTheme('bloodred'); });
+
+/* -----------------------------------------
+   Topic rendering + event handlers
+----------------------------------------- */
+const topicRoot = document.getElementById('topic-root');
+
+function el(html){
+  const template = document.createElement('template');
+  template.innerHTML = html.trim();
+  return template.content.firstChild;
+}
+
+function renderTopic(topic){
+  let html = '';
+  if(topic==='prob') html = probHTML();
+  else if(topic==='perm') html = permHTML();
+  else if(topic==='bayes') html = bayesHTML();
+  else if(topic==='cond') html = condHTML();
+  topicRoot.innerHTML = '';
+  topicRoot.appendChild(el(html));
+  // attach handlers after render
+  bindTopicEvents(topic);
+  // Typeset math if any
+  if(window.MathJax) MathJax.typesetPromise?.();
+}
+
+/* ---------- HTML fragments ---------- */
+function probHTML(){
+  return `
+  <div class="topic-card">
+    <h2 style="font-weight:800">Basic Probability</h2>
+    <p class="muted">Definition: $P(A)=\\dfrac{\\text{favourable outcomes}}{\\text{total outcomes}}$. Use counts or probabilities.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:.9rem">
+      <div>
+        <label>Favourable outcomes (k) <button class="help-inline" data-help="Number of successful outcomes (e.g. number of red cards in a deck).">?</button></label>
+        <input id="prob-k" class="input" type="number" min="0" value="1" />
+      </div>
+      <div>
+        <label>Total outcomes (n) <button class="help-inline" data-help="Size of the sample space (e.g. 52 cards).">?</button></label>
+        <input id="prob-n" class="input" type="number" min="1" value="52" />
+      </div>
+    </div>
+
+    <div style="margin-top:.9rem;display:flex;gap:.6rem">
+      <button id="prob-explain" class="btn btn-primary">Explain</button>
+      <button id="prob-clear" class="btn btn-ghost">Clear</button>
+    </div>
+
+    <div id="prob-output" class="steps" aria-live="polite" style="margin-top:.9rem"></div>
+  </div>`;
+}
+
+function permHTML(){
+  return `
+  <div class="topic-card">
+    <h2 style="font-weight:800">Permutations & Combinations</h2>
+    <p class="muted">Permutations (order matters): $P(n,k)=\\dfrac{n!}{(n-k)!}$. Combinations (order doesn't): $C(n,k)=\\dfrac{n!}{k!(n-k)!}$</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:.9rem">
+      <div>
+        <label>Total items (n) <button class="help-inline" data-help="Total number of items to choose from.">?</button></label>
+        <input id="pc-n" class="input" type="number" min="0" value="5" />
+      </div>
+      <div>
+        <label>Selected (k) <button class="help-inline" data-help="Number selected (k) must be ≤ n).">?</button></label>
+        <input id="pc-k" class="input" type="number" min="0" value="3" />
+      </div>
+    </div>
+
+    <div style="margin-top:.9rem;display:flex;gap:.6rem">
+      <button id="pc-explain" class="btn btn-primary">Explain</button>
+      <button id="pc-clear" class="btn btn-ghost">Clear</button>
+    </div>
+
+    <div id="pc-output" class="steps" style="margin-top:.9rem"></div>
+  </div>`;
+}
+
+function bayesHTML(){
+  return `
+  <div class="topic-card">
+    <h2 style="font-weight:800">Bayes' Theorem</h2>
+    <p class="muted">Posterior: $P(A|B)=\\dfrac{P(B|A)P(A)}{P(B)}$ with $P(B)=P(B|A)P(A)+P(B|\\neg A)P(\\neg A)$</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:.9rem">
+      <div>
+        <label>Prior $P(A)$ <button class="help-inline" data-help="Prior probability of event A (0 to 1).">?</button></label>
+        <input id="bayes-pa" class="input" type="number" min="0" max="1" step="any" value="0.01" />
+      </div>
+      <div>
+        <label>Likelihood $P(B|A)$ <button class="help-inline" data-help="Probability of observing B if A is true (sensitivity).">?</button></label>
+        <input id="bayes-l" class="input" type="number" min="0" max="1" step="any" value="0.95" />
+      </div>
+      <div>
+        <label>False positive $P(B|¬A)$ <button class="help-inline" data-help="Probability of observing B if A is false (false positive rate).">?</button></label>
+        <input id="bayes-fp" class="input" type="number" min="0" max="1" step="any" value="0.05" />
+      </div>
+      <div>
+        <label>Optional: Provide $P(B)$ <button class="help-inline" data-help="If you already know P(B) provide it; otherwise leave blank to compute from priors.">?</button></label>
+        <input id="bayes-pb" class="input" type="number" min="0" max="1" step="any" placeholder="auto" />
+      </div>
+    </div>
+
+    <div style="margin-top:.9rem;display:flex;gap:.6rem">
+      <button id="bayes-explain" class="btn btn-primary">Explain</button>
+      <button id="bayes-clear" class="btn btn-ghost">Clear</button>
+    </div>
+
+    <div id="bayes-output" class="steps" style="margin-top:.9rem"></div>
+  </div>`;
+}
+
+function condHTML(){
+  return `
+  <div class="topic-card">
+    <h2 style="font-weight:800">Conditional Probability</h2>
+    <p class="muted">Definition: $P(A|B)=\\dfrac{P(A\\cap B)}{P(B)}$. Provide joint probability or joint count and P(B).</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:.9rem">
+      <div>
+        <label>P(A ∩ B) (joint) <button class="help-inline" data-help="Joint probability or joint count. If counting, ensure you use same denominator units as P(B).">?</button></label>
+        <input id="cond-joint" class="input" type="number" min="0" step="any" value="0.02" />
+      </div>
+      <div>
+        <label>P(B) <button class="help-inline" data-help="Probability of B. If using counts, provide total outcomes instead. Must be > 0.">?</button></label>
+        <input id="cond-b" class="input" type="number" min="0" step="any" value="0.1" />
+      </div>
+    </div>
+
+    <div style="margin-top:.9rem;display:flex;gap:.6rem">
+      <button id="cond-explain" class="btn btn-primary">Explain</button>
+      <button id="cond-clear" class="btn btn-ghost">Clear</button>
+    </div>
+
+    <div id="cond-output" class="steps" style="margin-top:.9rem"></div>
+  </div>`;
+}
+
+/* ---------- Event binding + calculators ---------- */
+
+document.querySelectorAll('.topic-select').forEach(btn => {
+  btn.addEventListener('click', () => renderTopic(btn.dataset.topic));
+});
+
+// help popup behaviour (single floating element reused)
+const helpPopup = document.getElementById('help-popup');
+let helpTimeout = null;
+
+function showHelp(text, x, y){
+  helpPopup.innerHTML = `<h4>Help</h4><p>${text}</p>`;
+  helpPopup.style.left = (x + 12) + 'px';
+  helpPopup.style.top = (y + 12) + 'px';
+  helpPopup.style.display = 'block';
+  helpPopup.setAttribute('aria-hidden', 'false');
+  clearTimeout(helpTimeout);
+}
+
+function hideHelpSoon(){
+  clearTimeout(helpTimeout);
+  helpTimeout = setTimeout(()=>{ helpPopup.style.display = 'none'; helpPopup.setAttribute('aria-hidden','true'); }, 300);
+}
+
+document.addEventListener('mousemove', ()=> {
+  // if popup is visible and mouse moves away quickly hide soon
+  if(helpPopup.style.display === 'block') hideHelpSoon();
+});
+
+// after content is rendered bind help-inline buttons
+function bindHelpInline(){
+  document.querySelectorAll('.help-inline').forEach(el => {
+    el.onmouseenter = (ev) => { showHelp(el.getAttribute('data-help'), ev.clientX, ev.clientY); };
+    el.onmousemove = (ev) => { helpPopup.style.left = (ev.clientX + 12) + 'px'; helpPopup.style.top = (ev.clientY + 12) + 'px'; };
+    el.onmouseleave = () => { hideHelpSoon(); };
+    el.onclick = (ev) => { // click will pin for 2.5s
+      showHelp(el.getAttribute('data-help'), ev.clientX, ev.clientY);
+      clearTimeout(helpTimeout);
+      helpTimeout = setTimeout(()=>{ helpPopup.style.display = 'none'; helpPopup.setAttribute('aria-hidden','true'); }, 2500);
+    };
+  });
+}
+
+/* Formatting helper: render steps as HTML paragraphs (no newline artifacts) */
+function renderStepsContainer(container, steps){
+  container.innerHTML = '';
+  steps.forEach(step => {
+    const div = document.createElement('div');
+    div.className = 'step';
+    // step could be plain text or HTML; we use innerHTML safely because content is generated by us
+    div.innerHTML = step;
+    container.appendChild(div);
+  });
+  if(window.MathJax) MathJax.typesetPromise?.();
+}
+
+/* safe formatting of numbers */
+function fmt(n, dp=8){
+  if(typeof n !== 'number' || !isFinite(n)) return String(n);
+  if(Math.abs(n) < 1e-6 && n !== 0) return n.toExponential(6);
+  if(Number.isInteger(n)) return n.toString();
+  return Number.parseFloat(n).toPrecision(dp);
+}
+
+/* FACTORIAL (safe for moderately small n) */
+function fact(n){
+  n = Math.trunc(n);
+  if(n < 0) return NaN;
+  if(n === 0 || n === 1) return 1;
+  let r = 1;
+  for(let i=2;i<=n;i++) r *= i;
+  return r;
+}
+
+/* BIND events depending on topic */
+function bindTopicEvents(topic){
+  bindHelpInline(); // ensure help buttons work
+
+  if(topic === 'prob'){
+    document.getElementById('prob-explain').onclick = () => {
+      const k = Number(document.getElementById('prob-k').value);
+      const n = Number(document.getElementById('prob-n').value);
+      const out = document.getElementById('prob-output');
+      if(!isFinite(k) || !isFinite(n) || n <= 0 || k < 0){ out.innerHTML = `<div class="step"><p style="color:#ffb4b4">Please enter valid non-negative numbers with n > 0.</p></div>`; return; }
+      const p = k / n;
+      const steps = [];
+      steps.push(`<p><strong>Given</strong>:</p><p>- favourable outcomes: k = ${k}</p><p>- total outcomes: n = ${n}</p>`);
+      steps.push(`<p><strong>Definition</strong>: $P(A)=\\dfrac{\\text{favourable}}{\\text{total}}$</p>`);
+      steps.push(`<p><strong>Substitute</strong>: $P(A)=\\dfrac{${k}}{${n}}$</p>`);
+      steps.push(`<div class="formula">\\[P(A)=\\dfrac{${k}}{${n}} = ${fmt(p,8)}\\]</div><p><em>Interpretation</em>: ${(p*100).toFixed(4)}% chance.</p>`);
+      renderStepsContainer(out, steps);
+    };
+    document.getElementById('prob-clear').onclick = () => { document.getElementById('prob-k').value = 0; document.getElementById('prob-n').value = 1; document.getElementById('prob-output').innerHTML = ''; };
+  }
+
+  if(topic === 'perm'){
+    document.getElementById('pc-explain').onclick = () => {
+      const n = Number(document.getElementById('pc-n').value);
+      const k = Number(document.getElementById('pc-k').value);
+      const out = document.getElementById('pc-output');
+      if(!Number.isFinite(n) || !Number.isFinite(k) || n < 0 || k < 0){ out.innerHTML = `<div class="step"><p style="color:#ffb4b4">Please enter valid non-negative integers.</p></div>`; return; }
+      if(k > n){ out.innerHTML = `<div class="step"><p style="color:#ffb4b4">k cannot be greater than n.</p></div>`; return; }
+      const nf = fact(n), nkf = fact(n-k), kf = fact(k);
+      const perm = nf / nkf;
+      const comb = nf / (kf * nkf);
+      const steps = [];
+      steps.push(`<p><strong>Given</strong>: n = ${n}, k = ${k}</p>`);
+      steps.push(`<p><strong>Permutations (order matters)</strong>: $P(n,k)=\\dfrac{n!}{(n-k)!}$</p>`);
+      steps.push(`<p>Compute factorials: $n! = ${nf}$, $(n-k)! = ${nkf}$</p>`);
+      steps.push(`<div class="formula">\\[P(n,k)=\\dfrac{${nf}}{${nkf}} = ${fmt(perm,12)}\\]</div>`);
+      steps.push(`<p><strong>Combinations (order does NOT matter)</strong>: $C(n,k)=\\dfrac{n!}{k!(n-k)!}$</p>`);
+      steps.push(`<p>Compute k!: ${kf}</p>`);
+      steps.push(`<div class="formula">\\[C(n,k)=\\dfrac{${nf}}{${kf}\\cdot${nkf}} = ${fmt(comb,12)}\\]</div>`);
+      renderStepsContainer(out, steps);
+    };
+    document.getElementById('pc-clear').onclick = () => { document.getElementById('pc-n').value = 0; document.getElementById('pc-k').value = 0; document.getElementById('pc-output').innerHTML = ''; };
+  }
+
+  if(topic === 'bayes'){
+    document.getElementById('bayes-explain').onclick = () => {
+      const pa = Number(document.getElementById('bayes-pa').value);
+      const l = Number(document.getElementById('bayes-l').value);
+      const fp = Number(document.getElementById('bayes-fp').value);
+      const pbInputRaw = document.getElementById('bayes-pb').value;
+      const out = document.getElementById('bayes-output');
+
+      if([pa,l,fp].some(v => !isFinite(v) || v < 0 || v > 1)){ out.innerHTML = `<div class="step"><p style="color:#ffb4b4">Please provide probabilities between 0 and 1 for P(A), P(B|A), and P(B|¬A).</p></div>`; return; }
+
+      const pbInput = (pbInputRaw === '') ? null : Number(pbInputRaw);
+      let pb = (pbInput === null) ? (l * pa + fp * (1 - pa)) : pbInput;
+
+      if(pb === 0){ out.innerHTML = `<div class="step"><p style="color:#ffb4b4">P(B) is zero — posterior undefined (division by zero).</p></div>`; return; }
+
+      const numerator = l * pa;
+      const posterior = numerator / pb;
+
+      const steps = [];
+      steps.push(`<p><strong>Given</strong>:</p><p>- P(A) = ${pa}</p><p>- P(B|A) = ${l}</p><p>- P(B|¬A) = ${fp}</p>`);
+      steps.push(`<p><strong>If you don't provide P(B)</strong>, compute denominator:</p><div class="formula">\\[P(B)=P(B|A)P(A)+P(B|\\neg A)P(\\neg A)\\]</div>`);
+      steps.push(`<p><strong>Compute P(B)</strong>:</p><div class="formula">\\[P(B) = ${l}\\cdot ${pa} + ${fp}\\cdot(1 - ${pa}) = ${fmt(pb,12)}\\]</div>`);
+      steps.push(`<p><strong>Bayes' formula</strong>:</p><div class="formula">\\[P(A|B)=\\dfrac{P(B|A)P(A)}{P(B)}\\]</div>`);
+      steps.push(`<p><strong>Numerator</strong>: $P(B|A)P(A) = ${l} \\times ${pa} = ${fmt(numerator,12)}$</p>`);
+      steps.push(`<p><strong>Posterior</strong>:</p><div class="formula">\\[P(A|B)=\\dfrac{${fmt(numerator,12)}}{${fmt(pb,12)}} = ${fmt(posterior,12)}\\]</div>`);
+      steps.push(`<p><em>Interpretation</em>: ${(posterior*100).toFixed(6)}% probability after observing B.</p>`);
+
+      renderStepsContainer(out, steps);
+    };
+    document.getElementById('bayes-clear').onclick = () => { document.getElementById('bayes-pa').value = 0.01; document.getElementById('bayes-l').value = 0.95; document.getElementById('bayes-fp').value = 0.05; document.getElementById('bayes-pb').value = ''; document.getElementById('bayes-output').innerHTML = ''; };
+  }
+
+  if(topic === 'cond'){
+    document.getElementById('cond-explain').onclick = () => {
+      const joint = Number(document.getElementById('cond-joint').value);
+      const pb = Number(document.getElementById('cond-b').value);
+      const out = document.getElementById('cond-output');
+      if(!isFinite(joint) || !isFinite(pb) || pb <= 0){ out.innerHTML = `<div class="step"><p style="color:#ffb4b4">Please provide valid numbers and ensure P(B) > 0.</p></div>`; return; }
+      const posterior = joint / pb;
+      const steps = [];
+      steps.push(`<p><strong>Given</strong>:</p><p>- P(A \\cap B) = ${joint}</p><p>- P(B) = ${pb}</p>`);
+      steps.push(`<p><strong>Definition</strong>:</p><div class="formula">\\[P(A|B)=\\dfrac{P(A\\cap B)}{P(B)}\\]</div>`);
+      steps.push(`<p><strong>Compute</strong>:</p><div class="formula">\\[P(A|B)=\\dfrac{${joint}}{${pb}} = ${fmt(posterior,12)}\\]</div>`);
+      steps.push(`<p><em>Interpretation</em>: ${(posterior*100).toFixed(6)}%</p>`);
+      renderStepsContainer(out, steps);
+    };
+    document.getElementById('cond-clear').onclick = () => { document.getElementById('cond-joint').value = 0.02; document.getElementById('cond-b').value = 0.1; document.getElementById('cond-output').innerHTML = ''; };
+  }
+}
+
+/* ---------- Example loaders (quick) ---------- */
+document.getElementById('load-bayes-example').addEventListener('click', () => {
+  renderTopic('bayes');
+  setTimeout(()=>{ document.getElementById('bayes-pa').value = 0.01; document.getElementById('bayes-l').value = 0.95; document.getElementById('bayes-fp').value = 0.05; }, 80);
+});
+document.getElementById('load-prob-example').addEventListener('click', () => {
+  renderTopic('prob');
+  setTimeout(()=>{ document.getElementById('prob-k').value = 13; document.getElementById('prob-n').value = 52; }, 80);
+});
+document.getElementById('load-pc-example').addEventListener('click', () => {
+  renderTopic('perm');
+  setTimeout(()=>{ document.getElementById('pc-n').value = 10; document.getElementById('pc-k').value = 3; }, 80);
+});
+document.getElementById('load-cond-example').addEventListener('click', () => {
+  renderTopic('cond');
+  setTimeout(()=>{ document.getElementById('cond-joint').value = 0.02; document.getElementById('cond-b').value = 0.1; }, 80);
+});
+
+/* ---------- Kick off with bayes topic by default ---------- */
+renderTopic('bayes');
+
+/* ---------- Ensure MathJax initial typeset after small delay ---------- */
+setTimeout(()=>{ if(window.MathJax) MathJax.typesetPromise?.(); document.getElementById('year').textContent = new Date().getFullYear(); }, 400);
+
+</script>
+</body>
+</html>
