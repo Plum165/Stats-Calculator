@@ -76,6 +76,8 @@ function fmt(x, d=4){
   return Number.parseFloat(x).toFixed(d);
 }
 
+
+
 /* ---------------------------
   Utilities
    --------------------------- */
@@ -787,24 +789,36 @@ function explainBet(){
   `;
 }
 /* ---------------------------
-   9) Uniform Distribution
+  9) Uniform Distribution
 --------------------------- */
 function uniformHTML(){
   return `
   <div>
     <h2 class="text-2xl font-semibold">Uniform Distribution</h2>
-    <p class="mt-2">Definition: $X \\sim U(a,b)$ with PDF $f(x) = \\frac{1}{b-a}$ for $a \\le x \\le b$</p>
-    <div class="mt-4 grid gap-4 md:grid-cols-2">
+    <p class="mt-2 small">Definition: $X \\sim U(a,b)$ with PDF $f(x) = \\frac{1}{b-a}$ for $a \\le x \\le b$</p>
+
+    <div class="mt-4 grid gap-3 md:grid-cols-2">
       <div class="label">Lower bound (a)</div>
       <input id="uni-a" class="input" type="number" value="0" />
       <div class="label">Upper bound (b)</div>
       <input id="uni-b" class="input" type="number" value="1" />
-      <div class="label">Point x</div>
+      <div class="label">Point x (for PDF)</div>
       <input id="uni-x" class="input" type="number" value="0.5" />
+      <div class="label">Bounds: a &lt; X &lt; b (use to compute probability)</div>
+      <div class="flex gap-2">
+        <input id="uni-low" class="input" type="number" placeholder="lower (use a or bigger)"/>
+        <input id="uni-high" class="input" type="number" placeholder="upper (use b or smaller)"/>
+      </div>
+      <div class="label">Inverse target P(X ≤ x) = p</div>
+      <input id="uni-inv-p" class="input" type="number" min="0" max="1" step="0.01" value="0.5" />
     </div>
+
     <div class="mt-4 flex gap-2">
       <button id="uni-explain" class="btn btn-primary">Explain</button>
+      <button id="uni-example" class="btn btn-ghost">Load example</button>
+      <button data-inverse-for="uni" class="btn btn-link" title="Find x for P(X ≤ x) = p">Inverse (find x)</button>
     </div>
+
     <div id="uni-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
   </div>`;
 }
@@ -812,34 +826,83 @@ function explainUniform(){
   const a = Number(document.getElementById('uni-a').value);
   const b = Number(document.getElementById('uni-b').value);
   const x = Number(document.getElementById('uni-x').value);
+  const low = document.getElementById('uni-low').value;
+  const high = document.getElementById('uni-high').value;
+  const invP = Number(document.getElementById('uni-inv-p').value || 0.5);
   const out = document.getElementById('uni-output');
-  if(b<=a){ out.innerHTML = `<p>b must be greater than a.</p>`; return; }
+  if(!(b>a)){ out.innerHTML = `<p>Upper bound must be > lower bound (b &gt; a).</p>`; return; }
+
+  // pdf at x
   const pdf = (x>=a && x<=b) ? 1/(b-a) : 0;
+  // CDF function
+  function cdf(u){
+    if(u < a) return 0;
+    if(u > b) return 1;
+    return (u - a) / (b - a);
+  }
+
+  let boundsStr = '';
+  if(low !== '' && high !== ''){
+    const lo = Number(low), hi = Number(high);
+    const probBounds = clamp(cdf(hi) - cdf(lo), 0, 1);
+    boundsStr = `<p><strong>Bounds</strong>: P(${lo} &lt; X &lt; ${hi}) = ${fmt(probBounds,6)}</p>
+      <p><em>Excel equivalent</em>: <code>=IF(AND(${lo}&gt;=${a},${hi}&lt;=${b}), (${hi}-${lo})/(${b}-${a}), "check bounds")</code></p>`;
+  }
+
+  // expectation/variance/mode
+  const mean = (a + b) / 2;
+  const variance = Math.pow(b - a, 2) / 12;
+  const mode = 'any value in [a,b] (uniform)';
+
   out.innerHTML = `
-    <p><strong>PDF:</strong> $f(x) = \\frac{1}{b-a} = \\frac{1}{${b}-${a}} = ${fmt(pdf,4)}$</p>
-    <p>At x=${x}: $f(x) = ${fmt(pdf,4)}$</p>`;
+    <p><strong>PDF at x=${x}:</strong> ${fmt(pdf,6)}</p>
+    ${boundsStr}
+    <p><strong>Mean</strong> = ${fmt(mean,6)}</p>
+    <p><strong>Variance</strong> = ${fmt(variance,6)}</p>
+    <p><strong>Mode</strong> = ${mode}</p>
+    <p><strong>Inverse example</strong>: For p=${invP}, x = a + p*(b-a) = ${fmt(a + invP*(b-a),6)}</p>
+    <p><em>Excel equivalents:</em><br/>
+       PDF (check): <code>=IF(AND(x&gt;=${a},x&lt;=${b}),1/(${b}-${a}),0)</code><br/>
+       CDF: <code>=IF(x&lt;${a},0,IF(x&gt;${b},1,(x-${a})/(${b}-${a})))</code>
+    </p>
+  `;
   if(window.MathJax) MathJax.typesetPromise();
+}
+function inverseUniform(){
+  const a = Number(document.getElementById('uni-a').value);
+  const b = Number(document.getElementById('uni-b').value);
+  const p = Number(document.getElementById('uni-inv-p').value);
+  if(!(b>a) || p<0 || p>1){ alert('Check inputs'); return; }
+  const x = a + p*(b-a);
+  const out = document.getElementById('uni-output');
+  out.innerHTML = `<p>Inverse: x such that P(X ≤ x) = ${p} → x = ${fmt(x,6)}. Excel: <code>=${a} + ${p}*(${b}-${a})</code></p>`;
 }
 
 /* ---------------------------
-   10) Binomial Distribution
+  10) Binomial Distribution
 --------------------------- */
 function binomialHTML(){
   return `
   <div>
     <h2 class="text-2xl font-semibold">Binomial Distribution</h2>
-    <p>$X \\sim Bin(n,p)$ with $P(X=k) = {n \\choose k} p^k (1-p)^{n-k}$</p>
-    <div class="mt-4 grid gap-4 md:grid-cols-2">
-      <div class="label">Trials (n)</div>
-      <input id="bin-n" class="input" type="number" value="10" />
-      <div class="label">Probability (p)</div>
-      <input id="bin-p" class="input" type="number" value="0.5" step="0.01"/>
-      <div class="label">Successes (k)</div>
-      <input id="bin-k" class="input" type="number" value="5" />
+    <p class="small">$X \\sim Bin(n,p)$ with $P(X=k) = {n \\choose k} p^k (1-p)^{n-k}$</p>
+
+    <div class="mt-4 grid gap-3 md:grid-cols-2">
+      <div class="label">Trials (n)</div><input id="bin-n" class="input" type="number" value="10" />
+      <div class="label">Probability (p)</div><input id="bin-p" class="input" type="number" value="0.5" step="0.01" />
+      <div class="label">Successes (k)</div><input id="bin-k" class="input" type="number" value="5" />
+      <div class="label">Bounds: lower a</div><input id="bin-low" class="input" type="number" placeholder="lower (inclusive)"/>
+      <div class="label">Bounds: upper b</div><input id="bin-high" class="input" type="number" placeholder="upper (inclusive)"/>
+      <div class="label">Inverse target CDF p (find smallest x s.t. P(X ≤ x) ≥ p)</div>
+      <input id="bin-inv-p" class="input" type="number" step="0.01" min="0" max="1" value="0.5"/>
     </div>
+
     <div class="mt-4 flex gap-2">
       <button id="bin-explain" class="btn btn-primary">Explain</button>
+      <button id="bin-example" class="btn btn-ghost">Load example</button>
+      <button data-inverse-for="bin" class="btn btn-link">Inverse (find x)</button>
     </div>
+
     <div id="bin-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
   </div>`;
 }
@@ -847,98 +910,537 @@ function explainBinomial(){
   const n = Number(document.getElementById('bin-n').value);
   const p = Number(document.getElementById('bin-p').value);
   const k = Number(document.getElementById('bin-k').value);
+  const low = document.getElementById('bin-low').value;
+  const high = document.getElementById('bin-high').value;
+  const invP = Number(document.getElementById('bin-inv-p').value || 0.5);
   const out = document.getElementById('bin-output');
-  if(p<0||p>1){ out.innerHTML = `<p>p must be in [0,1].</p>`; return; }
-  const comb = math.combinations(n,k);
-  const prob = comb * Math.pow(p,k) * Math.pow(1-p,n-k);
+  if(n<0 || p<0 || p>1){ out.innerHTML = `<p>Check n and p</p>`; return; }
+
+  // PMF at k
+  const comb = math.combinations(n, k);
+  const pmf = comb * Math.pow(p,k) * Math.pow(1-p, n - k);
+
+  // CDF for <= x
+  function cdf(x){
+    let s = 0;
+    for(let i=0;i<=Math.floor(x);i++){
+      s += math.combinations(n,i) * Math.pow(p,i) * Math.pow(1-p, n-i);
+    }
+    return s;
+  }
+
+  let boundsStr = '';
+  if(low !== '' && high !== ''){
+    const lo = Math.max(0, Number(low));
+    const hi = Math.min(n, Number(high));
+    let s=0;
+    for(let i=lo;i<=hi;i++) s += math.combinations(n,i) * Math.pow(p,i) * Math.pow(1-p, n-i);
+    boundsStr = `<p><strong>Bounds:</strong> P(${lo} ≤ X ≤ ${hi}) = ${fmt(s,6)}</p>
+      <p><em>Excel</em>: <code>=BINOM.DIST.RANGE(${n},${p},${lo},${hi})</code> (or sum BINOM.DIST)</p>`;
+  }
+
+  const mean = n*p;
+  const variance = n*p*(1-p);
+  // mode: floor((n+1)*p)
+  const mode = Math.floor((n+1)*p);
+
   out.innerHTML = `
-    <p>$P(X=${k}) = {${n} \\choose ${k}} (${p})^{${k}} (1-${p})^{${n-k}}$</p>
-    <p>Value = ${fmt(prob,6)}</p>
-    <p><em>Excel:</em> =BINOM.DIST(${k},${n},${p},FALSE)</p>`;
+    <p><strong>PMF</strong> P(X=${k}) = ${fmt(pmf,8)}</p>
+    ${boundsStr}
+    <p><strong>Mean</strong> = ${fmt(mean,6)}, <strong>Var</strong> = ${fmt(variance,6)}, <strong>Mode</strong> = ${mode}</p>
+    <p><em>Excel Equivalents</em>: PMF: <code>=BINOM.DIST(${k},${n},${p},FALSE)</code> | CDF: <code>=BINOM.DIST(${k},${n},${p},TRUE)</code></p>
+    <p><strong>Inverse hint</strong>: smallest x with CDF(x) ≥ ${invP}</p>
+  `;
   if(window.MathJax) MathJax.typesetPromise();
+}
+function inverseBinomial(){
+  const n = Number(document.getElementById('bin-n').value);
+  const p = Number(document.getElementById('bin-p').value);
+  const target = Number(document.getElementById('bin-inv-p').value);
+  let cumulative = 0;
+  let x = 0;
+  while(x <= n){
+    cumulative += math.combinations(n,x) * Math.pow(p,x) * Math.pow(1-p, n-x);
+    if(cumulative >= target) break;
+    x++;
+  }
+  const out = document.getElementById('bin-output');
+  out.innerHTML = `<p>Inverse result: smallest x with P(X ≤ x) ≥ ${target} is x = ${x}. Excel: use cumulative search or <code>=BINOM.INV(${n},${p},${target})</code> if available.</p>`;
 }
 
 /* ---------------------------
-   (11–22) Placeholders
-
-function poissonHTML(){ return `<h2 class="text-2xl font-semibold">Poisson & Exponential Distribution</h2><p>Coming soon…</p>`; }
-function normalHTML(){ return `<h2 class="text-2xl font-semibold">Normal Distribution</h2><p>Coming soon…</p>`; }
-function samplingHTML(){ return `<h2 class="text-2xl font-semibold">Sampling Distribution of the Mean</h2><p>Coming soon…</p>`; }
-function ciHTML(){ return `<h2 class="text-2xl font-semibold">Confidence Interval</h2><p>Coming soon…</p>`; }
-function htMeanHTML(){ return `<h2 class="text-2xl font-semibold">Hypothesis Test: Mean</h2><p>Coming soon…</p>`; }
-function ht2MeansHTML(){ return `<h2 class="text-2xl font-semibold">Compare Two Means</h2><p>Coming soon…</p>`; }
-function htSigmaUnknownHTML(){ return `<h2 class="text-2xl font-semibold">Hypothesis Test σ unknown (1 sample)</h2><p>Coming soon…</p>`; }
-function ht2SamplesUnknownHTML(){ return `<h2 class="text-2xl font-semibold">Hypothesis Test σ unknown (2 samples)</h2><p>Coming soon…</p>`; }
-function htPairedHTML(){ return `<h2 class="text-2xl font-semibold">Matched Pairs</h2><p>Coming soon…</p>`; }
-function htFitHTML(){ return `<h2 class="text-2xl font-semibold">Goodness of Fit</h2><p>Coming soon…</p>`; }
-function htAssocHTML(){ return `<h2 class="text-2xl font-semibold">Association Test</h>
+  11) Poisson & Exponential
 --------------------------- */
+function poissonHTML(){
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Poisson & Exponential</h2>
+    <p class="small">Poisson: $P(X=k)=e^{-\\lambda}\\frac{\\lambda^k}{k!}$. Exponential (continuous) PDF $f(x)=\\lambda e^{-\\lambda x}$ for x≥0</p>
+
+    <div class="mt-4 grid gap-3 md:grid-cols-2">
+      <div class="label">Poisson: λ (rate)</div><input id="ps-lam" class="input" type="number" value="3" />
+      <div class="label">Poisson: k (count)</div><input id="ps-k" class="input" type="number" value="2" />
+      <div class="label">Poisson bounds lower</div><input id="ps-low" class="input" type="number" placeholder="lower" />
+      <div class="label">Poisson bounds upper</div><input id="ps-high" class="input" type="number" placeholder="upper" />
+      <div class="label">Exponential: λ (rate)</div><input id="ex-lam" class="input" type="number" value="0.5" />
+      <div class="label">Exponential: x</div><input id="ex-x" class="input" type="number" value="2" />
+      <div class="label">Exponential bounds low</div><input id="ex-low" class="input" type="number" placeholder="low" />
+      <div class="label">Exponential bounds high</div><input id="ex-high" class="input" type="number" placeholder="high" />
+    </div>
+
+    <div class="mt-4 flex gap-2">
+      <button id="ps-explain" class="btn btn-primary">Poisson Explain</button>
+      <button id="ps-example" class="btn btn-ghost">Load Poisson example</button>
+      <button id="ex-explain" class="btn btn-primary">Exponential Explain</button>
+      <button id="ex-example" class="btn btn-ghost">Load Exponential example</button>
+    </div>
+
+    <div id="ps-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+function explainPoisson(){
+  const lambda = Number(document.getElementById('ps-lam').value);
+  const k = Number(document.getElementById('ps-k').value);
+  const low = document.getElementById('ps-low').value;
+  const high = document.getElementById('ps-high').value;
+  const out = document.getElementById('ps-output');
+  if(lambda <= 0){ out.innerHTML = '<p>λ must be > 0</p>'; return; }
+
+  // pmf
+  const pmf = Math.exp(-lambda) * Math.pow(lambda, k) / math.factorial(k);
+
+  // bounds
+  let boundStr = '';
+  if(low !== '' && high !== ''){
+    const lo = Math.max(0, Number(low));
+    const hi = Math.floor(Number(high));
+    let s = 0;
+    for(let i=lo;i<=hi;i++) s += Math.exp(-lambda) * Math.pow(lambda,i) / math.factorial(i);
+    boundStr = `<p>P(${lo} ≤ X ≤ ${hi}) = ${fmt(s,6)}</p>
+      <p><em>Excel</em>: use <code>=POISSON.DIST(k,λ,FALSE)</code> for PMF or TRUE for CDF (sum as needed)</p>`;
+  }
+
+  const mean = lambda;
+  const variance = lambda;
+  const mode = Math.floor(lambda);
+
+  out.innerHTML = `
+    <p><strong>Poisson PMF</strong> P(X=${k}) = ${fmt(pmf,8)}</p>
+    ${boundStr}
+    <p><strong>Mean</strong> = ${fmt(mean,6)}, <strong>Var</strong> = ${fmt(variance,6)}, <strong>Mode</strong> = ${mode}</p>
+    <p><em>Excel</em>: PMF <code>=POISSON.DIST(${k},${lambda},FALSE)</code> | CDF <code>=POISSON.DIST(${k},${lambda},TRUE)</code></p>
+  `;
+}
+
+function explainExponential(){
+  const lambda = Number(document.getElementById('ex-lam').value);
+  const x = Number(document.getElementById('ex-x').value);
+  const low = document.getElementById('ex-low').value;
+  const high = document.getElementById('ex-high').value;
+  const out = document.getElementById('ps-output');
+  if(lambda <= 0){ out.innerHTML = '<p>λ must be > 0</p>'; return; }
+
+  const pdf = (x >= 0) ? lambda * Math.exp(-lambda * x) : 0;
+  let boundStr = '';
+  if(low !== '' && high !== ''){
+    const lo = Math.max(0, Number(low));
+    const hi = Math.max(lo, Number(high));
+    const prob = Math.exp(-lambda*lo) - Math.exp(-lambda*hi);
+    boundStr = `<p>P(${lo} &lt; X &lt; ${hi}) = ${fmt(prob,6)}</p>
+      <p><em>Excel</em>: =EXPON.DIST(x,λ,TRUE) for CDF (Office 365) or derivations.</p>`;
+  }
+  const mean = 1/lambda;
+  const variance = 1/(lambda*lambda);
+  const mode = 0;
+
+  out.innerHTML = `
+    <p><strong>Exponential PDF at x=${x}</strong> = ${fmt(pdf,8)}</p>
+    ${boundStr}
+    <p><strong>Mean</strong> = ${fmt(mean,6)}, <strong>Var</strong> = ${fmt(variance,6)}, <strong>Mode</strong> = ${mode}</p>
+    <p><em>Excel</em>: PDF <code>=EXPON.DIST(${x},${lambda},FALSE)</code> | CDF <code>=EXPON.DIST(${x},${lambda},TRUE)</code></p>
+  `;
+}
+
+/* ---------------------------
+  12) Normal Distribution (with plot)
+--------------------------- */
+function normalHTML(){
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Normal Distribution</h2>
+    <p class="small">$X \\sim N(\\mu,\\sigma^2)$. PDF: $\\frac{1}{\\sigma\\sqrt{2\\pi}}e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}$</p>
+
+    <div class="mt-4 grid gap-3 md:grid-cols-2">
+      <div class="label">Mean (μ)</div><input id="norm-mu" class="input" type="number" value="0" />
+      <div class="label">Std Dev (σ)</div><input id="norm-sigma" class="input" type="number" value="1" step="0.1" />
+      <div class="label">Point x (PDF)</div><input id="norm-x" class="input" type="number" value="0" />
+      <div class="label">Bounds a (lower)</div><input id="norm-a" class="input" type="number" placeholder="-1" />
+      <div class="label">Bounds b (upper)</div><input id="norm-b" class="input" type="number" placeholder="1" />
+      <div class="label">Inverse target p (CDF)</div><input id="norm-inv-p" class="input" type="number" min="0" max="1" step="0.001" value="0.5" />
+    </div>
+
+    <div class="mt-4 flex gap-2">
+      <button id="norm-explain" class="btn btn-primary">Explain</button>
+      <button id="norm-example" class="btn btn-ghost">Load example</button>
+      <button data-inverse-for="norm" class="btn btn-link">Inverse (find x)</button>
+    </div>
+
+    <div class="mt-4">
+      <canvas id="norm-canvas" width="800" height="240"></canvas>
+    </div>
+
+    <div id="norm-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+function normalPDF(x, mu, sigma){
+  return (1/(sigma*Math.sqrt(2*Math.PI))) * Math.exp(-Math.pow(x-mu,2)/(2*sigma*sigma));
+}
+function normalCDF(x, mu, sigma){
+  // use error function via math.erf from mathjs
+  const z = (x - mu)/(sigma*Math.sqrt(2));
+  // math.erf might exist; fallback to approximate via math.erf
+  if(typeof math.erf === 'function'){
+    return 0.5*(1 + math.erf(z));
+  } else {
+    // basic approximation (Abramowitz-Stegun)
+    const t = 1/(1 + 0.3275911*Math.abs(z));
+    const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429;
+    const er = 1 - (((((a5*t + a4)*t)+a3)*t + a2)*t + a1)*t*Math.exp(-z*z);
+    return 0.5*(1 + Math.sign(z)*er);
+  }
+}
+function explainNormal(){
+  const mu = Number(document.getElementById('norm-mu').value);
+  const sigma = Number(document.getElementById('norm-sigma').value);
+  const x = Number(document.getElementById('norm-x').value);
+  const a = document.getElementById('norm-a').value;
+  const b = document.getElementById('norm-b').value;
+  const invP = Number(document.getElementById('norm-inv-p').value || 0.5);
+  const out = document.getElementById('norm-output');
+  if(sigma <= 0){ out.innerHTML = '<p>σ must be > 0</p>'; return; }
+
+  const pdf = normalPDF(x, mu, sigma);
+  let boundsStr = '';
+  if(a !== '' && b !== ''){
+    const A = Number(a), B = Number(b);
+    const prob = normalCDF(B,mu,sigma) - normalCDF(A,mu,sigma);
+    boundsStr = `<p>P(${A} &lt; X &lt; ${B}) = ${fmt(prob,8)}</p>
+      <p><em>Excel</em>: =NORM.DIST(${B},${mu},${sigma},TRUE) - NORM.DIST(${A},${mu},${sigma},TRUE)</p>`;
+  }
+
+  const mean = mu;
+  const variance = sigma*sigma;
+  const mode = mu;
+
+  out.innerHTML = `
+    <p><strong>PDF at x=${x}</strong> = ${fmt(pdf,8)}</p>
+    ${boundsStr}
+    <p><strong>Mean</strong> = ${fmt(mean,6)}, <strong>Var</strong> = ${fmt(variance,6)}, <strong>Mode</strong> = ${fmt(mode,6)}</p>
+    <p><em>Excel:</em> PDF/CDF: <code>=NORM.DIST(x,${mu},${sigma},FALSE)</code> and <code>=NORM.DIST(x,${mu},${sigma},TRUE)</code></p>
+    <p><strong>Inverse hint</strong>: use <code>=NORM.INV(p,${mu},${sigma})</code> in Excel or use the inverseNormal tool below.</p>
+  `;
+
+  // draw graph with shaded region (if a and b present)
+  drawNormalPlot(mu, sigma, a !== '' ? Number(a) : null, b !== '' ? Number(b) : null);
+  if(window.MathJax) MathJax.typesetPromise();
+}
+function inverseNormal(){
+  const mu = Number(document.getElementById('norm-mu').value);
+  const sigma = Number(document.getElementById('norm-sigma').value);
+  const p = Number(document.getElementById('norm-inv-p').value);
+  // use mathjs's erf inverse? math.inv might have erfInverse not guaranteed. We'll use numeric binary search.
+  if(p<=0 || p>=1){ alert('p must be between 0 and 1 (exclusive)'); return; }
+  let lo = mu - 10*sigma, hi = mu + 10*sigma;
+  for(let i=0;i<60;i++){
+    const mid = (lo+hi)/2;
+    const c = normalCDF(mid, mu, sigma);
+    if(c < p) lo = mid; else hi = mid;
+  }
+  const x = (lo+hi)/2;
+  const out = document.getElementById('norm-output');
+  out.innerHTML = `<p>Inverse Normal: x such that P(X ≤ x) = ${p} → x ≈ ${fmt(x,6)}. Excel: <code>=NORM.INV(${p},${mu},${sigma})</code></p>`;
+}
+
+/* draw normal distribution on canvas (approx) */
+function drawNormalPlot(mu, sigma, shadeA=null, shadeB=null){
+  const c = document.getElementById('norm-canvas');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  const w = c.width = c.clientWidth * devicePixelRatio;
+  const h = c.height = c.clientHeight * devicePixelRatio;
+  ctx.clearRect(0,0,w,h);
+  // x range: mu-4σ to mu+4σ
+  const minX = mu - 4*sigma, maxX = mu + 4*sigma;
+  const step = (maxX - minX) / (w/ (1.0*devicePixelRatio));
+  // compute pdf values
+  let maxPdf = 0;
+  const xs = [];
+  const ys = [];
+  for(let x=minX; x<=maxX; x+=step){
+    const y = normalPDF(x, mu, sigma);
+    xs.push(x); ys.push(y);
+    if(y>maxPdf) maxPdf = y;
+  }
+  // scale functions
+  const px = x=> ( (x - minX) / (maxX - minX) ) * w;
+  const py = y=> h - (y / maxPdf) * (h*0.85);
+
+  // draw curve
+  ctx.beginPath();
+  ctx.lineWidth = 2 * devicePixelRatio;
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  for(let i=0;i<xs.length;i++){
+    const X = px(xs[i]), Y = py(ys[i]);
+    if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y);
+  }
+  ctx.stroke();
+
+  // shading if shadeA/shadeB present
+  if(shadeA !== null && shadeB !== null){
+    const a = Math.max(minX, shadeA), b = Math.min(maxX, shadeB);
+    ctx.beginPath();
+    // move along xs where x between a and b
+    let started = false;
+    for(let i=0;i<xs.length;i++){
+      if(xs[i] >= a && xs[i] <= b){
+        const X = px(xs[i]), Y = py(ys[i]);
+        if(!started){ ctx.moveTo(X, h); ctx.lineTo(X,Y); started = true; }
+        else ctx.lineTo(X,Y);
+      }
+    }
+    // close path
+    ctx.lineTo(px(Math.min(b, maxX)), h);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    ctx.fill();
+  }
+
+  // axes labels (simple)
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.font = `${12 * devicePixelRatio}px sans-serif`;
+  ctx.fillText(`μ=${mu}, σ=${sigma}`, 10 * devicePixelRatio, 18 * devicePixelRatio);
+}
+
+/* ---------------------------
+  inverse wrappers (dispatch)
+--------------------------- */
+function inversePoisson(){ /* would need search - similar to binomial */ alert('Use CDF search; not implemented inline.'); }
+function inverseExponential(){
+  const lam = Number(document.getElementById('ex-lam').value);
+  const p = Number(document.getElementById('ex-inv-p') ? document.getElementById('ex-inv-p').value : 0.5);
+  if(lam<=0){ alert('λ>0'); return; }
+  const x = -Math.log(1-p)/lam;
+  const out = document.getElementById('ps-output');
+  out.innerHTML = `<p>Inverse Exponential: x = -ln(1-p)/λ = ${fmt(x,6)}. Excel: <code>=EXPON.DIST.INV(${p},${lam})</code> (if available)</p>`;
+}
+
+/* ---------------------------
+  (13–22) placeholders for hypothesis testing modules
+  Each returns a ready-to-fill HTML structure (Load example + Explain)
+--------------------------- */
+function normalPlaceholder(title){
+  return `<div><h2 class="text-2xl font-semibold">${title}</h2><p class="mt-2">Coming soon — detailed examples and calculators.</p></div>`;
+}
+function samplingHTML(){ return normalPlaceholder('Sampling Distribution of the Sample Mean'); }
+function ciHTML(){ return normalPlaceholder('Confidence Interval for Mean'); }
+function htMeanHTML(){ return normalPlaceholder('Hypothesis Test: Mean equals value'); }
+function ht2MeansHTML(){ return normalPlaceholder('Comparing Two Sample Means'); }
+function htSigmaUnknownHTML(){ return normalPlaceholder('Hypothesis Test (σ unknown) — one sample'); }
+function ht2SamplesUnknownHTML(){ return normalPlaceholder('Hypothesis Test (σ unknown) — two independent samples'); }
+function htPairedHTML(){ return normalPlaceholder('Hypothesis Test (Matched Pairs)'); }
+function htFitHTML(){ return normalPlaceholder('Goodness-of-Fit Test'); }
+function htAssocHTML(){ return normalPlaceholder('Test of Association (Categorical)'); }
+function htRegressionHTML(){ return normalPlaceholder('Test for Predictive Relationship'); }
+
 /* ---------------------------
   Bind events for topics & help
    --------------------------- */
 function bindTopicEvents(topic) {
-  // common help texts
+  // ==============================
+  // DISTRIBUTION HANDLERS
+  // ==============================
+
+  // uniform
+  const uniExplain = document.getElementById('uni-explain');
+  if (uniExplain) uniExplain.addEventListener('click', explainUniform);
+  const uniExample = document.getElementById('uni-example');
+  if (uniExample) uniExample.addEventListener('click', () => {
+    document.getElementById('uni-a').value = -1;
+    document.getElementById('uni-b').value = 4;
+    document.getElementById('uni-x').value = 1.5;
+    explainUniform();
+  });
+
+  // binomial
+  const binExplain = document.getElementById('bin-explain');
+  if (binExplain) binExplain.addEventListener('click', explainBinomial);
+  const binExample = document.getElementById('bin-example');
+  if (binExample) binExample.addEventListener('click', () => {
+    document.getElementById('bin-n').value = 10;
+    document.getElementById('bin-p').value = 0.3;
+    document.getElementById('bin-k').value = 2;
+    explainBinomial();
+  });
+
+  // poisson
+  const psExplain = document.getElementById('ps-explain');
+  if (psExplain) psExplain.addEventListener('click', explainPoisson);
+  const psExample = document.getElementById('ps-example');
+  if (psExample) psExample.addEventListener('click', () => {
+    document.getElementById('ps-lam').value = 3;
+    document.getElementById('ps-k').value = 2;
+    explainPoisson();
+  });
+
+  // exponential
+  const exExplain = document.getElementById('ex-explain');
+  if (exExplain) exExplain.addEventListener('click', explainExponential);
+  const exExample = document.getElementById('ex-example');
+  if (exExample) exExample.addEventListener('click', () => {
+    document.getElementById('ex-lam').value = 0.5;
+    document.getElementById('ex-x').value = 2;
+    explainExponential();
+  });
+
+  // normal
+  const normExplain = document.getElementById('norm-explain');
+  if (normExplain) normExplain.addEventListener('click', explainNormal);
+  const normExample = document.getElementById('norm-example');
+  if (normExample) normExample.addEventListener('click', () => {
+    document.getElementById('norm-mu').value = 100;
+    document.getElementById('norm-sigma').value = 15;
+    document.getElementById('norm-x').value = 115;
+    document.getElementById('norm-a').value = 85;
+    document.getElementById('norm-b').value = 120;
+    explainNormal();
+  });
+
+  // inverse helpers
+  document.querySelectorAll('[data-inverse-for]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const forId = btn.dataset.inverseFor;
+      if (forId.startsWith('norm')) inverseNormal(forId);
+      else if (forId.startsWith('bin')) inverseBinomial(forId);
+      else if (forId.startsWith('ps')) inversePoisson(forId);
+      else if (forId.startsWith('ex')) inverseExponential(forId);
+      else if (forId.startsWith('uni')) inverseUniform(forId);
+    });
+  });
+
+  // ==============================
+  // PROBABILITY & OTHER TOPICS
+  // ==============================
+
   attachHelp('#help-k', 'k is the number of favourable outcomes (successes). For example, number of red cards in a deck: 26.');
   attachHelp('#help-n', 'n is the total number of equally likely outcomes (sample space size).');
 
-  if(topic==='prob'){
+  if (topic === 'prob') {
     document.getElementById('prob-explain').onclick = explainProb;
-    document.getElementById('prob-example').onclick = ()=>{ document.getElementById('prob-k').value=13; document.getElementById('prob-n').value=52; explainProb(); };
+    document.getElementById('prob-example').onclick = () => {
+      document.getElementById('prob-k').value = 13;
+      document.getElementById('prob-n').value = 52;
+      explainProb();
+    };
   }
-  if(topic==='perm'){
+
+  if (topic === 'perm') {
     attachHelp('#help-pn', 'Total items available to choose from.');
     attachHelp('#help-pk', 'Number of items chosen.');
     attachHelp('#help-rep', 'With repetition: elements can repeat. Without: cannot.');
     attachHelp('#help-type', 'Permutation: order matters. Combination: order doesn’t matter. Arrangements: general counting rules.');
     attachHelp('#help-sample', 'If you know the total sample space size, enter it to compute probability from count.');
     document.getElementById('pc-explain').onclick = explainPC;
-    document.getElementById('pc-example').onclick = ()=>{ document.getElementById('pc-n').value=10; document.getElementById('pc-k').value=3; document.getElementById('pc-rep').value='no'; document.getElementById('pc-type').value='perm'; explainPC(); };
+    document.getElementById('pc-example').onclick = () => {
+      document.getElementById('pc-n').value = 10;
+      document.getElementById('pc-k').value = 3;
+      document.getElementById('pc-rep').value = 'no';
+      document.getElementById('pc-type').value = 'perm';
+      explainPC();
+    };
   }
-  if(topic==='atleast'){
+
+  if (topic === 'atleast') {
     attachHelp('#help-p', 'Probability of error on each independent trial.');
     attachHelp('#help-nn', 'Number of independent trials.');
     document.getElementById('al-explain').onclick = explainAtLeast;
-    document.getElementById('al-example').onclick = ()=>{ document.getElementById('al-p').value = 0.08; document.getElementById('al-n').value=10; explainAtLeast(); };
+    document.getElementById('al-example').onclick = () => {
+      document.getElementById('al-p').value = 0.08;
+      document.getElementById('al-n').value = 10;
+      explainAtLeast();
+    };
   }
-  if(topic==='cond'){
+
+  if (topic === 'cond') {
     attachHelp('#help-joint', 'Joint probability P(A∩B) — chance that both A and B occur.');
     attachHelp('#help-pb', 'Marginal chance P(B).');
     attachHelp('#help-pa', 'Marginal chance P(A) — used to test independence: check if P(A∩B) = P(A)P(B).');
     document.getElementById('cond-explain').onclick = explainCond;
-    document.getElementById('cond-example').onclick = ()=>{ document.getElementById('cond-joint').value=0.06; document.getElementById('cond-b').value=0.2; document.getElementById('cond-a').value=0.3; explainCond(); };
+    document.getElementById('cond-example').onclick = () => {
+      document.getElementById('cond-joint').value = 0.06;
+      document.getElementById('cond-b').value = 0.2;
+      document.getElementById('cond-a').value = 0.3;
+      explainCond();
+    };
   }
-  if(topic==='bayes'){
+
+  if (topic === 'bayes') {
     attachHelp('#help-pa-bayes', 'Prior probability P(A) of the hypothesis (e.g., disease prevalence).');
     attachHelp('#help-like', 'P(B|A): probability of evidence B if A is true (sensitivity).');
     attachHelp('#help-fp', 'P(B|¬A): probability of evidence B if A is false (false positive rate).');
     attachHelp('#help-pb', 'If unknown, we compute P(B) using the law of total probability.');
     document.getElementById('bayes-explain').onclick = explainBayes;
-    document.getElementById('bayes-example').onclick = ()=>{ document.getElementById('bayes-pa').value=0.01; document.getElementById('bayes-l').value=0.9; document.getElementById('bayes-fp').value=0.08; explainBayes(); };
+    document.getElementById('bayes-example').onclick = () => {
+      document.getElementById('bayes-pa').value = 0.01;
+      document.getElementById('bayes-l').value = 0.9;
+      document.getElementById('bayes-fp').value = 0.08;
+      explainBayes();
+    };
   }
-  if(topic==='sets'){
-    // create initial set rows area
+
+  if (topic === 'sets') {
     const list = document.getElementById('sets-list');
     list.innerHTML = createSetRow('A') + createSetRow('B');
-    // attach add/remove
-    document.getElementById('add-set').addEventListener('click', ()=>{ list.insertAdjacentHTML('beforeend', createSetRow()); attachRemoveSet(); });
-    document.getElementById('clear-sets').addEventListener('click', ()=>{ list.innerHTML = ''; });
+    document.getElementById('add-set').addEventListener('click', () => {
+      list.insertAdjacentHTML('beforeend', createSetRow());
+      attachRemoveSet();
+    });
+    document.getElementById('clear-sets').addEventListener('click', () => { list.innerHTML = ''; });
     attachRemoveSet();
     document.getElementById('sets-explain').onclick = explainSets;
-    document.getElementById('sets-example').onclick = ()=>{ document.querySelectorAll('.set-input')[0].value='1,2,3'; document.querySelectorAll('.set-input')[1].value='3,4,5'; document.getElementById('set-u').value='1,2,3,4,5'; explainSets(); };
+    document.getElementById('sets-example').onclick = () => {
+      document.querySelectorAll('.set-input')[0].value = '1,2,3';
+      document.querySelectorAll('.set-input')[1].value = '3,4,5';
+      document.getElementById('set-u').value = '1,2,3,4,5';
+      explainSets();
+    };
   }
-  if(topic==='rv'){
+
+  if (topic === 'rv') {
     attachHelp('#help-rv-kind', 'Choose Discrete PMF or Continuous PDF (piecewise constant) for teaching purposes.');
     attachHelp('#help-pmf-by', 'If "Formula" selected, enter a formula in x (e.g. x/15) and a range x=start..end. The system normalizes automatically.');
     attachRVHandlers();
     document.getElementById('rv-explain').onclick = explainRV;
     document.getElementById('rv-normalize').onclick = normalizeRV;
-    document.getElementById('rv-add-row').onclick = ()=>{ document.querySelector('#rv-table > .grid') || buildRVTable(document.getElementById('rv-kind').value, document.getElementById('rv-by').value); };
+    document.getElementById('rv-add-row').onclick = () => {
+      document.querySelector('#rv-table > .grid') || buildRVTable(
+        document.getElementById('rv-kind').value,
+        document.getElementById('rv-by').value
+      );
+    };
   }
-  if(topic==='house'){
+
+  if (topic === 'house') {
     document.getElementById('bet-explain').onclick = explainBet;
-    document.getElementById('bet-example').onclick = ()=>{ document.getElementById('bet-amt').value=10; document.getElementById('bet-winrate').value=0.48; document.getElementById('bet-decimal').value=2.0; document.getElementById('bet-n').value=100; explainBet(); };
+    document.getElementById('bet-example').onclick = () => {
+      document.getElementById('bet-amt').value = 10;
+      document.getElementById('bet-winrate').value = 0.48;
+      document.getElementById('bet-decimal').value = 2.0;
+      document.getElementById('bet-n').value = 100;
+      explainBet();
+    };
   }
 }
+
 
 /* remove-set helper */
 function attachRemoveSet(){

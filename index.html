@@ -37,11 +37,16 @@
     .btn-ghost:hover{filter:brightness(1.15)}
     .btn-link{background:transparent;border:1px dashed var(--card-border);color:var(--text)}
     .input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);padding:.6rem .8rem;border-radius:.55rem;color:var(--text);width:100%}
+    .label{display:flex;align-items:center;gap:.6rem}
+    .topic-card{min-height:120px}
+    .steps{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace}
     .grid-large{display:grid;gap:1.5rem;grid-template-columns:1fr}
     @media(min-width:980px){.grid-large{grid-template-columns:380px 1fr}}
     .solid-divider{height:1px;background:var(--card-border);margin:1rem 0}
     .tab-btn.active{background:var(--btn2); color:#fff;}
     .muted { opacity: .85; font-size: .95rem }
+    canvas { width:100%; height:200px; display:block; background: rgba(255,255,255,0.02); border-radius:8px; }
+    .small { font-size:0.9rem; opacity:0.95 }
   </style>
 </head>
 <body class="min-h-screen antialiased">
@@ -85,21 +90,20 @@
   </header>
 
   <main class="max-w-6xl mx-auto p-6 grid-large">
-    <!-- Left -->
+    <!-- Left: Controls & topics list -->
     <aside class="glass p-6 rounded-xl">
       <h2 class="text-xl font-semibold">Topics</h2>
-      <p class="mt-2 text-sm opacity-90">Pick a topic. Use tabs to switch terms.</p>
+      <p class="mt-2 text-sm opacity-90">Pick a topic. Inputs include <span class="underline">help</span> buttons. Results show clear steps with MathJax.</p>
 
-      <!-- Tabs -->
-      <div class="flex gap-2 mt-4">
-        <button class="tab-btn btn btn-ghost active" data-term="all">ALL</button>
-        <button class="tab-btn btn btn-ghost" data-term="1">Term 1</button>
-        <button class="tab-btn btn btn-ghost" data-term="2">Term 2</button>
-      </div>
+      <nav class="mt-6" aria-label="term-tabs">
+        <div class="flex gap-2">
+          <button class="tab-btn btn btn-ghost active" data-term="all">ALL</button>
+          <button class="tab-btn btn btn-ghost" data-term="1">Term 1</button>
+          <button class="tab-btn btn btn-ghost" data-term="2">Term 2</button>
+        </div>
+      </nav>
 
-      <!-- Topics list -->
-      <nav id="topics-list" class="mt-6 space-y-2" aria-label="topics">
-        <!-- Term 1 topics -->
+      <nav class="mt-6 space-y-2" id="topics-list" aria-label="topics">
         <button class="topic-select btn btn-primary w-full py-3" data-term="1" data-topic="prob">1 — Basic Probability</button>
         <button class="topic-select btn btn-primary w-full py-3" data-term="1" data-topic="perm">2 — Permutations, Combinations & Counting</button>
         <button class="topic-select btn btn-primary w-full py-3" data-term="1" data-topic="atleast">3 — Probability of At Least One</button>
@@ -127,20 +131,17 @@
       </nav>
 
       <div class="solid-divider"></div>
-      <p class="muted">Tip: Tabs filter topics by term.</p>
+      <p class="muted">Tip: each topic has a "Load example" and "Explain" button. Normal includes a plot.</p>
     </aside>
 
-    <!-- Right -->
+    <!-- Right: Calculator area -->
     <section class="glass p-6 rounded-xl">
       <div id="topic-root"></div>
     </section>
   </main>
 
-  <footer class="max-w-6xl mx-auto p-6 text-sm opacity-90">
-    © <span id="year"></span> Moegamat Samsodien — Interactive Stats Calculator. Version 2.3
-  </footer>
+  <footer class="max-w-6xl mx-auto p-6 text-sm opacity-90">© <span id="year"></span> Moegamat Samsodien — Interactive Stats Calculator. Version 2.3</footer>
 
-  <!-- JS -->
-   <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
