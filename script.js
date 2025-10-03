@@ -789,6 +789,40 @@ function explainBet(){
   `;
 }
 /* ----- UNIFORM ----- */
+/* ---------------------------
+   9) Uniform Distribution
+--------------------------- */
+function uniformHTML(){
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Uniform Distribution</h2>
+    <p class="mt-2 small">$X \\sim U(a,b)$</p>
+    <div class="mt-4 grid gap-3 md:grid-cols-2">
+      <div><label class="label">Lower bound (a)</label><input id="uni-a" class="input" type="number" value="0" /></div>
+      <div><label class="label">Upper bound (b)</label><input id="uni-b" class="input" type="number" value="1" /></div>
+      <div><label class="label">Point x</label><input id="uni-x" class="input" type="number" value="0.5" /></div>
+      <div class="label">Bounds: low &lt; X &lt; high
+        <div class="flex gap-2"><input id="uni-low" class="input" type="number" placeholder="lower"/><input id="uni-high" class="input" type="number" placeholder="upper"/></div>
+      </div>
+      <div class="col-span-2">
+        <label class="label">Inverse: Find x for a given probability p</label>
+        <div class="flex items-center gap-2">
+          <select id="uni-inv-type" class="input">
+            <option value="le">P(X ≤ x) = p</option>
+            <option value="gt">P(X > x) = p</option>
+          </select>
+          <input id="uni-inv-p" class="input" type="number" min="0" max="1" step="0.01" value="0.5"/>
+          <button id="uni-inv-calc" class="btn btn-secondary">Find x</button>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 flex gap-2">
+      <button id="uni-explain" class="btn btn-primary">Explain & Calculate</button>
+      <button id="uni-example" class="btn btn-ghost">Load example</button>
+    </div>
+    <div id="uni-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
 function explainUniform(){
   const a = Number(document.getElementById('uni-a').value);
   const b = Number(document.getElementById('uni-b').value);
@@ -1924,22 +1958,657 @@ function inverseHT2MeansPtoZ() {
                          <p class="mt-1"><strong>Excel:</strong> ${excel_formula}</p>`;
     }
 }
+
+// --- Helper functions for Student's t-distribution ---
+
+// Lanczos approximation for the gamma function
+function logGamma(x) {
+    const g = 7;
+    const p = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+    if (x < 0.5) return Math.PI / (Math.sin(Math.PI * x) * Math.exp(logGamma(1 - x)));
+    x -= 1;
+    let a = p[0];
+    let t = x + g + 0.5;
+    for (let i = 1; i < p.length; i++) {
+        a += p[i] / (x + i);
+    }
+    return Math.log(Math.sqrt(2 * Math.PI)) + (x + 0.5) * Math.log(t) - t + Math.log(a / x);
+}
+
+// Incomplete beta function, required for t-CDF
+function incompleteBeta(x, a, b) {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    const bt = Math.exp(logGamma(a + b) - logGamma(a) - logGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+    if (x < (a + 1) / (a + b + 2)) {
+        return bt * continuedFraction(x, a, b) / a;
+    } else {
+        return 1 - bt * continuedFraction(1 - x, b, a) / b;
+    }
+}
+function continuedFraction(x, a, b) {
+    const maxIterations = 200;
+    const epsilon = 1e-15;
+    let am = 1, bm = 1, az = 1, bz = 1 - (a + b) * x / (a + 1);
+    for (let m = 1; m <= maxIterations; m++) {
+        let d = m * (b - m) * x / ((a + 2 * m - 1) * (a + 2 * m));
+        am = az + d * am;
+        bm = bz + d * bm;
+        d = -(a + m) * (a + b + m) * x / ((a + 2 * m) * (a + 2 * m + 1));
+        az = am + d * az;
+        bz = bm + d * bz;
+        if (Math.abs(az) > epsilon && Math.abs(bz) > epsilon) {
+            am /= bz; bm /= bz; az /= bz; bz = 1;
+        } else {
+            am = Infinity;
+        }
+        if (Math.abs(az - am) < epsilon * Math.abs(az)) return az;
+    }
+    return az;
+}
+
+// Student's t-distribution Cumulative Distribution Function (CDF)
+function t_cdf(t, df) {
+    const x = df / (df + t * t);
+    if (t > 0) {
+        return 1 - 0.5 * incompleteBeta(x, df / 2, 0.5);
+    } else {
+        return 0.5 * incompleteBeta(x, df / 2, 0.5);
+    }
+}
+
+// Inverse of the Student's t-distribution CDF (approximated)
+function t_inv(p, df) {
+    if (p <= 0 || p >= 1) return NaN;
+    const z = stdNormalInv(p); // Use normal inverse as starting point
+    let t = z;
+    const maxIter = 10;
+    for (let i = 0; i < maxIter; i++) {
+      let cdf_val = t_cdf(t, df);
+      let pdf_val = Math.exp(logGamma((df + 1) / 2) - logGamma(df / 2)) / (Math.sqrt(df * Math.PI) * Math.pow(1 + (t * t / df), (df + 1) / 2));
+      let step = (cdf_val - p) / pdf_val;
+      t -= step;
+      if(Math.abs(step) < 1e-8) break;
+    }
+    return t;
+}
+
 /* ---------------------------
-  (13–22) placeholders for hypothesis testing modules
-  Each returns a ready-to-fill HTML structure (Load example + Explain)
---------------------------- */
-function normalPlaceholder(title){
-  return `<div><h2 class="text-2xl font-semibold">${title}</h2><p class="mt-2">Coming soon — detailed examples and calculators.</p></div>`;
+  17) Hypothesis Test (σ unknown) — one sample
+   --------------------------- */
+function htSigmaUnknownHTML() {
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Hypothesis Test: Mean (σ unknown) - One Sample t-test</h2>
+    <p class="mt-2 text-sm opacity-90">Test a claim about a population mean when only the sample standard deviation (s) is known.</p>
+    
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div><label class="label">Hypothesized Mean (μ₀)</label><input id="ht-su-mu0" class="input" type="number" value="13" /></div>
+      <div><label class="label">Sample Mean (x̄)</label><input id="ht-su-xbar" class="input" type="number" value="12.75" /></div>
+      <div><label class="label">Sample Standard Deviation (s)</label><input id="ht-su-s" class="input" type="number" value="0.6" /></div>
+      <div><label class="label">Sample Size (n)</label><input id="ht-su-n" class="input" type="number" min="2" value="36" /></div>
+      <div class="col-span-2"><label class="label">Significance Level (α, in %)</label><input id="ht-su-alpha" class="input" type="number" min="0" max="100" value="1" /></div>
+      <div class="col-span-2">
+        <label class="label">Hypothesis Type</label>
+        <select id="ht-su-type" class="input">
+          <option value="neq">Two-tailed (H₁: μ ≠ μ₀)</option>
+          <option value="lt">Left-tailed (H₁: μ < μ₀)</option>
+          <option value="gt">Right-tailed (H₁: μ > μ₀)</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="mt-4 flex gap-2">
+      <button id="ht-su-explain" class="btn btn-primary">Run Test & Explain</button>
+      <button id="ht-su-example" class="btn btn-ghost">Load example</button>
+    </div>
+    <div id="ht-su-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+
+function explainHTSigmaUnknown() {
+    const mu0 = Number(document.getElementById('ht-su-mu0').value);
+    const x_bar = Number(document.getElementById('ht-su-xbar').value);
+    const s = Number(document.getElementById('ht-su-s').value);
+    const n = Number(document.getElementById('ht-su-n').value);
+    const alpha_percent = Number(document.getElementById('ht-su-alpha').value);
+    const type = document.getElementById('ht-su-type').value;
+    const out = document.getElementById('ht-su-output');
+
+    if (isNaN(mu0) || isNaN(x_bar) || isNaN(s) || s <= 0 || isNaN(n) || n < 2 || isNaN(alpha_percent) || alpha_percent <= 0 || alpha_percent >= 100) {
+        out.innerHTML = `<p class="text-red-400">Provide valid inputs. s must be positive, n ≥ 2, and 0 < α < 100.</p>`;
+        return;
+    }
+
+    const alpha = alpha_percent / 100;
+    const df = n - 1;
+    const stdError = s / Math.sqrt(n);
+    const t_stat = (x_bar - mu0) / stdError;
+
+    let h0, h1, tail_desc, p_value, critical_str, rejection_region_str, conclusion_claim;
+
+    if (type === 'neq') {
+        tail_desc = "two-tailed";
+        h0 = `H₀: μ = ${mu0}`;
+        h1 = `H₁: μ ≠ ${mu0}`;
+        conclusion_claim = `the mean is different from ${mu0}`;
+        p_value = 2 * (t_stat < 0 ? t_cdf(t_stat, df) : 1 - t_cdf(t_stat, df));
+        const cv = t_inv(1 - alpha / 2, df);
+        critical_str = `±${fmt(cv, 4)}`;
+        rejection_region_str = `t < -${fmt(cv, 4)} or t > ${fmt(cv, 4)}`;
+    } else if (type === 'lt') {
+        tail_desc = "left-tailed";
+        h0 = `H₀: μ ≥ ${mu0}`;
+        h1 = `H₁: μ < ${mu0}`;
+        conclusion_claim = `the mean is less than ${mu0}`;
+        p_value = t_cdf(t_stat, df);
+        const cv = t_inv(alpha, df);
+        critical_str = `${fmt(cv, 4)}`;
+        rejection_region_str = `t < ${fmt(cv, 4)}`;
+    } else { // 'gt'
+        tail_desc = "right-tailed";
+        h0 = `H₀: μ ≤ ${mu0}`;
+        h1 = `H₁: μ > ${mu0}`;
+        conclusion_claim = `the mean is greater than ${mu0}`;
+        p_value = 1 - t_cdf(t_stat, df);
+        const cv = t_inv(1 - alpha, df);
+        critical_str = `${fmt(cv, 4)}`;
+        rejection_region_str = `t > ${fmt(cv, 4)}`;
+    }
+
+    const reject_h0 = p_value < alpha;
+    
+    let conclusion;
+    if (reject_h0) {
+        conclusion = `<strong>We reject the null hypothesis.</strong> There is sufficient evidence at the ${alpha_percent}% significance level to conclude that ${conclusion_claim} (p-value ≈ ${fmt(p_value, 5)}).`;
+    } else {
+        conclusion = `<strong>We do not have sufficient evidence to reject the null hypothesis.</strong> We cannot conclude that the mean is different from ${mu0} (p-value ≈ ${fmt(p_value, 5)}).`;
+    }
+
+    out.innerHTML = `
+        <ol class="list-decimal list-inside space-y-4">
+            <li>
+                <strong>State the Hypotheses:</strong> This is a ${tail_desc} test.
+                <p class="ml-4 mt-1">Null Hypothesis (H₀): <strong>${h0}</strong></p>
+                <p class="ml-4">Alternative Hypothesis (H₁): <strong>${h1}</strong></p>
+            </li>
+            <li>
+                <strong>Degrees of Freedom (df):</strong>
+                <p class="ml-4 mt-1">df = n - 1 = ${n} - 1 = <strong>${df}</strong>.</p>
+                <p class="ml-4 opacity-80 text-sm">Degrees of freedom determine the specific shape of the t-distribution. A higher df means the distribution is closer to the standard normal distribution.</p>
+            </li>
+            <li>
+                <strong>Calculate the Test Statistic (t):</strong>
+                <p class="ml-4 mt-1">Standard Error (SE) = s/√n = ${s}/√${n} = ${fmt(stdError, 5)}</p>
+                <p class="ml-4">t = (x̄ - μ₀) / SE = (${x_bar} - ${mu0}) / ${fmt(stdError, 5)} = <strong>${fmt(t_stat, 4)}</strong></p>
+            </li>
+            <li>
+                <strong>Determine Critical Region and P-value:</strong>
+                <p class="ml-4 mt-1"><strong>Critical Value(s):</strong> The critical value for a ${tail_desc} test with df=${df} at α=${alpha} is <strong>${critical_str}</strong>.</p>
+                <p class="ml-4"><strong>Excel:</strong> ${type === 'neq' ? `=T.INV.2T(${alpha}, ${df})` : `=T.INV(${alpha}, ${df})`}</p>
+                <p class="ml-4 mt-2"><strong>Calculated P-value:</strong> The probability of observing a t-statistic this extreme or more is <strong>${fmt(p_value, 5)}</strong>.</p>
+                <p class="ml-4"><strong>Excel:</strong> ${type === 'neq' ? `=T.DIST.2T(ABS(${fmt(t_stat, 4)}), ${df})` : (type === 'lt' ? `=T.DIST(${fmt(t_stat, 4)}, ${df}, TRUE)` : `=T.DIST.RT(${fmt(t_stat, 4)}, ${df})`)}</p>
+            </li>
+            <li>
+                <strong>Decision & Conclusion:</strong>
+                <p class="ml-4 mt-1">Since the p-value (${fmt(p_value, 5)}) is ${p_value < alpha ? 'less' : 'greater'} than α (${alpha}), we <strong>${reject_h0 ? 'reject H₀' : 'fail to reject H₀'}</strong>.</p>
+                <p class="ml-4 mt-1">${conclusion}</p>
+            </li>
+        </ol>
+    `;
+    if(window.MathJax) MathJax.typesetPromise();
+}
+
+/* ---------------------------
+  18) Hypothesis Test (σ unknown) — two independent samples (POOLED)
+   --------------------------- */
+function ht2SamplesUnknownHTML(){
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Hypothesis Test (σ unknown) - Pooled Two-Sample t-test</h2>
+    <p class="mt-2 text-sm opacity-90">Test if there's a significant difference between two means. <strong>This test assumes the two populations have equal variances.</strong></p>
+    
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div><label class="label">Sample Mean 1 (x̄₁)</label><input id="ht2-su-xbar1" class="input" type="number" value="6.875" /></div>
+      <div><label class="label">Sample Mean 2 (x̄₂)</label><input id="ht2-su-xbar2" class="input" type="number" value="6" /></div>
+      
+      <div><label class="label">Sample SD 1 (s₁)</label><input id="ht2-su-s1" class="input" type="number" value="1.4577" /></div>
+      <div><label class="label">Sample SD 2 (s₂)</label><input id="ht2-su-s2" class="input" type="number" value="1.5811" /></div>
+      
+      <div><label class="label">Sample Size 1 (n₁)</label><input id="ht2-su-n1" class="input" type="number" min="2" value="8" /></div>
+      <div><label class="label">Sample Size 2 (n₂)</label><input id="ht2-su-n2" class="input" type="number" min="2" value="9" /></div>
+      
+      <div class="col-span-2"><label class="label">Significance Level (α, in %)</label><input id="ht2-su-alpha" class="input" type="number" min="0" max="100" value="5" /></div>
+      <div class="col-span-2">
+        <label class="label">Hypothesis Type (H₀: μ₁ = μ₂)</label>
+        <select id="ht2-su-type" class="input">
+          <option value="neq">Two-tailed (H₁: μ₁ ≠ μ₂)</option>
+          <option value="lt">Left-tailed (H₁: μ₁ < μ₂)</option>
+          <option value="gt">Right-tailed (H₁: μ₁ > μ₂)</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="mt-4 flex gap-2">
+      <button id="ht2-su-explain" class="btn btn-primary">Run Test & Explain</button>
+      <button id="ht2-su-example" class="btn btn-ghost">Load example</button>
+    </div>
+    <div id="ht2-su-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+
+function explainHT2SamplesUnknown(){
+    const xbar1 = Number(document.getElementById('ht2-su-xbar1').value);
+    const xbar2 = Number(document.getElementById('ht2-su-xbar2').value);
+    const s1 = Number(document.getElementById('ht2-su-s1').value);
+    const s2 = Number(document.getElementById('ht2-su-s2').value);
+    const n1 = Number(document.getElementById('ht2-su-n1').value);
+    const n2 = Number(document.getElementById('ht2-su-n2').value);
+    const alpha_percent = Number(document.getElementById('ht2-su-alpha').value);
+    const type = document.getElementById('ht2-su-type').value;
+    const out = document.getElementById('ht2-su-output');
+
+    if (isNaN(xbar1) || isNaN(xbar2) || isNaN(s1) || s1 <= 0 || isNaN(s2) || s2 <= 0 || isNaN(n1) || n1 < 2 || isNaN(n2) || n2 < 2 || isNaN(alpha_percent) || alpha_percent <= 0 || alpha_percent >= 100) {
+        out.innerHTML = `<p class="text-red-400">Provide valid inputs. s must be positive, n ≥ 2, and 0 < α < 100.</p>`;
+        return;
+    }
+    
+    const alpha = alpha_percent / 100;
+
+    // Pooled t-test calculations
+    const df = n1 + n2 - 2;
+    const sp_numerator = (n1 - 1) * s1 * s1 + (n2 - 1) * s2 * s2;
+    const sp_squared = sp_numerator / df;
+    const sp = Math.sqrt(sp_squared); // Pooled standard deviation
+    const stdErrorPooled = sp * Math.sqrt(1/n1 + 1/n2);
+    const t_stat = (xbar1 - xbar2) / stdErrorPooled;
+
+    let h0, h1, tail_desc, p_value, critical_str, rejection_region_str, conclusion_claim;
+
+    if (type === 'neq') {
+        tail_desc = "two-tailed";
+        h0 = `H₀: μ₁ = μ₂`; h1 = `H₁: μ₁ ≠ μ₂`;
+        conclusion_claim = `the means of population 1 and population 2 are different`;
+        p_value = 2 * (t_stat < 0 ? t_cdf(t_stat, df) : 1 - t_cdf(t_stat, df));
+        const cv = t_inv(1 - alpha / 2, df);
+        critical_str = `±${fmt(cv, 4)}`;
+        rejection_region_str = `t < -${fmt(cv, 4)} or t > ${fmt(cv, 4)}`;
+    } else if (type === 'lt') {
+        tail_desc = "left-tailed";
+        h0 = `H₀: μ₁ ≥ μ₂`; h1 = `H₁: μ₁ < μ₂`;
+        conclusion_claim = `the mean of population 1 is less than the mean of population 2`;
+        p_value = t_cdf(t_stat, df);
+        const cv = t_inv(alpha, df);
+        critical_str = `${fmt(cv, 4)}`;
+        rejection_region_str = `t < ${fmt(cv, 4)}`;
+    } else { // gt
+        tail_desc = "right-tailed";
+        h0 = `H₀: μ₁ ≤ μ₂`; h1 = `H₁: μ₁ > μ₂`;
+        conclusion_claim = `the mean of population 1 is greater than the mean of population 2`;
+        p_value = 1 - t_cdf(t_stat, df);
+        const cv = t_inv(1 - alpha, df);
+        critical_str = `${fmt(cv, 4)}`;
+        rejection_region_str = `t > ${fmt(cv, 4)}`;
+    }
+
+    const reject_h0 = p_value < alpha;
+
+    let conclusion;
+    if (reject_h0) {
+        conclusion = `<strong>We reject the null hypothesis.</strong> There is sufficient evidence at the ${alpha_percent}% significance level to conclude that ${conclusion_claim} (p-value ≈ ${fmt(p_value, 5)}).`;
+    } else {
+        conclusion = `<strong>We do not have sufficient evidence to reject the null hypothesis.</strong> We cannot conclude that the means of the two populations are different (p-value ≈ ${fmt(p_value, 5)}).`;
+    }
+
+    out.innerHTML = `
+        <ol class="list-decimal list-inside space-y-4">
+            <li>
+                <strong>State the Hypotheses:</strong>
+                <p class="ml-4 mt-1">Null Hypothesis (H₀): <strong>${h0}</strong></p>
+                <p class="ml-4">Alternative Hypothesis (H₁): <strong>${h1}</strong></p>
+            </li>
+            <li>
+                <strong>Calculate Pooled Standard Deviation (sₚ) and Degrees of Freedom (df):</strong>
+                <p class="ml-4 mt-1">df = n₁ + n₂ - 2 = ${n1} + ${n2} - 2 = <strong>${df}</strong></p>
+                <p class="ml-4 mt-1">Pooled Variance (sₚ²) = $\\frac{(n₁-1)s₁² + (n₂-1)s₂²}{n₁+n₂-2}$ = ${fmt(sp_squared, 5)}</p>
+                <p class="ml-4 mt-1">Pooled Standard Deviation (sₚ) = $\\sqrt{s_p^2}$ = <strong>${fmt(sp, 5)}</strong></p>
+            </li>
+            <li>
+                <strong>Calculate the Test Statistic (t):</strong>
+                <p class="ml-4 mt-1">Standard Error (SE) = $s_p \\cdot \\sqrt{\\frac{1}{n₁} + \\frac{1}{n₂}}$ = ${fmt(sp, 4)} * ${fmt(Math.sqrt(1/n1 + 1/n2), 4)} = ${fmt(stdErrorPooled, 5)}</p>
+                <p class="ml-4">t = $\\frac{(x̄₁ - x̄₂)}{SE}$ = $\\frac{(${xbar1} - ${xbar2})}{${fmt(stdErrorPooled, 5)}}$ = <strong>${fmt(t_stat, 4)}</strong></p>
+            </li>
+            <li>
+                <strong>Determine Critical Region and P-value:</strong>
+                <p class="ml-4 mt-1"><strong>Critical Value(s):</strong> For df=${df} at α=${alpha}, the critical value is <strong>${critical_str}</strong>.</p>
+                <p class="ml-4"><strong>Excel:</strong> ${type === 'neq' ? `=T.INV.2T(${alpha}, ${df})` : `=T.INV(${alpha}, ${df})`}</p>
+                <p class="ml-4 mt-2"><strong>Calculated P-value:</strong> The probability of observing a t-statistic this extreme or more is <strong>${fmt(p_value, 5)}</strong>.</p>
+                <p class="ml-4"><strong>Excel:</strong> ${type === 'neq' ? `=T.DIST.2T(ABS(${fmt(t_stat, 4)}), ${df})` : (type === 'lt' ? `=T.DIST(${fmt(t_stat, 4)}, ${df}, TRUE)` : `=T.DIST.RT(${fmt(t_stat, 4)}, ${df})`)}</p>
+            </li>
+            <li>
+                <strong>Decision & Conclusion:</strong>
+                <p class="ml-4 mt-1">Since the p-value (${fmt(p_value, 5)}) is ${p_value < alpha ? 'less' : 'greater'} than α (${alpha}), we <strong>${reject_h0 ? 'reject H₀' : 'fail to reject H₀'}</strong>.</p>
+                <p class="ml-4 mt-1">${conclusion}</p>
+            </li>
+        </ol>
+    `;
+    if(window.MathJax) MathJax.typesetPromise();
+}
+
+/* ---------------------------
+  19) Hypothesis Test (Matched Pairs)
+   --------------------------- */
+function htPairedHTML(){
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Hypothesis Test: Matched Pairs (Paired t-test)</h2>
+    <p class="mt-2 text-sm opacity-90">Tests the mean difference between paired observations (e.g., before vs. after). Assumes the differences are normally distributed.</p>
+    
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div><label class="label">Mean of Differences (d̄)</label><input id="ht-p-dbar" class="input" type="number" value="0.252" /></div>
+      <div><label class="label">SD of Differences (s_d)</label><input id="ht-p-sd" class="input" type="number" value="0.218" /></div>
+      <div><label class="label">Number of Pairs (n)</label><input id="ht-p-n" class="input" type="number" min="2" value="5" /></div>
+      <div><label class="label">Hypothesized Difference (μ_d)</label><input id="ht-p-mu_d" class="input" type="number" value="0" /></div>
+      <div class="col-span-2"><label class="label">Significance Level (α, in %)</label><input id="ht-p-alpha" class="input" type="number" min="0" max="100" value="5" /></div>
+      <div class="col-span-2">
+        <label class="label">Hypothesis Type</label>
+        <select id="ht-p-type" class="input">
+          <option value="neq">Two-tailed (H₁: μ_d ≠ 0)</option>
+          <option value="lt">Left-tailed (H₁: μ_d < 0)</option>
+          <option value="gt">Right-tailed (H₁: μ_d > 0)</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="mt-4 flex gap-2"><button id="ht-p-explain" class="btn btn-primary">Run Test</button><button id="ht-p-example" class="btn btn-ghost">Load example</button></div>
+    <div id="ht-p-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+
+function explainHTPaired(){
+    const d_bar = Number(document.getElementById('ht-p-dbar').value);
+    const s_d = Number(document.getElementById('ht-p-sd').value);
+    const n = Number(document.getElementById('ht-p-n').value);
+    const mu_d = Number(document.getElementById('ht-p-mu_d').value);
+    const alpha_percent = Number(document.getElementById('ht-p-alpha').value);
+    const type = document.getElementById('ht-p-type').value;
+    const out = document.getElementById('ht-p-output');
+
+    if (isNaN(d_bar) || isNaN(s_d) || s_d <= 0 || isNaN(n) || n < 2 || isNaN(mu_d) || isNaN(alpha_percent) || alpha_percent <= 0 || alpha_percent >= 100) {
+        out.innerHTML = `<p class="text-red-400">Please provide valid inputs.</p>`; return;
+    }
+
+    const alpha = alpha_percent / 100;
+    const df = n - 1;
+    const stdError = s_d / Math.sqrt(n);
+    const t_stat = (d_bar - mu_d) / stdError;
+    
+    // Logic for p-value, critical values, etc.
+    let h0, h1, p_value, critical_str, conclusion_claim;
+    if (type === 'neq') {
+        h0 = `H₀: μ_d = ${mu_d}`; h1 = `H₁: μ_d ≠ ${mu_d}`;
+        conclusion_claim = `the mean difference is different from ${mu_d}`;
+        p_value = 2 * (t_stat < 0 ? t_cdf(t_stat, df) : 1 - t_cdf(t_stat, df));
+        const cv = t_inv(1 - alpha / 2, df); critical_str = `±${fmt(cv, 4)}`;
+    } else if (type === 'lt') {
+        h0 = `H₀: μ_d ≥ ${mu_d}`; h1 = `H₁: μ_d < ${mu_d}`;
+        conclusion_claim = `the mean difference is less than ${mu_d}`;
+        p_value = t_cdf(t_stat, df);
+        const cv = t_inv(alpha, df); critical_str = `${fmt(cv, 4)}`;
+    } else { // gt
+        h0 = `H₀: μ_d ≤ ${mu_d}`; h1 = `H₁: μ_d > ${mu_d}`;
+        conclusion_claim = `the mean difference is greater than ${mu_d}`;
+        p_value = 1 - t_cdf(t_stat, df);
+        const cv = t_inv(1 - alpha, df); critical_str = `${fmt(cv, 4)}`;
+    }
+    const reject_h0 = p_value < alpha;
+    let conclusion = reject_h0 ? `<strong>We reject the null hypothesis.</strong> There is sufficient evidence to conclude that ${conclusion_claim} (p-value ≈ ${fmt(p_value, 5)}).` : `<strong>We do not have sufficient evidence to reject the null hypothesis.</strong> We cannot conclude that the mean difference is different from ${mu_d} (p-value ≈ ${fmt(p_value, 5)}).`;
+
+    out.innerHTML = `
+        <ol class="list-decimal list-inside space-y-4">
+            <li><strong>Hypotheses:</strong> H₀: <strong>${h0}</strong>, H₁: <strong>${h1}</strong></li>
+            <li><strong>Degrees of Freedom (df):</strong> df = n - 1 = ${n} - 1 = <strong>${df}</strong></li>
+            <li>
+                <strong>Test Statistic (t):</strong>
+                <p class="ml-4">SE = s_d/√n = ${s_d}/√${n} = ${fmt(stdError, 5)}</p>
+                <p class="ml-4">t = (d̄ - μ_d) / SE = (${d_bar} - ${mu_d}) / ${fmt(stdError, 5)} = <strong>${fmt(t_stat, 4)}</strong></p>
+            </li>
+            <li>
+                <strong>P-value and Critical Value:</strong>
+                <p class="ml-4">P-value = <strong>${fmt(p_value, 5)}</strong>. Critical Value(s) at α=${alpha} is <strong>${critical_str}</strong>.</p>
+                <p class="ml-4"><strong>Excel P-value:</strong> ${type === 'neq' ? `=T.DIST.2T(ABS(${fmt(t_stat, 4)}), ${df})` : (type === 'lt' ? `=T.DIST(${fmt(t_stat, 4)}, ${df}, TRUE)` : `=T.DIST.RT(${fmt(t_stat, 4)}, ${df})`)}</p>
+            </li>
+            <li><strong>Conclusion:</strong> ${conclusion}</li>
+        </ol>
+    `;
+    if(window.MathJax) MathJax.typesetPromise();
 }
 
 
 
-function htSigmaUnknownHTML(){ return normalPlaceholder('Hypothesis Test (σ unknown) — one sample'); }
-function ht2SamplesUnknownHTML(){ return normalPlaceholder('Hypothesis Test (σ unknown) — two independent samples'); }
-function htPairedHTML(){ return normalPlaceholder('Hypothesis Test (Matched Pairs)'); }
-function htFitHTML(){ return normalPlaceholder('Goodness-of-Fit Test'); }
-function htAssocHTML(){ return normalPlaceholder('Test of Association (Categorical)'); }
-function htRegressionHTML(){ return normalPlaceholder('Test for Predictive Relationship'); }
+/* ---------------------------
+  20) Goodness-of-Fit Test (χ²)
+   --------------------------- */
+function htFitHTML(){
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Goodness-of-Fit Test (χ²)</h2>
+    <p class="mt-2 text-sm opacity-90">Tests if the observed frequency distribution of a categorical variable fits an expected distribution.</p>
+    
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div class="col-span-2">
+        <label class="label">Observed Frequencies (O)</label>
+        <textarea id="ht-fit-obs" class="input" rows="3" placeholder="Enter comma-separated values, e.g., 20, 33, 51, 41, 30">20, 33, 51, 41, 30</textarea>
+      </div>
+      <div class="col-span-2">
+        <label class="label">Expected Frequencies (E)</label>
+        <textarea id="ht-fit-exp" class="input" rows="3" placeholder="Enter comma-separated values, e.g., 21.6, 38.9, 46.7, 37.3, 22.4">21.6, 38.9, 46.7, 37.3, 22.4</textarea>
+      </div>
+      <div class="col-span-2"><label class="label">Significance Level (α, in %)</label><input id="ht-fit-alpha" class="input" type="number" min="0" max="100" value="5" /></div>
+    </div>
+    
+    <div class="mt-4 flex gap-2"><button id="ht-fit-explain" class="btn btn-primary">Run Test</button><button id="ht-fit-example" class="btn btn-ghost">Load example</button></div>
+    <div id="ht-fit-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+
+function explainHTFit(){
+    const obs_str = document.getElementById('ht-fit-obs').value.split(',').map(s => s.trim());
+    const exp_str = document.getElementById('ht-fit-exp').value.split(',').map(s => s.trim());
+    const alpha_percent = Number(document.getElementById('ht-fit-alpha').value);
+    const out = document.getElementById('ht-fit-output');
+
+    if(obs_str.length !== exp_str.length || obs_str.length < 2){
+        out.innerHTML = `<p class="text-red-400">Observed and Expected lists must have the same number of categories (at least 2).</p>`; return;
+    }
+
+    const obs = obs_str.map(Number);
+    const exp = exp_str.map(Number);
+    const k = obs.length;
+    let chi2_stat = 0;
+    let table_rows = ``;
+
+    for(let i=0; i<k; i++){
+        if(isNaN(obs[i]) || isNaN(exp[i]) || exp[i] <= 0){
+            out.innerHTML = `<p class="text-red-400">All values must be numbers and expected values must be positive.</p>`; return;
+        }
+        let term = Math.pow(obs[i] - exp[i], 2) / exp[i];
+        chi2_stat += term;
+        table_rows += `<tr><td class="border px-2 py-1">${i+1}</td><td class="border px-2 py-1">${obs[i]}</td><td class="border px-2 py-1">${exp[i]}</td><td class="border px-2 py-1">${fmt(term, 4)}</td></tr>`;
+    }
+
+    const alpha = alpha_percent / 100;
+    const df = k - 1; // Assuming no parameters were estimated from the data
+    const p_value = 1 - chi2_cdf(chi2_stat, df);
+    const cv = chi2_inv(1 - alpha, df);
+    
+    const reject_h0 = p_value < alpha;
+    let conclusion = reject_h0 ? `<strong>We reject the null hypothesis.</strong> The observed distribution does not fit the expected distribution (p-value ≈ ${fmt(p_value, 5)}).` : `<strong>We do not have sufficient evidence to reject the null hypothesis.</strong> The observed distribution fits the expected distribution (p-value ≈ ${fmt(p_value, 5)}).`;
+
+    out.innerHTML = `
+        <ol class="list-decimal list-inside space-y-4">
+            <li><strong>Hypotheses:</strong> H₀: The data fit the specified distribution. H₁: The data do not fit the specified distribution.</li>
+            <li><strong>Degrees of Freedom (df):</strong> df = k - 1 = ${k} - 1 = <strong>${df}</strong></li>
+            <li>
+                <strong>Test Statistic (χ²):</strong>
+                <p class="ml-4">χ² = $\\sum \\frac{(O - E)^2}{E}$ = <strong>${fmt(chi2_stat, 4)}</strong></p>
+                <div class="overflow-x-auto mt-2"><table class="table-auto w-full text-center"><thead><tr><th class="border px-2 py-1">Category</th><th class="border px-2 py-1">O</th><th class="border px-2 py-1">E</th><th class="border px-2 py-1">(O-E)²/E</th></tr></thead><tbody>${table_rows}</tbody></table></div>
+            </li>
+            <li>
+                <strong>P-value and Critical Value:</strong>
+                <p class="ml-4">P-value = <strong>${fmt(p_value, 5)}</strong>. Critical Value at α=${alpha} is <strong>${fmt(cv, 4)}</strong>.</p>
+                <p class="ml-4"><strong>Excel P-value:</strong> =CHISQ.DIST.RT(${fmt(chi2_stat, 4)}, ${df})</p>
+                <p class="ml-4"><strong>Excel Critical Value:</strong> =CHISQ.INV.RT(${alpha}, ${df})</p>
+            </li>
+            <li><strong>Conclusion:</strong> ${conclusion}</li>
+        </ol>
+    `;
+    if(window.MathJax) MathJax.typesetPromise();
+}
+
+
+
+
+/* ---------------------------
+  21) Test of Association (χ²)
+   --------------------------- */
+function htAssocHTML(){
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Test of Association / Independence (χ²)</h2>
+    <p class="mt-2 text-sm opacity-90">Tests if there is a significant association between two categorical variables.</p>
+    
+    <div class="mt-4 grid gap-4">
+      <div class="col-span-2">
+        <label class="label">Observed Frequencies (Contingency Table)</label>
+        <textarea id="ht-assoc-obs" class="input" rows="4" placeholder="Enter rows of comma-separated values.\nExample:\n75, 55, 20\n45, 40, 18">75, 55, 20\n45, 40, 18</textarea>
+      </div>
+      <div class="col-span-2"><label class="label">Significance Level (α, in %)</label><input id="ht-assoc-alpha" class="input" type="number" min="0" max="100" value="5" /></div>
+    </div>
+    
+    <div class="mt-4 flex gap-2"><button id="ht-assoc-explain" class="btn btn-primary">Run Test</button><button id="ht-assoc-example" class="btn btn-ghost">Load example</button></div>
+    <div id="ht-assoc-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+
+function explainHTAssoc(){
+    const table_str = document.getElementById('ht-assoc-obs').value.trim().split('\n');
+    const alpha_percent = Number(document.getElementById('ht-assoc-alpha').value);
+    const out = document.getElementById('ht-assoc-output');
+
+    const obs_table = table_str.map(row => row.split(',').map(s => parseFloat(s.trim())));
+    const num_rows = obs_table.length;
+    const num_cols = obs_table[0].length;
+
+    const row_totals = obs_table.map(row => row.reduce((a, b) => a + b, 0));
+    const col_totals = Array(num_cols).fill(0).map((_, c) => obs_table.reduce((sum, row) => sum + row[c], 0));
+    const grand_total = row_totals.reduce((a, b) => a + b, 0);
+
+    let chi2_stat = 0;
+    let exp_table = [];
+    for(let r=0; r<num_rows; r++){
+        exp_table[r] = [];
+        for(let c=0; c<num_cols; c++){
+            const expected = (row_totals[r] * col_totals[c]) / grand_total;
+            exp_table[r][c] = expected;
+            chi2_stat += Math.pow(obs_table[r][c] - expected, 2) / expected;
+        }
+    }
+
+    const alpha = alpha_percent / 100;
+    const df = (num_rows - 1) * (num_cols - 1);
+    const p_value = 1 - chi2_cdf(chi2_stat, df);
+    const cv = chi2_inv(1 - alpha, df);
+    
+    const reject_h0 = p_value < alpha;
+    let conclusion = reject_h0 ? `<strong>We reject the null hypothesis.</strong> There is a significant association between the two variables (p-value ≈ ${fmt(p_value, 5)}).` : `<strong>We do not have sufficient evidence to reject the null hypothesis.</strong> The variables are independent (p-value ≈ ${fmt(p_value, 5)}).`;
+
+    out.innerHTML = `
+        <ol class="list-decimal list-inside space-y-4">
+            <li><strong>Hypotheses:</strong> H₀: The two variables are independent. H₁: The two variables are associated.</li>
+            <li><strong>Degrees of Freedom (df):</strong> df = (rows - 1) * (cols - 1) = (${num_rows} - 1) * (${num_cols} - 1) = <strong>${df}</strong></li>
+            <li>
+                <strong>Test Statistic (χ²):</strong>
+                <p class="ml-4">Expected value for each cell is (Row Total * Column Total) / Grand Total.</p>
+                <p class="ml-4">χ² = $\\sum \\frac{(O - E)^2}{E}$ = <strong>${fmt(chi2_stat, 4)}</strong></p>
+            </li>
+            <li>
+                <strong>P-value and Critical Value:</strong>
+                <p class="ml-4">P-value = <strong>${fmt(p_value, 5)}</strong>. Critical Value at α=${alpha} is <strong>${fmt(cv, 4)}</strong>.</p>
+                <p class="ml-4"><strong>Excel:</strong> =CHISQ.TEST(observed_range, expected_range) provides the p-value directly.</p>
+            </li>
+            <li><strong>Conclusion:</strong> ${conclusion}</li>
+        </ol>
+    `;
+    if(window.MathJax) MathJax.typesetPromise();
+}
+
+
+
+
+
+/* ---------------------------
+  22) Test for Predictive Relationship (Regression)
+   --------------------------- */
+function htRegressionHTML(){
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Test for Predictive Relationship (Linear Regression)</h2>
+    <p class="mt-2 text-sm opacity-90">Tests if the slope coefficient in a simple linear regression model is significantly different from zero.</p>
+    
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div><label class="label">Slope Coefficient (b₁)</label><input id="ht-reg-b1" class="input" type="number" value="0.03884" /></div>
+      <div><label class="label">Standard Error of Slope (SE)</label><input id="ht-reg-se" class="input" type="number" value="0.00116" /></div>
+      <div><label class="label">Sample Size (n)</label><input id="ht-reg-n" class="input" type="number" min="3" value="400" /></div>
+      <div><label class="label">Hypothesized Slope (β₁)</label><input id="ht-reg-beta" class="input" type="number" value="0" /></div>
+      <div class="col-span-2"><label class="label">Significance Level (α, in %)</label><input id="ht-reg-alpha" class="input" type="number" min="0" max="100" value="5" /></div>
+    </div>
+    
+    <div class="mt-4 flex gap-2"><button id="ht-reg-explain" class="btn btn-primary">Run Test</button><button id="ht-reg-example" class="btn btn-ghost">Load example</button></div>
+    <div id="ht-reg-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+
+function explainHTRegression(){
+    const b1 = Number(document.getElementById('ht-reg-b1').value);
+    const se = Number(document.getElementById('ht-reg-se').value);
+    const n = Number(document.getElementById('ht-reg-n').value);
+    const beta = Number(document.getElementById('ht-reg-beta').value);
+    const alpha_percent = Number(document.getElementById('ht-reg-alpha').value);
+    const out = document.getElementById('ht-reg-output');
+
+    if (isNaN(b1) || isNaN(se) || se <= 0 || isNaN(n) || n < 3 || isNaN(beta) || isNaN(alpha_percent) || alpha_percent <= 0 || alpha_percent >= 100) {
+        out.innerHTML = `<p class="text-red-400">Please provide valid inputs.</p>`; return;
+    }
+
+    const alpha = alpha_percent / 100;
+    const df = n - 2; // For simple linear regression
+    const t_stat = (b1 - beta) / se;
+    const p_value = 2 * (1 - t_cdf(Math.abs(t_stat), df)); // Always two-tailed for slope=0
+    const cv = t_inv(1 - alpha / 2, df);
+    
+    const reject_h0 = p_value < alpha;
+    let conclusion = reject_h0 ? `<strong>We reject the null hypothesis.</strong> There is a significant linear relationship between the variables (p-value ≈ ${fmt(p_value, 5)}).` : `<strong>We do not have sufficient evidence to reject the null hypothesis.</strong> There is no significant linear relationship (p-value ≈ ${fmt(p_value, 5)}).`;
+
+    out.innerHTML = `
+        <ol class="list-decimal list-inside space-y-4">
+            <li><strong>Hypotheses:</strong> H₀: β₁ = ${beta} (No linear relationship). H₁: β₁ ≠ ${beta} (A linear relationship exists).</li>
+            <li><strong>Degrees of Freedom (df):</strong> df = n - 2 = ${n} - 2 = <strong>${df}</strong></li>
+            <li>
+                <strong>Test Statistic (t):</strong>
+                <p class="ml-4">t = (b₁ - β₁) / SE = (${b1} - ${beta}) / ${se} = <strong>${fmt(t_stat, 4)}</strong></p>
+            </li>
+            <li>
+                <strong>P-value and Critical Value:</strong>
+                <p class="ml-4">P-value = <strong>${fmt(p_value, 5)}</strong>. Critical Value(s) at α=${alpha} is <strong>±${fmt(cv, 4)}</strong>.</p>
+            </li>
+            <li><strong>Conclusion:</strong> ${conclusion}</li>
+        </ol>
+    `;
+    if(window.MathJax) MathJax.typesetPromise();
+}
+
+
 
 /* ---------------------------
   Bind events for topics & help
@@ -1948,6 +2617,7 @@ function bindTopicEvents(topic) {
   // ==============================
   // DISTRIBUTION HANDLERS
   // ==============================
+
 
   // Uniform Distribution
   const uniExplain = document.getElementById('uni-explain');
@@ -2010,74 +2680,154 @@ if(poisExpInv) poisExpInv.addEventListener('click',inversePoisExp);
   if (normInvCalc) normInvCalc.addEventListener('click', inverseNormal);
 // --- New generic inverse calculator binding ---
 
-const ciExplain = document.getElementById('ci-explain');
-if (ciExplain) ciExplain.addEventListener('click', explainCI);
+  // --- CONFIDENCE INTERVAL ---
+  const ciExplain = document.getElementById('ci-explain');
+  if (ciExplain) ciExplain.addEventListener('click', explainCI);
 
-const ciExample = document.getElementById('ci-example');
-if (ciExample) ciExample.addEventListener('click', () => {
-  // Set input fields to the values from the image
-  document.getElementById('ci-mean').value = 22;
-  document.getElementById('ci-stddev').value = 4;
-  document.getElementById('ci-n').value = 36;
-  document.getElementById('ci-confidence').value = 99;
-  // Run the explanation with the example values
-  explainCI();
-});
+  const ciExample = document.getElementById('ci-example');
+  if (ciExample) ciExample.addEventListener('click', () => {
+    document.getElementById('ci-mean').value = 22;
+    document.getElementById('ci-stddev').value = 4;
+    document.getElementById('ci-n').value = 36;
+    document.getElementById('ci-confidence').value = 99;
+    explainCI();
+  });
 
-// Sampling 
-const samplingExplain = document.getElementById('sampling-explain');
-if (samplingExplain) samplingExplain.addEventListener('click', explainSampling);
+  // --- SAMPLING DISTRIBUTION ---
+  const samplingExplain = document.getElementById('sampling-explain');
+  if (samplingExplain) samplingExplain.addEventListener('click', explainSampling);
 
-const samplingExample = document.getElementById('sampling-example');
-if (samplingExample) samplingExample.addEventListener('click', () => {
-  document.getElementById('sampling-mu').value = 100;
-  document.getElementById('sampling-sigma').value = 15;
-  document.getElementById('sampling-n').value = 30;
-  document.getElementById('sampling-x').value = 105;
-  document.getElementById('sampling-low').value = '';
-  document.getElementById('sampling-high').value = '';
-  explainSampling();
-});
-
-const samplingInvCalc = document.getElementById('sampling-inv-calc');
-if (samplingInvCalc) samplingInvCalc.addEventListener('click', inverseSampling);
-
-// Hypothesis Mean value
-const htExplain = document.getElementById('ht-explain');
-if (htExplain) htExplain.addEventListener('click', explainHTMean);
-
-const htExample = document.getElementById('ht-example');
-if (htExample) htExample.addEventListener('click', () => {
-  document.getElementById('ht-mu0').value = 400;
-  document.getElementById('ht-xbar').value = 393;
-  document.getElementById('ht-sigma').value = 20;
-  document.getElementById('ht-n').value = 65;
-  document.getElementById('ht-alpha').value = 5;
-  document.getElementById('ht-type').value = 'neq'; // Two-tailed test
-  explainHTMean();
-});
-const htInvCalc = document.getElementById('ht-inv-calc');
-if (htInvCalc) htInvCalc.addEventListener('click', inversePtoZ);
-
-// Hypothesis Sample means 
+  const samplingExample = document.getElementById('sampling-example');
+  if (samplingExample) samplingExample.addEventListener('click', () => {
+    document.getElementById('sampling-mu').value = 100;
+    document.getElementById('sampling-sigma').value = 15;
+    document.getElementById('sampling-n').value = 30;
+    document.getElementById('sampling-x').value = 105;
+    explainSampling();
+  });
+  
+  const samplingInvCalc = document.getElementById('sampling-inv-calc');
+  if (samplingInvCalc) samplingInvCalc.addEventListener('click', inverseSampling);
 
 
+  // --- HYPOTHESIS TEST: ONE MEAN (Z-TEST) ---
+  const htExplain = document.getElementById('ht-explain');
+  if (htExplain) htExplain.addEventListener('click', explainHTMean);
 
-const ht2Example = document.getElementById('ht2-example');
-if (ht2Example) ht2Example.addEventListener('click', () => {
-  document.getElementById('ht2-xbar1').value = 291;
-  document.getElementById('ht2-xbar2').value = 302;
-  document.getElementById('ht2-sigma1').value = 15;
-  document.getElementById('ht2-sigma2').value = 20;
-  document.getElementById('ht2-n1').value = 30;
-  document.getElementById('ht2-n2').value = 35;
-  document.getElementById('ht2-alpha').value = 5;
-  document.getElementById('ht2-type').value = 'neq'; // Two-tailed test
-  explainHT2Means();
-});
+  const htExample = document.getElementById('ht-example');
+  if (htExample) htExample.addEventListener('click', () => {
+    document.getElementById('ht-mu0').value = 400;
+    document.getElementById('ht-xbar').value = 393;
+    document.getElementById('ht-sigma').value = 20;
+    document.getElementById('ht-n').value = 65;
+    document.getElementById('ht-alpha').value = 5;
+    explainHTMean();
+  });
+  
+  const htInvCalc = document.getElementById('ht-inv-calc');
+  if (htInvCalc) htInvCalc.addEventListener('click', inversePtoZ);
 
-const ht2InvCalc = document.getElementById('ht2-inv-calc');
-if (ht2InvCalc) ht2InvCalc.addEventListener('click', inverseHT2MeansPtoZ);
+  // --- HYPOTHESIS TEST: TWO MEANS (Z-TEST) ---
+  const ht2Explain = document.getElementById('ht2-explain');
+  if (ht2Explain) ht2Explain.addEventListener('click', explainHT2Means);
+  
+  const ht2Example = document.getElementById('ht2-example');
+  if (ht2Example) ht2Example.addEventListener('click', () => {
+    document.getElementById('ht2-xbar1').value = 291;
+    document.getElementById('ht2-xbar2').value = 302;
+    document.getElementById('ht2-sigma1').value = 15;
+    document.getElementById('ht2-sigma2').value = 20;
+    document.getElementById('ht2-n1').value = 30;
+    document.getElementById('ht2-n2').value = 35;
+    document.getElementById('ht2-alpha').value = 5;
+    explainHT2Means();
+  });
+
+  const ht2InvCalc = document.getElementById('ht2-inv-calc');
+  if (ht2InvCalc) ht2InvCalc.addEventListener('click', inverseHT2MeansPtoZ);
+
+  // --- HYPOTHESIS TEST: ONE MEAN (T-TEST) ---
+  const htSuExplain = document.getElementById('ht-su-explain');
+  if (htSuExplain) htSuExplain.addEventListener('click', explainHTSigmaUnknown);
+
+  const htSuExample = document.getElementById('ht-su-example');
+  if (htSuExample) htSuExample.addEventListener('click', () => {
+    document.getElementById('ht-su-mu0').value = 13;
+    document.getElementById('ht-su-xbar').value = 12.75;
+    document.getElementById('ht-su-s').value = 0.6;
+    document.getElementById('ht-su-n').value = 36;
+    document.getElementById('ht-su-alpha').value = 1;
+    explainHTSigmaUnknown();
+  });
+
+  // --- HYPOTHESIS TEST: TWO MEANS (POOLED T-TEST) ---
+  const ht2SuExplain = document.getElementById('ht2-su-explain');
+  if (ht2SuExplain) ht2SuExplain.addEventListener('click', explainHT2SamplesUnknown);
+
+  const ht2SuExample = document.getElementById('ht2-su-example');
+  if (ht2SuExample) ht2SuExample.addEventListener('click', () => {
+    document.getElementById('ht2-su-xbar1').value = 6.875;
+    document.getElementById('ht2-su-xbar2').value = 6;
+    document.getElementById('ht2-su-s1').value = 1.4577;
+    document.getElementById('ht2-su-s2').value = 1.5811;
+    document.getElementById('ht2-su-n1').value = 8;
+    document.getElementById('ht2-su-n2').value = 9;
+    document.getElementById('ht2-su-alpha').value = 5;
+    explainHT2SamplesUnknown();
+  });
+
+  // --- HYPOTHESIS TEST: PAIRED T-TEST ---
+  const htPExplain = document.getElementById('ht-p-explain');
+  if (htPExplain) htPExplain.addEventListener('click', explainHTPaired);
+  
+  const htPExample = document.getElementById('ht-p-example');
+  if (htPExample) htPExample.addEventListener('click', () => {
+    document.getElementById('ht-p-dbar').value = 0.252;
+    document.getElementById('ht-p-sd').value = 0.218;
+    document.getElementById('ht-p-n').value = 5;
+    document.getElementById('ht-p-mu_d').value = 0;
+    document.getElementById('ht-p-alpha').value = 5;
+    explainHTPaired();
+  });
+
+  // --- GOODNESS-OF-FIT (CHI-SQUARED) ---
+  const htFitExplain = document.getElementById('ht-fit-explain');
+  if (htFitExplain) htFitExplain.addEventListener('click', explainHTFit);
+  
+  const htFitExample = document.getElementById('ht-fit-example');
+  if (htFitExample) htFitExample.addEventListener('click', () => {
+    document.getElementById('ht-fit-obs').value = "20, 33, 51, 41, 30";
+    document.getElementById('ht-fit-exp').value = "21.6, 38.9, 46.7, 37.3, 22.4";
+    document.getElementById('ht-fit-alpha').value = 5;
+    explainHTFit();
+  });
+
+  // --- ASSOCIATION (CHI-SQUARED) ---
+  const htAssocExplain = document.getElementById('ht-assoc-explain');
+  if (htAssocExplain) htAssocExplain.addEventListener('click', explainHTAssoc);
+  
+  const htAssocExample = document.getElementById('ht-assoc-example');
+  if (htAssocExample) htAssocExample.addEventListener('click', () => {
+    document.getElementById('ht-assoc-obs').value = "75, 55, 20\n45, 40, 18";
+    document.getElementById('ht-assoc-alpha').value = 5;
+    explainHTAssoc();
+  });
+
+  // --- REGRESSION (T-TEST) ---
+  const htRegExplain = document.getElementById('ht-reg-explain');
+  if (htRegExplain) htRegExplain.addEventListener('click', explainHTRegression);
+  
+  const htRegExample = document.getElementById('ht-reg-example');
+  if (htRegExample) htRegExample.addEventListener('click', () => {
+    document.getElementById('ht-reg-b1').value = 0.03884;
+    document.getElementById('ht-reg-se').value = 0.00116;
+    document.getElementById('ht-reg-n').value = 400;
+    document.getElementById('ht-reg-beta').value = 0;
+    document.getElementById('ht-reg-alpha').value = 5;
+    explainHTRegression();
+  });
+
+
   // ==============================
   // PROBABILITY & OTHER TOPICS
   // ==============================
