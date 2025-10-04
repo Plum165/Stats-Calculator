@@ -5,12 +5,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentMcqIndex = null;
     let selectedMcqOption = null;
     let currentCalcIndex = 0;
-    
+
     // Test State
     let testQuestions = [];
     let currentTestIndex = 0;
     let userTestAnswers = [];
     let timerInterval = null;
+    let currentTestType = 'ct1'; // Default test type
 
     // --- DOM ELEMENTS ---
     const themeDropdown = document.getElementById('themeDropdown');
@@ -101,25 +102,41 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- MCQ PRACTICE MODE ---
     function initMcqList() {
         qListEl.innerHTML = '';
-        ALL_MCQ.forEach((q, index) => {
-            const item = document.createElement('div');
-            item.className = 'q-item';
-            item.innerHTML = `<strong>Q${q.id}</strong> — ${q.topic}`;
-            item.dataset.index = index;
-            item.addEventListener('click', () => selectMcq(index));
-            qListEl.appendChild(item);
+        const topics = [...new Set(ALL_MCQ.map(q => q.topic))];
+
+        // Topic filter dropdown
+        const topicSelect = document.createElement('select');
+        topicSelect.className = 'mb-2 w-full p-1 rounded';
+        topicSelect.innerHTML = `<option value="all">All Topics</option>` + topics.map(t => `<option value="${t}">${t}</option>`).join('');
+        qListEl.parentNode.insertBefore(topicSelect, qListEl);
+
+        topicSelect.addEventListener('change', () => {
+            const selectedTopic = topicSelect.value;
+            qListEl.innerHTML = '';
+            ALL_MCQ.forEach((q, index) => {
+                if (selectedTopic === 'all' || q.topic === selectedTopic) {
+                    const item = document.createElement('div');
+                    item.className = 'q-item';
+                    item.innerHTML = `<strong>Q${q.id}</strong> — ${q.topic}`;
+                    item.dataset.index = index;
+                    item.addEventListener('click', () => selectMcq(index));
+                    qListEl.appendChild(item);
+                }
+            });
         });
+
+        // Initially load all
+        topicSelect.dispatchEvent(new Event('change'));
     }
 
     function selectMcq(index) {
         if (index < 0 || index >= ALL_MCQ.length) return;
-
         currentMcqIndex = index;
         selectedMcqOption = null;
         const q = ALL_MCQ[index];
 
         qListEl.querySelectorAll('.q-item').forEach(el => el.classList.remove('active'));
-        qListEl.querySelector(`[data-index="${index}"]`).classList.add('active');
+        qListEl.querySelector(`[data-index="${index}"]`)?.classList.add('active');
 
         qTitle.textContent = `Question ${q.id} — ${q.topic}`;
         qText.innerHTML = q.question;
@@ -142,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         explanationEl.innerHTML = '';
         if (window.MathJax) MathJax.typesetPromise();
     }
-    
+
     document.getElementById('checkBtn').addEventListener('click', () => {
         if (currentMcqIndex === null || selectedMcqOption === null) return alert('Please select an option first.');
         const q = ALL_MCQ[currentMcqIndex];
@@ -168,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         optionsArea.querySelector(`[data-index="${q.answer}"]`).classList.add('correct');
         if (window.MathJax) MathJax.typesetPromise();
     });
-    
+
     document.getElementById('showAnsBtn').addEventListener('click', () => {
         if (currentMcqIndex === null) return;
         const q = ALL_MCQ[currentMcqIndex];
@@ -189,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function initCalcQuestions() {
         selectCalcQuestion(0);
     }
-    
+
     function selectCalcQuestion(index) {
         currentCalcIndex = index;
         const q = ALL_CALC[index];
@@ -207,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nextCalcBtn').addEventListener('click', () => {
         if (currentCalcIndex < ALL_CALC.length - 1) selectCalcQuestion(currentCalcIndex + 1);
     });
-    
+
     document.getElementById('calcCheckBtn').addEventListener('click', () => {
         const q = ALL_CALC[currentCalcIndex];
         const userVal = parseFloat(calcInput.value);
@@ -227,52 +244,87 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- TIMED TEST MODE ---
-document.getElementById('startTestBtn').addEventListener('click', startTest);
+    const testSelect = document.createElement('select');
+    testSelect.className = 'mb-2 w-full p-1 rounded';
+    testSelect.innerHTML = `
+        <option value="ct1">Class Test 1 (25 Qs)</option>
+        <option value="ct2">Class Test 2 (25 Qs)</option>
+        <option value="exam">Exam (35 Qs)</option>`;
+    testStartScreen.insertBefore(testSelect, testStartScreen.firstChild);
 
-function startTest() {
-    // Number of questions in test
-    const numQuestions = 25;
+    testSelect.addEventListener('change', () => currentTestType = testSelect.value);
 
-    // Shuffle and slice questions
-    const totalQuestions = ALL_MCQ.length; // could be 108
-    if (totalQuestions < numQuestions) {
-        alert(`Not enough questions in the pool! Only ${totalQuestions} available.`);
-        return;
+    document.getElementById('startTestBtn').addEventListener('click', startTest);
+
+    function startTest() {
+        let numQuestions = 25;
+        let questionRange = [0, 107];
+
+        if (currentTestType === 'ct2') {
+            numQuestions = 25;
+            questionRange = [107, 250];
+        } else if (currentTestType === 'exam') {
+            numQuestions = 35;
+            questionRange = [250, 300];
+        }
+
+        const topicMap = {};
+        for (let i = questionRange[0]; i < questionRange[1]; i++) {
+            const q = ALL_MCQ[i];
+            if (!topicMap[q.topic]) topicMap[q.topic] = [];
+            topicMap[q.topic].push(q);
+        }
+
+        const questions = [];
+        const topics = Object.keys(topicMap);
+
+        // Ensure each topic included once if possible
+        topics.forEach(t => {
+            if (questions.length < numQuestions) {
+                const arr = topicMap[t];
+                questions.push(arr[arr.length - 1]); // take later questions
+            }
+        });
+
+        // Fill remaining randomly from pool
+        const remaining = [];
+        for (let t of topics) remaining.push(...topicMap[t]);
+        remaining.sort(() => 0.5 - Math.random());
+        while (questions.length < numQuestions && remaining.length > 0) {
+            const q = remaining.pop();
+            if (!questions.includes(q)) questions.push(q);
+        }
+
+        testQuestions = questions.slice(0, numQuestions);
+        currentTestIndex = 0;
+        userTestAnswers = new Array(numQuestions).fill(null);
+
+        testStartScreen.style.display = 'none';
+        testResultsScreen.style.display = 'none';
+        testInterface.style.display = 'block';
+
+        renderTestQuestion();
+        startTimer((currentTestType === 'exam' ? 120 : 90) * 60); // 2 hours for exam, 90 mins for CT
     }
 
-    // Randomly pick 25 unique questions
-    const shuffled = [...ALL_MCQ].sort(() => 0.5 - Math.random());
-    testQuestions = shuffled.slice(0, numQuestions);
-
-    currentTestIndex = 0;
-    userTestAnswers = new Array(numQuestions).fill(null);
-
-    testStartScreen.style.display = 'none';
-    testResultsScreen.style.display = 'none';
-    testInterface.style.display = 'block';
-
-    renderTestQuestion();
-    startTimer(90 * 60); // 90 minutes in seconds
-}
-
-function startTimer(duration) {
-    let timer = duration;
-    timerInterval = setInterval(() => {
-        const minutes = Math.floor(timer / 60);
-        const seconds = timer % 60;
-        timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-        if (--timer < 0) {
-            clearInterval(timerInterval);
-            alert("Time's up! Submitting test...");
-            submitTest();
-        }
-    }, 1000);
-}
-
+    function startTimer(duration) {
+        let timer = duration;
+        timerInterval = setInterval(() => {
+            const minutes = Math.floor(timer / 60);
+            const seconds = timer % 60;
+            timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                alert("Time's up! Submitting test...");
+                submitTest();
+            }
+        }, 1000);
+    }
 
     function renderTestQuestion() {
         const q = testQuestions[currentTestIndex];
-        testQTitle.textContent = `Question ${currentTestIndex + 1} of 25`;
+        const total = testQuestions.length;
+        testQTitle.textContent = `Question ${currentTestIndex + 1} of ${total}`;
         testQText.innerHTML = q.question;
         testOptionsArea.innerHTML = '';
 
@@ -281,9 +333,7 @@ function startTimer(duration) {
             o.className = 'option';
             o.dataset.index = i;
             o.innerHTML = `<strong>${String.fromCharCode(65 + i)}.</strong> <span class="ml-2">${opt}</span>`;
-            if (userTestAnswers[currentTestIndex] === i) {
-                o.classList.add('selected');
-            }
+            if (userTestAnswers[currentTestIndex] === i) o.classList.add('selected');
             o.addEventListener('click', () => {
                 userTestAnswers[currentTestIndex] = i;
                 testOptionsArea.querySelectorAll('.option').forEach(n => n.classList.remove('selected'));
@@ -291,16 +341,16 @@ function startTimer(duration) {
             });
             testOptionsArea.appendChild(o);
         });
-        
+
         document.getElementById('prevTestBtn').style.display = currentTestIndex > 0 ? 'inline-flex' : 'none';
-        document.getElementById('nextTestBtn').style.display = currentTestIndex < 24 ? 'inline-flex' : 'none';
-        document.getElementById('submitTestBtn').style.display = currentTestIndex === 24 ? 'inline-flex' : 'none';
+        document.getElementById('nextTestBtn').style.display = currentTestIndex < total - 1 ? 'inline-flex' : 'none';
+        document.getElementById('submitTestBtn').style.display = currentTestIndex === total - 1 ? 'inline-flex' : 'none';
 
         if (window.MathJax) MathJax.typesetPromise();
     }
 
     document.getElementById('nextTestBtn').addEventListener('click', () => {
-        if (currentTestIndex < 24) {
+        if (currentTestIndex < testQuestions.length - 1) {
             currentTestIndex++;
             renderTestQuestion();
         }
@@ -319,15 +369,13 @@ function startTimer(duration) {
         clearInterval(timerInterval);
         let score = 0;
         userTestAnswers.forEach((answer, index) => {
-            if (answer === testQuestions[index].answer) {
-                score++;
-            }
+            if (answer === testQuestions[index].answer) score++;
         });
 
         testInterface.style.display = 'none';
         testResultsScreen.style.display = 'block';
 
-        testScoreEl.innerHTML = `Your Score: <strong>${score} out of 25</strong> (${(score / 25 * 100).toFixed(1)}%)`;
+        testScoreEl.innerHTML = `Your Score: <strong>${score} out of ${testQuestions.length}</strong> (${(score / testQuestions.length * 100).toFixed(1)}%)`;
         renderTestReview();
     }
 
@@ -338,7 +386,7 @@ function startTimer(duration) {
             const isCorrect = userAnswer === q.answer;
             const reviewItem = document.createElement('div');
             reviewItem.className = 'review-item';
-            
+
             let resultIcon = isCorrect ? '✅' : '❌';
             let userAnswerText = userAnswer !== null ? String.fromCharCode(65 + userAnswer) : "Not Answered";
             let correctAnswerText = String.fromCharCode(65 + q.answer);
