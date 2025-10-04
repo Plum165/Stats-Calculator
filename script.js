@@ -122,6 +122,7 @@ function renderTopic(topic){
   else if(topic==='ht-fit') html = htFitHTML();
   else if(topic==='ht-assoc') html = htAssocHTML();
   else if(topic==='ht-regression') html = htRegressionHTML();
+  else if(topic==='form-sheet') html = formulaSheetHTML();
 
   topicRoot.innerHTML='';
   topicRoot.appendChild(el(html));
@@ -2430,6 +2431,295 @@ function htPairedHTML(){
     
     <div class="mt-4 flex gap-2"><button id="ht-p-explain" class="btn btn-primary">Run Test</button><button id="ht-p-example" class="btn btn-ghost">Load example</button></div>
     <div id="ht-p-output" class="mt-5 topic-card p-4 rounded-md steps"></div>
+  </div>`;
+}
+
+/* ---------------------------
+  FORMULA & EXCEL CHEAT SHEET
+--------------------------- */
+function formulaSheetHTML() {
+  return `
+  <div>
+    <h2 class="text-2xl font-semibold">Formula & Excel Cheat Sheet</h2>
+    <p class="mt-2 text-sm opacity-90">A summary of the key formulae and Excel functions used in this calculator.</p>
+
+    <!-- Basic Probability -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Basic Probability</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Formula</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>P(A) = Favourable Outcomes / Total Outcomes</strong></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Function</h4>
+            <p>Simple division: <code>=k/n</code></p>
+        </div>
+    </div>
+
+    <!-- Permutations & Combinations -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Permutations & Combinations</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae (n items, choose k)</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>Permutation (no repetition):</strong> <code>P(n,k) = n! / (n-k)!</code></li>
+                <li><strong>Combination (no repetition):</strong> <code>C(n,k) = n! / (k!(n-k)!)</code></li>
+                <li><strong>Permutation (with repetition):</strong> <code>n^k</code></li>
+                <li><strong>Combination (with repetition):</strong> <code>C(n+k-1, k)</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Functions</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>Permutation (no repetition):</strong> <code>=PERMUT(n, k)</code></li>
+                <li><strong>Combination (no repetition):</strong> <code>=COMBIN(n, k)</code></li>
+                <li><strong>Permutation (with repetition):</strong> <code>=POWER(n, k)</code></li>
+                <li><strong>Combination (with repetition):</strong> <code>=COMBIN(n+k-1, k)</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- At Least One Event -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Probability of "At Least One"</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Formula (for independent trials)</h4>
+            <p><code>P(At least one) = 1 - P(None)</code><br><code>P(At least one success) = 1 - (1-p)^n</code></p>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Function</h4>
+            <p>Built from formula: <code>=1 - (1-p)^n</code></p>
+        </div>
+    </div>
+    
+    <!-- Conditional Probability & Bayes -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Conditional Probability & Bayes' Theorem</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>Conditional Probability:</strong> <code>P(A|B) = P(A ∩ B) / P(B)</code></li>
+                <li><strong>Independence Test:</strong> Events are independent if <code>P(A ∩ B) = P(A) * P(B)</code></li>
+                <li><strong>Bayes' Theorem:</strong> <code>P(A|B) = [P(B|A)P(A)] / P(B)</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Functions</h4>
+            <p>All are built directly from the formulae using basic arithmetic (<code>*</code>, <code>/</code>).</p>
+        </div>
+    </div>
+
+    <!-- Random Variables -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Discrete Random Variables</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>Expected Value E[X]:</strong> <code>Σ [x * p(x)]</code></li>
+                <li><strong>Variance Var[X]:</strong> <code>E[X²] - (E[X])²</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Functions</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>Expected Value E[X]:</strong> <code>=SUMPRODUCT(x_range, p_range)</code></li>
+                <li><strong>Variance Var[X]:</strong> <code>=SUMPRODUCT(x_squared_range, p_range) - (E[X])^2</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Betting / House Edge -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Betting & Expected Value</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Formula</h4>
+             <p><code>EV = (p_win * profit) - (p_loss * stake)</code></p>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Function</h4>
+            <p>Built from formula.</p>
+        </div>
+    </div>
+
+    <!-- Normal Distribution -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Normal Distribution</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>Z-score:</strong> <code>z = (x - μ) / σ</code></li>
+                <li><strong>PDF f(x):</strong> <code>(1 / (σ√(2π))) * e^(-(x-μ)² / 2σ²)</code></li>
+                <li><strong>Inverse (find x):</strong> <code>x = μ + z * σ</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Functions</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>P(X ≤ x):</strong> <code>=NORM.DIST(x, mean, sd, TRUE)</code></li>
+                <li><strong>PDF f(x):</strong> <code>=NORM.DIST(x, mean, sd, FALSE)</code></li>
+                <li><strong>Find x for P(X ≤ x):</strong> <code>=NORM.INV(prob, mean, sd)</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Confidence Interval for Mean -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Confidence Interval for Mean (σ known)</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>Margin of Error (E):</strong> <code>E = Z * (σ / √n)</code></li>
+                <li><strong>Confidence Interval:</strong> <code>CI = x̄ ± E</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Functions</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>Margin of Error (E):</strong> <code>=CONFIDENCE.NORM(alpha, sd, n)</code></li>
+                <li><strong>Lower Bound:</strong> <code>=mean - CONFIDENCE.NORM(...)</code></li>
+                <li><strong>Upper Bound:</strong> <code>=mean + CONFIDENCE.NORM(...)</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Sampling Distribution of the Sample Mean -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Sampling Distribution of the Sample Mean</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>Standard Error (σ_x̄):</strong> <code>σ_x̄ = σ / √n</code></li>
+                <li><strong>Z-score for x̄:</strong> <code>z = (x̄ - μ) / σ_x̄</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Functions</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>P(X̄ ≤ x̄):</strong> <code>=NORM.DIST(x̄, μ, σ/√n, TRUE)</code></li>
+                <li><strong>Find x̄ for P(X̄ ≤ x̄):</strong> <code>=NORM.INV(prob, μ, σ/√n)</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- One-Sample Z-Test -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">One-Sample Z-Test for Mean (σ known)</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div><h4 class="font-bold">Formula</h4><code>Z = (x̄ - μ₀) / (σ / √n)</code></div>
+        <div><h4 class="font-bold">Excel P-value</h4><code>=Z.TEST(data_range, μ₀, σ)</code></div>
+    </div>
+
+    <!-- Two-Sample Z-Test -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Two-Sample Z-Test for Means (σ known)</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div><h4 class="font-bold">Formula</h4><code>Z = (x̄₁ - x̄₂) / √(σ₁²/n₁ + σ₂²/n₂)</code></div>
+        <div><h4 class="font-bold">Excel</h4><p>No direct function; build from formula.</p></div>
+    </div>
+
+    <!-- One-Sample t-Test -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">One-Sample t-Test for Mean (σ unknown)</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside mt-1">
+                <li><strong>Degrees of Freedom:</strong> <code>df = n - 1</code></li>
+                <li><strong>Test Statistic (t):</strong> <code>t = (x̄ - μ₀) / (s / √n)</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel P-values</h4>
+            <ul class="list-disc list-inside mt-1">
+                <li><strong>Right-Tailed:</strong> <code>=T.DIST.RT(t, df)</code></li>
+                <li><strong>Two-Tailed:</strong> <code>=T.DIST.2T(ABS(t), df)</code></li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Pooled Two-Sample t-Test -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Pooled Two-Sample t-Test (Equal Variances)</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside mt-1">
+                <li><strong>Degrees of Freedom:</strong> <code>df = n₁ + n₂ - 2</code></li>
+                <li><strong>Pooled Variance (sₚ²):</strong> <code>((n₁-1)s₁² + (n₂-1)s₂²) / df</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel P-value (from data)</h4>
+            <code>=T.TEST(array1, array2, tails, 2)</code>
+            <p class="text-sm opacity-80">(Type 2 assumes equal variance)</p>
+        </div>
+    </div>
+
+    <!-- Paired t-Test -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Paired t-Test (Matched Pairs)</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside mt-1">
+                <li><strong>Degrees of Freedom:</strong> <code>df = n - 1</code></li>
+                <li><strong>Test Statistic (t):</strong> <code>t = d̄ / (s_d / √n)</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel P-value (from data)</h4>
+            <code>=T.TEST(array1, array2, tails, 1)</code>
+            <p class="text-sm opacity-80">(Type 1 is for paired tests)</p>
+        </div>
+    </div>
+
+    <!-- Chi-Squared Goodness-of-Fit -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Chi-Squared (χ²) Goodness-of-Fit Test</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside mt-1">
+                <li><strong>Degrees of Freedom:</strong> <code>df = k - 1</code> (k=categories)</li>
+                <li><strong>Test Statistic (χ²):</strong> <code>Σ [(O-E)² / E]</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Functions</h4>
+             <ul class="list-disc list-inside mt-1">
+                <li><strong>P-value (from stat):</strong> <code>=CHISQ.DIST.RT(χ², df)</code></li>
+                <li><strong>P-value (from data):</strong> <code>=CHISQ.TEST(obs_range, exp_range)</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Chi-Squared Test of Association -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Chi-Squared (χ²) Test of Association</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside mt-1">
+                <li><strong>Degrees of Freedom:</strong> <code>df = (rows-1)(cols-1)</code></li>
+                <li><strong>Expected:</strong> <code>(Row Total * Col Total) / Grand Total</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Function</h4>
+            <p><strong>P-value (from data):</strong> <code>=CHISQ.TEST(observed_range)</code></p>
+        </div>
+    </div>
+    
+    <!-- Linear Regression Slope Test -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Test for Slope in Linear Regression</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside mt-1">
+                <li><strong>Degrees of Freedom:</strong> <code>df = n - 2</code></li>
+                <li><strong>Test Statistic (t):</strong> <code>t = (b₁ - 0) / SE</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Function</h4>
+            <p>Use the <strong>Data Analysis Toolpak</strong> or the <code>LINEST</code> array function to get all regression output, including the t-stat and p-value for the slope.</p>
+        </div>
+    </div>
   </div>`;
 }
 
