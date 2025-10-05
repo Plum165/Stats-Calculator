@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- TIMED TEST MODE ---
     const testSelect = document.createElement('select');
-    testSelect.className = 'mb-2 w-full p-1 rounded';
+    testSelect.className = 'mb-2 text-black w-full p-1 rounded';
     testSelect.innerHTML = `
         <option value="ct1">Class Test 1 (25 Qs)</option>
         <option value="ct2">Class Test 2 (25 Qs)</option>
