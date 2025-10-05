@@ -262,10 +262,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (currentTestType === 'ct2') {
             numQuestions = 25;
-            questionRange = [107, 250];
+            questionRange = [107, 261];
         } else if (currentTestType === 'exam') {
             numQuestions = 35;
-            questionRange = [250, 300];
+            questionRange = [261, 300];
         }
 
         const topicMap = {};
