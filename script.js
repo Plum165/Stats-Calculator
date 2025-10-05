@@ -813,7 +813,7 @@ function uniformHTML(){
             <option value="gt">P(X > x) = p</option>
           </select>
           <input id="uni-inv-p" class="input" type="number" min="0" max="1" step="0.01" value="0.5"/>
-          <button id="uni-inv-calc" class="btn btn-secondary">Find x</button>
+          <button id="uni-inv-calc" class="btn btn-primary">Find x</button>
         </div>
       </div>
     </div>
@@ -899,7 +899,7 @@ function binomialHTML(){
         <div class="flex items-center gap-2">
           <select id="bin-inv-type" class="input"><option value="le">P(X ≤ k) ≥ p</option><option value="gt">P(X > k) ≤ p</option></select>
           <input id="bin-inv-p" class="input" type="number" min="0" max="1" step="0.01" value="0.5"/>
-          <button id="bin-inv-calc" class="btn btn-secondary">Find k</button>
+          <button id="bin-inv-calc" class="btn btn-primary">Find k</button>
         </div>
       </div>
     </div>
@@ -1044,7 +1044,7 @@ function poisExpHTML(){
         <label class="label">Inverse: Find value for cumulative probability</label>
         <div class="flex items-center gap-2">
           <input id="pois-inv-p" class="input" type="number" min="0" max="1" step="0.01" value="0.5"/>
-          <button id="pois-inv-calc" class="btn btn-secondary">Find Value</button>
+          <button id="pois-inv-calc" class="btn btn-primary">Find Value</button>
         </div>
       </div>
     </div>
@@ -1295,7 +1295,7 @@ function normalHTML(){
         <div class="flex items-center gap-2">
           <select id="norm-inv-type" class="input"><option value="le">P(X ≤ x) = p</option><option value="gt">P(X > x) = p</option></select>
           <input id="norm-inv-p" class="input" type="number" min="0" max="1" step="0.0001" value="0.95"/>
-          <button id="norm-inv-calc" class="btn btn-secondary">Find x</button>
+          <button id="norm-inv-calc" class="btn btn-primary">Find x</button>
         </div>
       </div>
     </div>
@@ -1579,7 +1579,7 @@ function samplingHTML() {
         <div class="flex items-center gap-2">
           <select id="sampling-inv-type" class="input"><option value="le">P(X̄ ≤ x̄) = p</option><option value="gt">P(X̄ > x̄) = p</option></select>
           <input id="sampling-inv-p" class="input" type="number" min="0" max="1" step="0.0001" value="0.95"/>
-          <button id="sampling-inv-calc" class="btn btn-secondary">Find x̄</button>
+          <button id="sampling-inv-calc" class="btn btn-primary">Find x̄</button>
         </div>
       </div>
     </div>
@@ -1752,7 +1752,7 @@ function htMeanHTML() {
           <label class="label">Tails</label>
           <select id="ht-inv-tails" class="input"><option value="one">One-tailed</option><option value="two">Two-tailed</option></select>
         </div>
-        <div class="self-end"><button id="ht-inv-calc" class="btn btn-secondary w-full">Find Z-score</button></div>
+        <div class="self-end"><button id="ht-inv-calc" class="btn btn-primary w-full">Find Z-score</button></div>
     </div>
     <div id="ht-inv-output" class="mt-4 topic-card p-4 rounded-md steps"></div>
   </div>`;
@@ -1928,7 +1928,7 @@ function ht2MeansHTML() {
           <label class="label">Tails</label>
           <select id="ht2-inv-tails" class="input"><option value="one">One-tailed</option><option value="two">Two-tailed</option></select>
         </div>
-        <div class="self-end"><button id="ht2-inv-calc" class="btn btn-secondary w-full">Find Z-score</button></div>
+        <div class="self-end"><button id="ht2-inv-calc" class="btn btn-primary w-full">Find Z-score</button></div>
     </div>
     <div id="ht2-inv-output" class="mt-4 topic-card p-4 rounded-md steps"></div>
   </div>`;
