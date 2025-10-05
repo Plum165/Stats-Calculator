@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
     testSelect.innerHTML = `
         <option value="ct1">Class Test 1 (25 Qs)</option>
         <option value="ct2">Class Test 2 (25 Qs)</option>
-        <option value="exam">Exam (35 Qs)</option>`;
+        <option value="exam">Exam (50 Qs)</option>`;
     testStartScreen.insertBefore(testSelect, testStartScreen.firstChild);
 
     testSelect.addEventListener('change', () => currentTestType = testSelect.value);
