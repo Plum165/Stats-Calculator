@@ -2549,6 +2549,86 @@ function formulaSheetHTML() {
             <p>Built from formula.</p>
         </div>
     </div>
+       <!-- Added: Common Distributions -->
+    <h3 class="text-xl font-semibold mt-6 mb-2">Uniform Distribution</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li><strong>PDF:</strong> <code>f(x) = 1 / (b-a)</code> for a ≤ x ≤ b</li>
+                <li><strong>CDF:</strong> <code>F(x) = (x-a)/(b-a)</code> for a ≤ x ≤ b</li>
+                <li><strong>Mean:</strong> <code>μ = (a+b)/2</code></li>
+                <li><strong>Variance:</strong> <code>σ² = (b-a)²/12</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Functions</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li>PDF: <code>=IF(AND(x≥a,x≤b),1/(b-a),0)</code></li>
+                <li>CDF: <code>=IF(x<a,0,IF(x>b,1,(x-a)/(b-a)))</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <h3 class="text-xl font-semibold mt-6 mb-2">Binomial Distribution</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li>PMF: <code>P(X=k) = C(n,k) p^k (1-p)^(n-k)</code></li>
+                <li>CDF: <code>P(X ≤ k) = Σ_{i=0}^{k} C(n,i) p^i (1-p)^(n-i)</code></li>
+                <li>Mean: <code>μ = n p</code></li>
+                <li>Variance: <code>σ² = n p (1-p)</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Functions</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li>PMF: <code>=BINOM.DIST(k, n, p, FALSE)</code></li>
+                <li>CDF: <code>=BINOM.DIST(k, n, p, TRUE)</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <h3 class="text-xl font-semibold mt-6 mb-2">Poisson Distribution</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li>PMF: <code>P(X=k) = (λ^k e^{-λ}) / k!</code></li>
+                <li>CDF: <code>P(X ≤ k) = Σ_{i=0}^{k} (λ^i e^{-λ}) / i!</code></li>
+                <li>Mean: <code>μ = λ</code></li>
+                <li>Variance: <code>σ² = λ</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Functions</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li>PMF: <code>=POISSON.DIST(k, λ, FALSE)</code></li>
+                <li>CDF: <code>=POISSON.DIST(k, λ, TRUE)</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <h3 class="text-xl font-semibold mt-6 mb-2">Exponential Distribution</h3>
+    <div class="grid md:grid-cols-2 gap-4 p-4 border rounded-md">
+        <div>
+            <h4 class="font-bold">Key Formulae</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li>PDF: <code>f(x) = λ e^{-λ x}</code> for x ≥ 0</li>
+                <li>CDF: <code>F(x) = 1 - e^{-λ x}</code> for x ≥ 0</li>
+                <li>Mean: <code>μ = 1/λ</code></li>
+                <li>Variance: <code>σ² = 1/λ²</code></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold">Excel Functions</h4>
+            <ul class="list-disc list-inside space-y-1 mt-1">
+                <li>PDF: <code>=EXPON.DIST(x, λ, FALSE)</code></li>
+                <li>CDF: <code>=EXPON.DIST(x, λ, TRUE)</code></li>
+            </ul>
+        </div>
+    </div>
 
     <!-- Normal Distribution -->
     <h3 class="text-xl font-semibold mt-6 mb-2">Normal Distribution</h3>
