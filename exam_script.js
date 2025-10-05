@@ -264,8 +264,8 @@ document.addEventListener('DOMContentLoaded', () => {
             numQuestions = 25;
             questionRange = [107, 261];
         } else if (currentTestType === 'exam') {
-            numQuestions = 35;
-            questionRange = [261, 300];
+            numQuestions = 50;
+            questionRange = [261, 486];
         }
 
         const topicMap = {};

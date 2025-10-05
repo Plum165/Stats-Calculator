@@ -76,6 +76,372 @@
       "Pr(D^c|+)": 0.9507801598376252
     },
     "solution_html": "<h6>Step-by-step solution</h6><ol class='list-decimal list-inside'><li><b>Given & convert to probabilities:</b><br>False positive rate = 1/80 = 0.0125 ⇒ \\(P(+\\mid D^c)=0.0125\\).<br>False negative rate = 3/100 = 0.03 ⇒ \\(P(-\\mid D)=0.03\\). So sensitivity = \\(P(+\\mid D)=1-0.03=0.97\\). Specificity = \\(P(-\\mid D^c)=1-0.0125=0.9875\\).<br>Prevalence: \\(P(D)=1/1500\\approx 0.0006666667\\).</li><li><b>Part (a) — list the conditional probabilities:</b><br>\\(P(+\\mid D)=0.97,\\;P(-\\mid D)=0.03,\\;P(+\\mid D^c)=0.0125,\\;P(-\\mid D^c)=0.9875.\\)</li><li><b>Part (b) — find \\(P(D\\mid -)\\).</b><br>Use Bayes' theorem: \\(P(D\\mid -)=\\dfrac{P(-\\mid D)P(D)}{P(-)}\\), where \\(P(-)=P(-\\mid D)P(D)+P(-\\mid D^c)P(D^c)\\).<br>Compute numbers:<br>\\(P(D)=1/1500\\approx0.0006666667\\).<br>\\(P(-)=0.03\\times0.0006666667 + 0.9875\\times(1-0.0006666667)\\approx 0.9868616667.\\)<br>So \\(P(D\\mid -)\\approx \\dfrac{0.03\\times0.0006666667}{0.9868616667}\\approx 2.0266264944259327\\times10^{-5}.\\)</li><li><b>Part (c) — find \\(P(D^c\\mid +)\\).</b><br>First compute \\(P(+) = P(+\\mid D)P(D) + P(+\\mid D^c)P(D^c)\\).<br>\\(P(+) = 0.97\\times0.0006666667 + 0.0125\\times0.9993333333 \\approx 0.0131383333.\\)<br>Then \\(P(D^c\\mid +)=\\dfrac{P(+\\mid D^c)P(D^c)}{P(+)}\\approx \\dfrac{0.0125\\times0.9993333333}{0.0131383333}\\approx 0.9507801598.\\)</li></ol><p><strong>Numeric answers:</strong><br>\\(P(+\\mid D)=0.97,\\;P(-\\mid D)=0.03,\\;P(+\\mid D^c)=0.0125,\\;P(-\\mid D^c)=0.9875.\\)</p><p>\\(P(D\\mid -)\\approx 0.0000202663\\) (≈ 0.0020%).</p><p>\\(P(D^c\\mid +)\\approx 0.95078016\\) (≈ 95.08% — most positive tests are false positives because the disease is very rare).</p>"
+  },
+  
+  {
+    "id": 10,
+    "topic": "Comparing Two Sample Means",
+    "question_html": "<p>A bank conducted a study to examine the difference in customer satisfaction between older and younger clients to identify if they should conduct client interactions differently depending on age. Eight older clients (over the age of 70) and nine younger clients (between the ages of 20 and 30) were asked to give customer satisfaction scores. Scores can range from 0 to 10 with high scores indicative of high satisfaction and low scores indicative of low satisfaction. A hypothesis test was conducted to determine if there is a difference in customer satisfaction between the two age groups. You may assume equal population variances for the two groups and Normality of customer satisfaction scores.</p><p>1. What is the pooled sample variance?</p>",
+    "correct_answer": {
+      "pooled_sample_variance": 2.325
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>Let Group 1 be the older clients and Group 2 be the younger clients. We are given the following information:<br>n₁ = 8, n₂ = 9. To find the pooled sample variance, we would need the sample variances for each group. Since they are not provided, we will assume this value was calculated from the raw data.</p><p>The formula for pooled sample variance is: \\(s_p^2 = \\frac{(n_1 - 1)s_1^2 + (n_2 - 1)s_2^2}{n_1 + n_2 - 2}\\)<br>Given the answer, we can state that the pooled sample variance is 2.325.</p>"
+  },
+  {
+    "id": 11,
+    "topic": "Comparing Two Sample Means",
+    "question_html": "<p>A bank conducted a study to examine the difference in customer satisfaction between older and younger clients to identify if they should conduct client interactions differently depending on age. Eight older clients (over the age of 70) and nine younger clients (between the ages of 20 and 30) were asked to give customer satisfaction scores. Scores can range from 0 to 10 with high scores indicative of high satisfaction and low scores indicative of low satisfaction. A hypothesis test was conducted to determine if there is a difference in customer satisfaction between the two age groups. You may assume equal population variances for the two groups and Normality of customer satisfaction scores.</p><p>1. The pooled sample variance is 2.325.</p><p>2. What is the absolute value of the test statistic?</p>",
+    "correct_answer": {
+      "test_statistic": 1.181
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>The test statistic for comparing two means with the assumption of equal variances is calculated as:<br>\\(t = \\frac{(\\bar{x}_1 - \\bar{x}_2) - (\\mu_1 - \\mu_2)}{s_p \\sqrt{\\frac{1}{n_1} + \\frac{1}{n_2}}}\\)<br>We are given the pooled sample variance \\(s_p^2 = 2.325\\), so the pooled standard deviation is \\(s_p = \\sqrt{2.325} \\approx 1.5248\\).  We are testing for a difference, so \\(\\mu_1 - \\mu_2 = 0\\).  We would need the sample means (\\(\\bar{x}_1\\) and \\(\\bar{x}_2\\)) to calculate the test statistic.  Assuming the sample means were such that they yielded the given test statistic, the absolute value is 1.181.</p>"
+  },
+  {
+    "id": 12,
+    "topic": "Comparing Two Sample Means",
+    "question_html": "<p>A bank conducted a study to examine the difference in customer satisfaction between older and younger clients to identify if they should conduct client interactions differently depending on age. Eight older clients (over the age of 70) and nine younger clients (between the ages of 20 and 30) were asked to give customer satisfaction scores. Scores can range from 0 to 10 with high scores indicative of high satisfaction and low scores indicative of low satisfaction. A hypothesis test was conducted to determine if there is a difference in customer satisfaction between the two age groups. You may assume equal population variances for the two groups and Normality of customer satisfaction scores.</p><p>3. The alternative hypothesis for the test is that customer satisfaction of older clients is (higher than/lower than/different from) that of younger clients.</p>",
+    "correct_answer": {
+      "alternative_hypothesis": "different from"
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>The question asks to determine if there is a 'difference' in customer satisfaction. This implies a two-tailed test, where we are interested in whether the satisfaction of older clients is either higher or lower than that of younger clients. Therefore, the alternative hypothesis is that the customer satisfaction of older clients is <strong>different from</strong> that of younger clients (\\(H_a: \\mu_1 \\neq \\mu_2\\)).</p>"
+  },
+  {
+    "id": 13,
+    "topic": "Comparing Two Sample Means",
+    "question_html": "<p>A bank conducted a study to examine the difference in customer satisfaction between older and younger clients to identify if they should conduct client interactions differently depending on age. Eight older clients (over the age of 70) and nine younger clients (between the ages of 20 and 30) were asked to give customer satisfaction scores. Scores can range from 0 to 10 with high scores indicative of high satisfaction and low scores indicative of low satisfaction. A hypothesis test was conducted to determine if there is a difference in customer satisfaction between the two age groups. You may assume equal population variances for the two groups and Normality of customer satisfaction scores.</p><p>2. The absolute value of the test statistic is 1.181.</p><p>4. What is the p-value of the test statistic?</p>",
+    "correct_answer": {
+      "p_value": 0.256
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>To find the p-value, we need the test statistic and the degrees of freedom. The degrees of freedom for a two-sample t-test with equal variances is \\(df = n_1 + n_2 - 2 = 8 + 9 - 2 = 15\\). We have a two-tailed test with a t-statistic of 1.181. Using a t-distribution table or statistical software for 15 degrees of freedom, the p-value corresponding to a t-value of 1.181 is approximately 0.256. This represents the probability of observing a test statistic as extreme as 1.181 (or more extreme) in either direction, assuming the null hypothesis is true.</p>"
+  },
+  {
+    "id": 14,
+    "topic": "Comparing Two Sample Means",
+    "question_html": "<p>A bank conducted a study to examine the difference in customer satisfaction between older and younger clients to identify if they should conduct client interactions differently depending on age. Eight older clients (over the age of 70) and nine younger clients (between the ages of 20 and 30) were asked to give customer satisfaction scores. Scores can range from 0 to 10 with high scores indicative of high satisfaction and low scores indicative of low satisfaction. A hypothesis test was conducted to determine if there is a difference in customer satisfaction between the two age groups. You may assume equal population variances for the two groups and Normality of customer satisfaction scores.</p><p>4. The p-value of the test statistic is 0.256.</p><p>5. What is the decision and conclusion of the test (at the 5% level)?</p>",
+    "correct_answer": {
+      "decision_conclusion": "Do not reject H0, there is insufficient evidence to suggest a difference in satisfaction between the two age groups at the 5% level of significance."
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We compare the p-value to the significance level (\\(\\alpha = 0.05\\)). Since the p-value (0.256) is greater than the significance level (0.05), we do not reject the null hypothesis. The conclusion is that there is insufficient evidence to suggest a significant difference in customer satisfaction between older and younger clients at the 5% level of significance.</p>"
+  },
+  {
+    "id": 15,
+    "topic": "Hypothesis Test (σ unknown, one sample)",
+    "question_html": "<p>VroomAuto manufactures car brake pads. Brake pads must meet the specification of being at least 13mm thick to ensure safe braking. An inspector comes to VroomAuto to check their product is meeting specifications. A random sample of 36 brake pads are selected and the mean thickness of the brake pads is found to be 12.75mm with a standard deviation of 0.6mm. Perform an appropriate hypothesis test to see if the brake pads are up to standard.</p><p>6. The null hypothesis for the test is that the mean thickness of the brake pads is (the same as/different from/greater than) the specification of 13mm.</p>",
+    "correct_answer": {
+      "null_hypothesis": "the same as"
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>The null hypothesis (H₀) is a statement of no effect or no difference. In this case, it assumes that the brake pads meet the specification. Therefore, the null hypothesis is that the mean thickness of the brake pads is <strong>the same as</strong> the specification of 13mm (\\(H_0: \\mu = 13\\)).</p>"
+  },
+  {
+    "id": 16,
+    "topic": "Hypothesis Test (σ unknown, one sample)",
+    "question_html": "<p>VroomAuto manufactures car brake pads. Brake pads must meet the specification of being at least 13mm thick to ensure safe braking. An inspector comes to VroomAuto to check their product is meeting specifications. A random sample of 36 brake pads are selected and the mean thickness of the brake pads is found to be 12.75mm with a standard deviation of 0.6mm. Perform an appropriate hypothesis test to see if the brake pads are up to standard.</p><p>7. The alternative hypothesis for the test is that the mean thickness of the brake pads is (greater/less) than the specified 13mm.</p>",
+    "correct_answer": {
+      "alternative_hypothesis": "less"
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>The concern is whether the brake pads are failing to meet the minimum specification of 13mm.  Therefore, the alternative hypothesis (Hₐ) would be that the mean thickness is <strong>less</strong> than the specified 13mm (\\(H_a: \\mu < 13\\)). This is a one-tailed (left-tailed) test.</p>"
+  },
+  {
+    "id": 17,
+    "topic": "Hypothesis Test (σ unknown, one sample)",
+    "question_html": "<p>VroomAuto manufactures car brake pads. Brake pads must meet the specification of being at least 13mm thick to ensure safe braking. An inspector comes to VroomAuto to check their product is meeting specifications. A random sample of 36 brake pads are selected and the mean thickness of the brake pads is found to be 12.75mm with a standard deviation of 0.6mm. Perform an appropriate hypothesis test to see if the brake pads are up to standard.</p><p>8. The test statistic has ____ degrees of freedom.</p>",
+    "correct_answer": {
+      "degrees_of_freedom": 35
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>For a one-sample t-test, the degrees of freedom (df) are calculated as the sample size (n) minus 1. In this case, the sample size is 36, so the degrees of freedom are \\(df = n - 1 = 36 - 1 = 35\\).</p>"
+  },
+  {
+    "id": 18,
+    "topic": "Hypothesis Test (σ unknown, one sample)",
+    "question_html": "<p>VroomAuto manufactures car brake pads. Brake pads must meet the specification of being at least 13mm thick to ensure safe braking. An inspector comes to VroomAuto to check their product is meeting specifications. A random sample of 36 brake pads are selected and the mean thickness of the brake pads is found to be 12.75mm with a standard deviation of 0.6mm. Perform an appropriate hypothesis test to see if the brake pads are up to standard.</p><p>9. What is the value of the test statistic?</p>",
+    "correct_answer": {
+      "test_statistic": -2.5
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>The formula for the one-sample t-test statistic is:<br>\\(t = \\frac{\\bar{x} - \\mu_0}{s / \\sqrt{n}}\\)<br>Where:<br>\\(\\bar{x}\\) is the sample mean (12.75mm)<br>\\(\\mu_0\\) is the hypothesized population mean (13mm)<br>s is the sample standard deviation (0.6mm)<br>n is the sample size (36)<br>Plugging in the values:<br>\\(t = \\frac{12.75 - 13}{0.6 / \\sqrt{36}} = \\frac{-0.25}{0.6 / 6} = \\frac{-0.25}{0.1} = -2.5\\)</p>"
+  },
+  {
+    "id": 19,
+    "topic": "Hypothesis Test (σ unknown, one sample)",
+    "question_html": "<p>VroomAuto manufactures car brake pads. Brake pads must meet the specification of being at least 13mm thick to ensure safe braking. An inspector comes to VroomAuto to check their product is meeting specifications. A random sample of 36 brake pads are selected and the mean thickness of the brake pads is found to be 12.75mm with a standard deviation of 0.6mm. Perform an appropriate hypothesis test to see if the brake pads are up to standard.</p><p>9. The value of the test statistic is -2.5.</p><p>10. What is the critical value of the test if it is conducted at a 1% level?</p>",
+    "correct_answer": {
+      "critical_value": -2.44
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We are conducting a one-tailed (left-tailed) test at a 1% significance level (\\(\\alpha = 0.01\\)). The degrees of freedom are 35. We need to find the critical t-value from a t-distribution table or using statistical software that corresponds to an area of 0.01 in the left tail with 35 degrees of freedom. This critical value is approximately -2.44.</p>"
+  },
+  {
+    "id": 20,
+    "topic": "Hypothesis Test (σ unknown, one sample)",
+    "question_html": "<p>VroomAuto manufactures car brake pads. Brake pads must meet the specification of being at least 13mm thick to ensure safe braking. An inspector comes to VroomAuto to check their product is meeting specifications. A random sample of 36 brake pads are selected and the mean thickness of the brake pads is found to be 12.75mm with a standard deviation of 0.6mm. Perform an appropriate hypothesis test to see if the brake pads are up to standard.</p><p>9. The value of the test statistic is -2.5.</p><p>10. The critical value of the test if it is conducted at a 1% level is -2.44.</p><p>11. The decision of the test is to _____ (reject/not reject) H0 and conclude that the mean thickness is _____the 13mm specification.</p>",
+    "correct_answer": {
+      "decision": "reject",
+      "conclusion": "less than"
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We compare the test statistic (-2.5) to the critical value (-2.44). Since the test statistic (-2.5) is less than the critical value (-2.44), it falls into the rejection region. Therefore, we <strong>reject</strong> the null hypothesis (H₀). We conclude that there is sufficient evidence at the 1% significance level to suggest that the mean thickness of the brake pads is <strong>less than</strong> the 13mm specification.</p>"
+  },
+  {
+    "id": 21,
+    "topic": "Hypothesis Test (σ unknown, two samples)",
+    "question_html": "<p>Ayanda is a student who travels from Claremont to UCT every day for 8am lectures. She is considering buying a bicycle after a friend has told her it will help her miss the traffic she usually sits in when taking the UCT shuttle. Before buying a bicycle she wants to make sure the investment will be worth it in terms of time saved. Ayanda will only purchase a bicycle if it will cut down her travel time by more than 10 minutes. She borrows a friends bicycle and records the time it takes her to get to campus across a random sample of days, using the bicycle some days and her usual short walk and UCT shuttle on other days. Perform an appropriate test to give her advice on whether she should invest in a bicycle. Use the Data Analysis option in Excel (Under the Data menu tab) to perform a t-test at 5% significance level on the two samples, assuming that the two populations from which the samples are drawn have equal variances and that the data are Normally distributed.</p><p>12. What is the pooled sample standard deviation?</p>",
+    "correct_answer": {
+      "pooled_standard_deviation": 2.114
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>To find the pooled sample standard deviation, one would first need the raw data for the travel times for both the bicycle and the shuttle.  Then, the sample variance for each group would be calculated.  The pooled sample variance is then found using the formula: \\(s_p^2 = \\frac{(n_1 - 1)s_1^2 + (n_2 - 1)s_2^2}{n_1 + n_2 - 2}\\).  The pooled sample standard deviation is the square root of the pooled sample variance. The question states this value can be found from Excel output, which would be \\(\\sqrt{4.4698} \\approx 2.114\\).</p>"
+  },
+  {
+    "id": 22,
+    "topic": "Hypothesis Test (σ unknown, two samples)",
+    "question_html": "<p>Ayanda is a student who travels from Claremont to UCT every day for 8am lectures. She is considering buying a bicycle after a friend has told her it will help her miss the traffic she usually sits in when taking the UCT shuttle. Before buying a bicycle she wants to make sure the investment will be worth it in terms of time saved. Ayanda will only purchase a bicycle if it will cut down her travel time by more than 10 minutes. She borrows a friends bicycle and records the time it takes her to get to campus across a random sample of days, using the bicycle some days and her usual short walk and UCT shuttle on other days. Perform an appropriate test to give her advice on whether she should invest in a bicycle. Use the Data Analysis option in Excel (Under the Data menu tab) to perform a t-test at 5% significance level on the two samples, assuming that the two populations from which the samples are drawn have equal variances and that the data are Normally distributed.</p><p>13. How many degrees of freedom does the test statistic have?</p>",
+    "correct_answer": {
+      "degrees_of_freedom": 43
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>For a two-sample t-test with the assumption of equal variances, the degrees of freedom (df) are calculated as \\(df = n_1 + n_2 - 2\\). To get 43 degrees of freedom, the total number of observations across both samples would need to be 45 (e.g., \\(n_1 = 22\\) and \\(n_2 = 23\\)). This information would be available from the raw data.</p>"
+  },
+  {
+    "id": 23,
+    "topic": "Hypothesis Test (σ unknown, two samples)",
+    "question_html": "<p>Ayanda is a student who travels from Claremont to UCT every day for 8am lectures. She is considering buying a bicycle after a friend has told her it will help her miss the traffic she usually sits in when taking the UCT shuttle. Before buying a bicycle she wants to make sure the investment will be worth it in terms of time saved. Ayanda will only purchase a bicycle if it will cut down her travel time by more than 10 minutes. She borrows a friends bicycle and records the time it takes her to get to campus across a random sample of days, using the bicycle some days and her usual short walk and UCT shuttle on other days. Perform an appropriate test to give her advice on whether she should invest in a bicycle. Use the Data Analysis option in Excel (Under the Data menu tab) to perform a t-test at 5% significance level on the two samples, assuming that the two populations from which the samples are drawn have equal variances and that the data are Normally distributed.</p><p>14. What is the value of the test statistic?</p>",
+    "correct_answer": {
+      "test_statistic": 0.473
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>The null hypothesis is that the difference in mean travel time is 10 minutes (\\(H_0: \\mu_{shuttle} - \\mu_{bicycle} = 10\\)). The alternative hypothesis is that the difference is greater than 10 minutes (\\(H_a: \\mu_{shuttle} - \\mu_{bicycle} > 10\\)).  The test statistic is calculated as \\(t = \\frac{(\\bar{x}_{shuttle} - \\bar{x}_{bicycle}) - 10}{s_p \\sqrt{\\frac{1}{n_1} + \\frac{1}{n_2}}}\\).  To obtain a test statistic of 0.473, one would need the sample means and sample sizes from the raw data, along with the pooled standard deviation.</p>"
+  },
+  {
+    "id": 24,
+    "topic": "Hypothesis Test (σ unknown, two samples)",
+    "question_html": "<p>Ayanda is a student who travels from Claremont to UCT every day for 8am lectures. She is considering buying a bicycle after a friend has told her it will help her miss the traffic she usually sits in when taking the UCT shuttle. Before buying a bicycle she wants to make sure the investment will be worth it in terms of time saved. Ayanda will only purchase a bicycle if it will cut down her travel time by more than 10 minutes. She borrows a friends bicycle and records the time it takes her to get to campus across a random sample of days, using the bicycle some days and her usual short walk and UCT shuttle on other days. Perform an appropriate test to give her advice on whether she should invest in a bicycle. Use the Data Analysis option in Excel (Under the Data menu tab) to perform a t-test at 5% significance level on the two samples, assuming that the two populations from which the samples are drawn have equal variances and that the data are Normally distributed.</p><p>14. The value of the test statistic is 0.473.</p><p>15. What is the p-value of the test statistic?</p>",
+    "correct_answer": {
+      "p_value": 0.319
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>With a test statistic of 0.473 and 43 degrees of freedom for a one-tailed test (since Ayanda is interested if the time is cut down by *more than* 10 minutes), we can find the p-value.  Using a t-distribution table or statistical software, the p-value for a t-statistic of 0.473 with 43 degrees of freedom is approximately 0.319. This is the probability of observing a test statistic of 0.473 or greater if the true difference in mean travel time is exactly 10 minutes.</p>"
+  },
+  {
+    "id": 25,
+    "topic": "Hypothesis Test (σ unknown, two samples)",
+    "question_html": "<p>Ayanda is a student who travels from Claremont to UCT every day for 8am lectures. She is considering buying a bicycle after a friend has told her it will help her miss the traffic she usually sits in when taking the UCT shuttle. Before buying a bicycle she wants to make sure the investment will be worth it in terms of time saved. Ayanda will only purchase a bicycle if it will cut down her travel time by more than 10 minutes. She borrows a friends bicycle and records the time it takes her to get to campus across a random sample of days, using the bicycle some days and her usual short walk and UCT shuttle on other days. Perform an appropriate test to give her advice on whether she should invest in a bicycle. Use the Data Analysis option in Excel (Under the Data menu tab) to perform a t-test at 5% significance level on the two samples, assuming that the two populations from which the samples are drawn have equal variances and that the data are Normally distributed.</p><p>15. The p-value of the test statistic is 0.319.</p><p>16. What decision should be made from the test?</p>",
+    "correct_answer": {
+      "decision": "Do NOT reject H0 and conclude that there is insufficient evidence to suggest that buying a bicycle as an alternative means of transport is going to cut down travel time by more than 10 minutes."
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We compare the p-value (0.319) to the significance level (\\(\\alpha = 0.05\\)). Since the p-value is large (greater than 0.05), we do not reject the null hypothesis. Therefore, we conclude that there is insufficient evidence to suggest that buying a bicycle will cut down travel time by more than 10 minutes.</p>"
+  },
+  {
+    "id": 26,
+    "topic": "Hypothesis Test (σ unknown, two samples)",
+    "question_html": "<p>Ayanda is a student who travels from Claremont to UCT every day for 8am lectures. She is considering buying a bicycle after a friend has told her it will help her miss the traffic she usually sits in when taking the UCT shuttle. Before buying a bicycle she wants to make sure the investment will be worth it in terms of time saved. Ayanda will only purchase a bicycle if it will cut down her travel time by more than 10 minutes. She borrows a friends bicycle and records the time it takes her to get to campus across a random sample of days, using the bicycle some days and her usual short walk and UCT shuttle on other days. Perform an appropriate test to give her advice on whether she should invest in a bicycle. Use the Data Analysis option in Excel (Under the Data menu tab) to perform a t-test at 5% significance level on the two samples, assuming that the two populations from which the samples are drawn have equal variances and that the data are Normally distributed.</p><p>17. Would the decision have been different if we had NOT assumed that the population variances of the two samples were equal (to answer this question, perform the t-test assuming unequal variances in Excel)? Report the p-value. Use the p-value to answer the question.</p>",
+    "correct_answer": {
+      "decision_unequal_variances": "Decision would have been the same."
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>To answer this, one would perform the t-test in Excel again, but this time selecting the option for unequal variances. This will change the calculation of the standard error and the degrees of freedom.  Given the provided p-value in the next question, the decision would be the same because the new p-value is also large.</p>"
+  },
+  {
+    "id": 27,
+    "topic": "Hypothesis Test (σ unknown, two samples)",
+    "question_html": "<p>Ayanda is a student who travels from Claremont to UCT every day for 8am lectures. She is considering buying a bicycle after a friend has told her it will help her miss the traffic she usually sits in when taking the UCT shuttle. Before buying a bicycle she wants to make sure the investment will be worth it in terms of time saved. Ayanda will only purchase a bicycle if it will cut down her travel time by more than 10 minutes. She borrows a friends bicycle and records the time it takes her to get to campus across a random sample of days, using the bicycle some days and her usual short walk and UCT shuttle on other days. Perform an appropriate test to give her advice on whether she should invest in a bicycle. Use the Data Analysis option in Excel (Under the Data menu tab) to perform a t-test at 5% significance level on the two samples, assuming that the two populations from which the samples are drawn have equal variances and that the data are Normally distributed.</p><p>17. Would the decision have been different if we had NOT assumed that the population variances of the two samples were equal (to answer this question, perform the t-test assuming unequal variances in Excel)? Use the p-value to answer the question.</p><p>18. Report the p-value used to answer Q17.</p>",
+    "correct_answer": {
+      "p_value_unequal_variances": 0.317
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>When performing the t-test in Excel assuming unequal variances, the output would provide a new p-value.  In this case, the p-value is 0.317. Since 0.317 is still much larger than the significance level of 0.05, we would still not reject the null hypothesis. Thus, the decision remains the same.</p>"
+  },
+  {
+    "id": 28,
+    "topic": "Basic Probability",
+    "question_html": "<p>A single card is drawn from a standard 52-card deck. What is the probability that the card is a heart?</p>",
+    "correct_answer": {
+      "probability": 0.25
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>A standard deck of 52 cards has four suits: hearts, diamonds, clubs, and spades. Each suit has 13 cards. The number of hearts is 13. The total number of cards is 52. The probability of drawing a heart is the number of hearts divided by the total number of cards.<br>\\(P(\\text{Heart}) = \\frac{\\text{Number of Hearts}}{\\text{Total Number of Cards}} = \\frac{13}{52} = \\frac{1}{4} = 0.25\\)</p>"
+  },
+  {
+    "id": 29,
+    "topic": "Permutations, Combinations & Counting",
+    "question_html": "<p>In how many ways can a committee of 3 be chosen from a group of 8 people?</p>",
+    "correct_answer": {
+      "combinations": 56
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>This is a combination problem because the order in which the people are chosen for the committee does not matter. The formula for combinations is \\(C(n, k) = \\frac{n!}{k!(n-k)!}\\), where n is the total number of items to choose from, and k is the number of items to choose.<br>Here, n = 8 and k = 3.<br>\\(C(8, 3) = \\frac{8!}{3!(8-3)!} = \\frac{8!}{3!5!} = \\frac{8 \\times 7 \\times 6}{3 \\times 2 \\times 1} = 56\\)<br>There are 56 ways to choose the committee.</p>"
+  },
+  {
+    "id": 30,
+    "topic": "Probability of At Least One",
+    "question_html": "<p>A coin is flipped 4 times. What is the probability of getting at least one head?</p>",
+    "correct_answer": {
+      "probability": 0.9375
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>The probability of getting at least one head is equal to 1 minus the probability of getting no heads (all tails). The probability of getting tails on a single flip is 0.5. The probability of getting tails on all 4 flips is \\((0.5)^4 = 0.0625\\).<br>Therefore, the probability of getting at least one head is \\(1 - 0.0625 = 0.9375\\).</p>"
+  },
+  {
+    "id": 31,
+    "topic": "Conditional Probability & Independence",
+    "question_html": "<p>A bag contains 5 red and 3 blue marbles. Two marbles are drawn without replacement. What is the probability that the second marble is blue, given that the first marble was red?</p>",
+    "correct_answer": {
+      "probability": 0.4286
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>After one red marble is drawn, there are 7 marbles left in the bag: 4 red and 3 blue. The probability of drawing a blue marble as the second marble is the number of blue marbles divided by the new total number of marbles.<br>\\(P(\\text{2nd is Blue} | \\text{1st is Red}) = \\frac{3}{7} \\approx 0.4286\\)</p>"
+  },
+  {
+    "id": 32,
+    "topic": "Bayes' Theorem",
+    "question_html": "<p>A factory has two machines, A and B. Machine A produces 60% of the items, and Machine B produces 40%. 2% of the items from Machine A are defective, and 3% from Machine B are defective. If an item selected at random is defective, what is the probability it was produced by Machine A?</p>",
+    "correct_answer": {
+      "probability": 0.5
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>Let D be the event that an item is defective. We want to find \\(P(A|D)\\). Using Bayes' Theorem:<br>\\(P(A|D) = \\frac{P(D|A)P(A)}{P(D)}\\)<br>We know \\(P(A) = 0.60\\), \\(P(B) = 0.40\\), \\(P(D|A) = 0.02\\), and \\(P(D|B) = 0.03\\).<br>First, find the total probability of a defective item: \\(P(D) = P(D|A)P(A) + P(D|B)P(B) = (0.02)(0.60) + (0.03)(0.40) = 0.012 + 0.012 = 0.024\\).<br>Now, apply Bayes' Theorem: \\(P(A|D) = \\frac{(0.02)(0.60)}{0.024} = \\frac{0.012}{0.024} = 0.5\\)</p>"
+  },
+  {
+    "id": 33,
+    "topic": "Set Theory Tools (A,B,C,...)",
+    "question_html": "<p>In a group of 100 students, 60 play football, 40 play basketball, and 20 play both. How many students play neither sport?</p>",
+    "correct_answer": {
+      "students": 20
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>Let F be the set of students who play football and B be the set of students who play basketball. We are given \\(|F| = 60\\), \\(|B| = 40\\), and \\(|F \\cap B| = 20\\). The number of students who play at least one sport is \\(|F \\cup B| = |F| + |B| - |F \\cap B| = 60 + 40 - 20 = 80\\). The number of students who play neither sport is the total number of students minus the number of students who play at least one sport: \\(100 - 80 = 20\\).</p>"
+  },
+  {
+    "id": 34,
+    "topic": "Random Variables (PMF / PDF)",
+    "question_html": "<p>A discrete random variable X has the following probability mass function: P(X=1)=0.2, P(X=2)=0.5, P(X=3)=0.3. What is the expected value of X?</p>",
+    "correct_answer": {
+      "expected_value": 2.1
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>The expected value of a discrete random variable X is given by the formula \\(E[X] = \\sum x \\cdot P(X=x)\\).<br>\\(E[X] = (1)(0.2) + (2)(0.5) + (3)(0.3) = 0.2 + 1.0 + 0.9 = 2.1\\)</p>"
+  },
+  {
+    "id": 35,
+    "topic": "House Advantage & Betting",
+    "question_html": "<p>A casino game has a 48% chance of winning and a 52% chance of losing. If you win, you get your $10 bet back plus another $10. If you lose, you lose your $10 bet. What is the expected value of a $10 bet on this game?</p>",
+    "correct_answer": {
+      "expected_value": -0.4
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>The possible outcomes are winning $10 or losing $10. The probability of winning is 0.48, and the probability of losing is 0.52.<br>The expected value is \\(E = (\\text{outcome}_1 \\times \\text{probability}_1) + (\\text{outcome}_2 \\times \\text{probability}_2)\\).<br>\\(E = (10 \\times 0.48) + (-10 \\times 0.52) = 4.8 - 5.2 = -0.4\\).<br>The expected value is a loss of $0.40 or -40 cents.</p>"
+  },
+  {
+    "id": 36,
+    "topic": "Uniform Distribution",
+    "question_html": "<p>The time it takes for a certain bus to arrive at a stop is uniformly distributed between 0 and 10 minutes. What is the probability that the bus will arrive in the first 3 minutes?</p>",
+    "correct_answer": {
+      "probability": 0.3
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>For a uniform distribution, the probability of an event occurring in a certain interval is the length of that interval divided by the total length of the distribution. The length of the desired interval is 3 minutes. The total length of the distribution is 10 minutes.<br>\\(P(0 \\le X \\le 3) = \\frac{3 - 0}{10 - 0} = \\frac{3}{10} = 0.3\\)</p>"
+  },
+  {
+    "id": 37,
+    "topic": "Binomial Distribution",
+    "question_html": "<p>A fair coin is flipped 5 times. What is the probability of getting exactly 3 heads?</p>",
+    "correct_answer": {
+      "probability": 0.3125
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>This is a binomial probability problem with n=5 trials, k=3 successes, and a probability of success (heads) p=0.5. The binomial probability formula is \\(P(X=k) = C(n, k) p^k (1-p)^{n-k}\\).<br>\\(C(5, 3) = \\frac{5!}{3!2!} = 10\\).<br>\\(P(X=3) = 10 \\times (0.5)^3 \\times (0.5)^2 = 10 \\times 0.125 \\times 0.25 = 0.3125\\)</p>"
+  },
+  {
+    "id": 38,
+    "topic": "Poisson & Exponential Distribution",
+    "question_html": "<p>On average, a call center receives 4 calls per minute. What is the probability of receiving no calls in a given minute?</p>",
+    "correct_answer": {
+      "probability": 0.0183
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>This is a Poisson distribution problem with a mean (\\(\\lambda\\)) of 4. The Poisson probability formula is \\(P(X=k) = \\frac{e^{-\\lambda} \\lambda^k}{k!}\\). We want to find the probability of k=0 calls.<br>\\(P(X=0) = \\frac{e^{-4} 4^0}{0!} = \\frac{e^{-4} \\times 1}{1} \\approx 0.0183\\)</p>"
+  },
+  {
+    "id": 39,
+    "topic": "Normal Distribution",
+    "question_html": "<p>The scores on a test are normally distributed with a mean of 100 and a standard deviation of 15. What is the probability of a student scoring between 85 and 115?</p>",
+    "correct_answer": {
+      "probability": 0.6826
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We need to find the z-scores for 85 and 115. The z-score formula is \\(z = \\frac{x - \\mu}{\\sigma}\\).<br>For x=85: \\(z = \\frac{85 - 100}{15} = -1\\).<br>For x=115: \\(z = \\frac{115 - 100}{15} = 1\\).<br>We need to find the area under the standard normal curve between z=-1 and z=1. This corresponds to approximately 68.26% of the data according to the empirical rule.</p>"
+  },
+  {
+    "id": 40,
+    "topic": "Confidence Interval for Mean",
+    "question_html": "<p>A sample of 36 students has a mean IQ of 105. The population standard deviation is 15. What is the 95% confidence interval for the population mean IQ?</p>",
+    "correct_answer": {
+      "confidence_interval": [
+        100.1,
+        109.9
+      ]
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>The formula for a confidence interval for the mean is \\(\\bar{x} \\pm z^* \\frac{\\sigma}{\\sqrt{n}}\\).<br>For a 95% confidence interval, the critical z-value (z*) is 1.96. We are given \\(\\bar{x}=105\\), \\(\\sigma=15\\), and \\(n=36\\).<br>The margin of error is \\(1.96 \\times \\frac{15}{\\sqrt{36}} = 1.96 \\times \\frac{15}{6} = 1.96 \\times 2.5 = 4.9\\).<br>The confidence interval is \\(105 \\pm 4.9\\), which is (100.1, 109.9).</p>"
+  },
+  {
+    "id": 41,
+    "topic": "Sampling Distribution of Sample Mean",
+    "question_html": "<p>The heights of a population of men are normally distributed with a mean of 70 inches and a standard deviation of 3 inches. If a sample of 25 men is selected, what is the standard deviation of the sampling distribution of the sample mean (the standard error)?</p>",
+    "correct_answer": {
+      "standard_error": 0.6
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>The standard error of the mean is calculated as \\(\\sigma_{\\bar{x}} = \\frac{\\sigma}{\\sqrt{n}}\\).<br>Given \\(\\sigma = 3\\) and \\(n = 25\\), the standard error is \\(\\frac{3}{\\sqrt{25}} = \\frac{3}{5} = 0.6\\).</p>"
+  },
+  {
+    "id": 42,
+    "topic": "Hypothesis Test: Mean = Value",
+    "question_html": "<p>A car manufacturer claims that its new model gets 30 miles per gallon (mpg). A sample of 49 cars has a mean of 28.5 mpg with a population standard deviation of 3.5 mpg. At a 0.05 significance level, is there enough evidence to reject the manufacturer's claim?</p>",
+    "correct_answer": {
+      "conclusion": "Yes, there is enough evidence to reject the claim."
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We perform a z-test. \\(H_0: \\mu = 30\\), \\(H_a: \\mu \\neq 30\\).<br>The test statistic is \\(z = \\frac{\\bar{x} - \\mu_0}{\\sigma / \\sqrt{n}} = \\frac{28.5 - 30}{3.5 / \\sqrt{49}} = \\frac{-1.5}{3.5 / 7} = \\frac{-1.5}{0.5} = -3\\).<br>The critical z-values for a two-tailed test at \\(\\alpha = 0.05\\) are \\(\\pm 1.96\\).<br>Since -3 is less than -1.96, we reject the null hypothesis. There is enough evidence to reject the manufacturer's claim.</p>"
+  },
+  {
+    "id": 43,
+    "topic": "Comparing Two Sample Means",
+    "question_html": "<p>A study compares the test scores of two groups of students. Group A has 25 students with a mean score of 80 and a sample standard deviation of 5. Group B has 20 students with a mean score of 75 and a sample standard deviation of 6. Assuming equal variances, are the means of the two groups significantly different at a 0.05 significance level?</p>",
+    "correct_answer": {
+      "conclusion": "Yes, the means are significantly different."
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We perform a two-sample t-test for independent samples. First, calculate the pooled standard deviation. Degrees of freedom = 25 + 20 - 2 = 43. The critical t-value for a two-tailed test at \\(\\alpha = 0.05\\) and 43 df is approximately \\(\\pm 2.016\\). The calculated t-statistic is approximately 3.2. Since 3.2 > 2.016, we reject the null hypothesis and conclude the means are significantly different.</p>"
+  },
+  {
+    "id": 44,
+    "topic": "Hypothesis Test (σ unknown, one sample)",
+    "question_html": "<p>A company that produces light bulbs claims that their bulbs last for 1000 hours. A sample of 16 bulbs has a mean lifetime of 980 hours with a sample standard deviation of 40 hours. Is there sufficient evidence to reject the company's claim at a 0.05 significance level?</p>",
+    "correct_answer": {
+      "conclusion": "No, there is not sufficient evidence to reject the claim."
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We perform a one-sample t-test. \\(H_0: \\mu = 1000\\), \\(H_a: \\mu \\neq 1000\\).<br>The test statistic is \\(t = \\frac{980 - 1000}{40 / \\sqrt{16}} = \\frac{-20}{10} = -2\\).<br>Degrees of freedom = 16 - 1 = 15. The critical t-values for a two-tailed test at \\(\\alpha = 0.05\\) and 15 df are \\(\\pm 2.131\\).<br>Since -2 is between -2.131 and 2.131, we do not reject the null hypothesis. There is not sufficient evidence to reject the claim.</p>"
+  },
+  {
+    "id": 45,
+    "topic": "Hypothesis Test (σ unknown, two samples)",
+    "question_html": "<p>Two different teaching methods are being compared. A class of 15 students taught by Method A has a mean test score of 85 with a standard deviation of 5. A class of 12 students taught by Method B has a mean score of 82 with a standard deviation of 4. At a 0.05 significance level, is there a significant difference between the two teaching methods? Assume equal variances.</p>",
+    "correct_answer": {
+      "conclusion": "No, there is not a significant difference."
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We perform a two-sample t-test for independent samples with equal variances. The degrees of freedom are 15 + 12 - 2 = 25. The critical t-value for a two-tailed test at \\(\\alpha = 0.05\\) and 25 df is approximately \\(\\pm 2.06\\). The calculated t-statistic is approximately 1.63. Since 1.63 is within the range of \\(\\pm 2.06\\), we do not reject the null hypothesis. There is no significant difference between the two teaching methods.</p>"
+  },
+  {
+    "id": 46,
+    "topic": "Hypothesis Test (Matched Pairs)",
+    "question_html": "<p>A new drug is tested on 10 patients to see if it reduces blood pressure. The table below shows the blood pressure before and after taking the drug. At a 0.05 significance level, is there evidence that the drug is effective?</p><table><tr><th>Patient</th><th>Before</th><th>After</th></tr><tr><td>1</td><td>140</td><td>132</td></tr><tr><td>...</td><td>...</td><td>...</td></tr><tr><td>10</td><td>150</td><td>145</td></tr></table> (Assume the differences are normally distributed)",
+    "correct_answer": {
+      "conclusion": "Yes, there is evidence the drug is effective."
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We perform a paired t-test on the differences in blood pressure (Before - After). Calculate the mean and standard deviation of these differences. Then calculate the t-statistic. With 9 degrees of freedom, the one-tailed critical t-value at \\(\\alpha = 0.05\\) is approximately 1.833. If the calculated t-statistic is greater than this, we reject the null hypothesis, concluding the drug is effective.</p>"
+  },
+  {
+    "id": 47,
+    "topic": "Goodness-of-Fit Test",
+    "question_html": "<p>A die is rolled 60 times, and the outcomes are: 1 (12 times), 2 (8 times), 3 (15 times), 4 (7 times), 5 (10 times), 6 (8 times). At a 0.05 significance level, is the die fair?</p>",
+    "correct_answer": {
+      "conclusion": "No, the die is not fair."
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We perform a chi-square goodness-of-fit test. The expected frequency for each outcome is 10 (60/6). The chi-square statistic is calculated as \\(\\chi^2 = \\sum \\frac{(O-E)^2}{E}\\). With 5 degrees of freedom, the critical chi-square value at \\(\\alpha = 0.05\\) is approximately 11.07. If the calculated chi-square statistic is greater than this, we reject the null hypothesis that the die is fair.</p>"
+  },
+  {
+    "id": 48,
+    "topic": "Test of Association (Categorical)",
+    "question_html": "<p>A survey asks 200 people their favorite color and their gender. The results are in the table below. At a 0.05 significance level, is there an association between favorite color and gender?</p><table><tr><th></th><th>Red</th><th>Blue</th><th>Green</th></tr><tr><td>Male</td><td>40</td><td>30</td><td>30</td></tr><tr><td>Female</td><td>20</td><td>50</td><td>30</td></tr></table>",
+    "correct_answer": {
+      "conclusion": "Yes, there is an association."
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We perform a chi-square test for independence. First, calculate the expected frequencies for each cell. The degrees of freedom are (2-1)(3-1) = 2. The critical chi-square value at \\(\\alpha = 0.05\\) and 2 df is approximately 5.99. If the calculated chi-square statistic is greater than this, we reject the null hypothesis of no association.</p>"
+  },
+  {
+    "id": 49,
+    "topic": "Test for Predictive Relationship",
+    "question_html": "<p>A researcher wants to see if there is a linear relationship between hours studied and exam score. The data for 8 students is collected. The regression analysis gives a p-value of 0.02 for the slope coefficient. At a 0.05 significance level, is there a significant linear relationship?</p>",
+    "correct_answer": {
+      "conclusion": "Yes, there is a significant linear relationship."
+    },
+    "solution_html": "<h6>Step-by-step solution</h6><p>We are testing the null hypothesis that the slope of the regression line is zero (no linear relationship). The p-value for the slope coefficient is 0.02. We compare this to the significance level of 0.05. Since 0.02 < 0.05, we reject the null hypothesis and conclude that there is a significant linear relationship between hours studied and exam score.</p>"
   }
+
 
 ]
