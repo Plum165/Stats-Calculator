@@ -48,17 +48,24 @@ const themes = {
   'neutral-peach': {bg:['#ffe0b2','#f48fb1','#f06292'],text:'#000000',btn1:'#f48fb1',btn2:'#f06292',ghost:'#3d2b2b'},
   'retro-pop': {bg:['#ff00ff','#00ffff','#ffff00'],text:'#000000',btn1:'#ff00ff',btn2:'#00ffff',ghost:'#1a1020'},
   'cyberpunk-glow': {bg:['#0f0b1d','#ff0080','#7928ca'],text:'#ffffff',btn1:'#ff0080',btn2:'#7928ca',ghost:'#0a0713'},
-  'plum-gold': {bg:['#4b006e','#b07bac','#ffd700'],text:'#ffffff',btn1:'#a855f7',btn2:'#f59e0b',ghost:'#1a0a26'}
+  'plum-gold': {bg:['#4b006e','#b07bac','#ffd700'],text:'#ffffff',btn1:'#a855f7',btn2:'#f59e0b',ghost:'#1a0a26'},
+  'cat-noir': {
+    bg: ['#292826', '#000000', '#454440'], // An array of dark, noir-inspired background colors
+    text: '#81e733', // The vibrant green of Cat Noir's eyes
+    btn1: '#81e733', // A primary button color in his signature green
+    btn2: '#5cb85c', // A secondary, darker green for button gradients or hover effects
+    ghost: 'rgba(129, 231, 51, 0.1)' // A translucent green, reminiscent of his Miraculous glow
+}
 };
 
 const dropdown = document.getElementById('theme-dropdown');
 const themeChip = document.getElementById('theme-chip');
 dropdown.addEventListener('change', ()=> applyTheme(dropdown.value));
-document.getElementById('reset-theme').addEventListener('click', ()=> applyTheme('bloodred'));
+document.getElementById('reset-theme').addEventListener('click', ()=> applyTheme('cat-noir'));
 document.getElementById('print-btn').addEventListener('click', ()=> window.print());
 
 function applyTheme(name){
-  const t = themes[name] || themes['bloodred'];
+  const t = themes[name] || themes['cat-noir'];
   document.documentElement.style.setProperty('--bg1', t.bg[0]);
   document.documentElement.style.setProperty('--bg2', t.bg[1]);
   document.documentElement.style.setProperty('--bg3', t.bg[2]);
@@ -68,7 +75,7 @@ function applyTheme(name){
   document.documentElement.style.setProperty('--ghost', t.ghost);
   themeChip.style.background = `linear-gradient(90deg, ${t.bg.join(',')})`;
 }
-applyTheme('bloodred');
+applyTheme('cat-noir');
 /* ---------------------------
    Helpers
 --------------------------- */

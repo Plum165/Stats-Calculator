@@ -28,7 +28,15 @@
 [data-theme='plum-gold'] { --bg1:#230C33; --bg2:#4C2A85; --bg3:#000000; --text:#F7F7FF; --card: rgba(253,184,51,0.05); --btn: linear-gradient(90deg,#FDB833,#ffc966); --btn-hover: linear-gradient(90deg,#ffc966,#ffd488); }
 [data-theme='red-blue'] { --bg1:#2b2d42; --bg2:#ef233c; --bg3:#3a86ff; --text:#ffffff; --card: rgba(0,0,0,0.1); --btn: linear-gradient(90deg,#ef233c,#3a86ff); --btn-hover: linear-gradient(90deg,#ff4d6d,#5c9cff); }
 [data-theme='purple-black'] { --bg1:#000000; --bg2:#4c00b0; --bg3:#2c0065; --text:#e0d0ff; --card: rgba(255,255,255,0.04); --btn: linear-gradient(90deg,#8e44ad,#9b59b6); --btn-hover: linear-gradient(90deg,#9b59b6,#af7ac5); }
-
+[data-theme='cat-noir'] {
+    --bg1: #292826; /* A dark, near-black color from Cat Noir's suit */
+    --bg2: #000000; /* A pure black for contrast, reflecting the "noir" theme */
+    --bg3: #454440; /* A slightly lighter shade of black from his suit for depth */
+    --text: #81e733; /* The vibrant green of Cat Noir's eyes and paw print icon */
+    --card: rgba(129, 231, 51, 0.1); /* A translucent green for card elements, reminiscent of his Miraculous glow */
+    --btn: linear-gradient(90deg, #81e733, #5cb85c); /* A green gradient for buttons, inspired by his powers */
+    --btn-hover: linear-gradient(90deg, #5cb85c, #81e733); /* An inverted gradient for button hover effects */
+}
 /* --- BASE STYLES --- */
 html, body { height: 100%; }
 body {
