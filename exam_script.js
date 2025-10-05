@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Topic filter dropdown
         const topicSelect = document.createElement('select');
-        topicSelect.className = 'mb-2 w-full p-1 rounded';
+        topicSelect.className = 'mb-2 text-black w-full p-1 rounded';
         topicSelect.innerHTML = `<option value="all">All Topics</option>` + topics.map(t => `<option value="${t}">${t}</option>`).join('');
         qListEl.parentNode.insertBefore(topicSelect, qListEl);
 
