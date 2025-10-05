@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Topic filter dropdown
         const topicSelect = document.createElement('select');
-        topicSelect.className = 'mb-2 text-black w-full p-1 rounded';
+        topicSelect.className = 'mb-2 w-full p-1 rounded bg-white text-black dark:bg-white dark:text-black';
         topicSelect.innerHTML = `<option value="all">All Topics</option>` + topics.map(t => `<option value="${t}">${t}</option>`).join('');
         qListEl.parentNode.insertBefore(topicSelect, qListEl);
 
@@ -245,11 +245,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- TIMED TEST MODE ---
     const testSelect = document.createElement('select');
-    testSelect.className = 'mb-2 text-black w-full p-1 rounded';
+    testSelect.className = 'mb-2 w-full p-1 rounded bg-white text-black dark:bg-white dark:text-black';
     testSelect.innerHTML = `
         <option value="ct1">Class Test 1 (25 Qs)</option>
         <option value="ct2">Class Test 2 (25 Qs)</option>
         <option value="exam">Exam (50 Qs)</option>`;
+ 
+
     testStartScreen.insertBefore(testSelect, testStartScreen.firstChild);
 
     testSelect.addEventListener('change', () => currentTestType = testSelect.value);

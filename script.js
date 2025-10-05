@@ -808,7 +808,7 @@ function uniformHTML(){
       <div class="col-span-2">
         <label class="label">Inverse: Find x for a given probability p</label>
         <div class="flex items-center gap-2">
-          <select id="uni-inv-type" class="input">
+          <select id="uni-inv-type" class="input text-black">
             <option value="le">P(X ≤ x) = p</option>
             <option value="gt">P(X > x) = p</option>
           </select>
@@ -897,7 +897,7 @@ function binomialHTML(){
       <div class="col-span-2">
         <label class="label">Inverse: Find k for a given cumulative probability</label>
         <div class="flex items-center gap-2">
-          <select id="bin-inv-type" class="input"><option value="le">P(X ≤ k) ≥ p</option><option value="gt">P(X > k) ≤ p</option></select>
+          <select id="bin-inv-type" class="input text-black"><option value="le">P(X ≤ k) ≥ p</option><option value="gt">P(X > k) ≤ p</option></select>
           <input id="bin-inv-p" class="input" type="number" min="0" max="1" step="0.01" value="0.5"/>
           <button id="bin-inv-calc" class="btn btn-primary">Find k</button>
         </div>
@@ -1016,7 +1016,7 @@ function poisExpHTML(){
   <div>
     <h2 class="text-2xl font-semibold">Poisson & Exponential Distribution</h2>
     <p class="small">Select mode below:</p>
-    <select id="mode-select" class="input mt-2">
+    <select id="mode-select" class="input text-black mt-2">
       <option value="poisson">Poisson (discrete counts)</option>
       <option value="exp">Exponential (continuous waiting times)</option>
     </select>
@@ -1294,7 +1294,7 @@ function normalHTML(){
         <label class="label">Inverse: Find x such that P(X ≤ x) = p or P(X > x) = p</label>
         <div class="flex items-center gap-2">
           <select id="norm-inv-type" class="input"><option value="le">P(X ≤ x) = p</option><option value="gt">P(X > x) = p</option></select>
-          <input id="norm-inv-p" class="input" type="number" min="0" max="1" step="0.0001" value="0.95"/>
+          <input id="norm-inv-p" class="input text-black" type="number" min="0" max="1" step="0.0001" value="0.95"/>
           <button id="norm-inv-calc" class="btn btn-primary">Find x</button>
         </div>
       </div>
@@ -1577,7 +1577,7 @@ function samplingHTML() {
       <div class="col-span-2">
         <label class="label">Inverse: Find x̄ such that P(X̄ ≤ x̄) = p</label>
         <div class="flex items-center gap-2">
-          <select id="sampling-inv-type" class="input"><option value="le">P(X̄ ≤ x̄) = p</option><option value="gt">P(X̄ > x̄) = p</option></select>
+          <select id="sampling-inv-type" class="input text-black"><option value="le">P(X̄ ≤ x̄) = p</option><option value="gt">P(X̄ > x̄) = p</option></select>
           <input id="sampling-inv-p" class="input" type="number" min="0" max="1" step="0.0001" value="0.95"/>
           <button id="sampling-inv-calc" class="btn btn-primary">Find x̄</button>
         </div>
@@ -1729,7 +1729,7 @@ function htMeanHTML() {
       <div class="col-span-2"><label class="label">Significance Level (α, in %)</label><input id="ht-alpha" class="input" type="number" min="0" max="100" value="5" /></div>
       <div class="col-span-2">
         <label class="label">Hypothesis Type</label>
-        <select id="ht-type" class="input">
+        <select id="ht-type" class="input text-black">
           <option value="neq">Two-tailed (H₁: μ ≠ μ₀)</option>
           <option value="lt">Left-tailed (H₁: μ < μ₀)</option>
           <option value="gt">Right-tailed (H₁: μ > μ₀)</option>
@@ -1750,7 +1750,7 @@ function htMeanHTML() {
         <div><label class="label">P-value</label><input id="ht-inv-p" class="input" type="number" min="0" max="1" step="0.001" value="0.05" /></div>
         <div>
           <label class="label">Tails</label>
-          <select id="ht-inv-tails" class="input"><option value="one">One-tailed</option><option value="two">Two-tailed</option></select>
+          <select id="ht-inv-tails" class="input text-black"><option value="one">One-tailed</option><option value="two">Two-tailed</option></select>
         </div>
         <div class="self-end"><button id="ht-inv-calc" class="btn btn-primary w-full">Find Z-score</button></div>
     </div>
@@ -1905,7 +1905,7 @@ function ht2MeansHTML() {
       <div class="col-span-2"><label class="label">Significance Level (α, in %)</label><input id="ht2-alpha" class="input" type="number" min="0" max="100" value="5" /></div>
       <div class="col-span-2">
         <label class="label">Hypothesis Type (H₀: μ₁ = μ₂)</label>
-        <select id="ht2-type" class="input">
+        <select id="ht2-type" class="input text-black">
           <option value="neq">Two-tailed (H₁: μ₁ ≠ μ₂)</option>
           <option value="lt">Left-tailed (H₁: μ₁ < μ₂)</option>
           <option value="gt">Right-tailed (H₁: μ₁ > μ₂)</option>
@@ -1926,7 +1926,7 @@ function ht2MeansHTML() {
         <div><label class="label">P-value</label><input id="ht2-inv-p" class="input" type="number" min="0" max="1" step="0.001" value="0.05" /></div>
         <div>
           <label class="label">Tails</label>
-          <select id="ht2-inv-tails" class="input"><option value="one">One-tailed</option><option value="two">Two-tailed</option></select>
+          <select id="ht2-inv-tails" class="input text-black"><option value="one">One-tailed</option><option value="two">Two-tailed</option></select>
         </div>
         <div class="self-end"><button id="ht2-inv-calc" class="btn btn-primary w-full">Find Z-score</button></div>
     </div>
@@ -2159,7 +2159,7 @@ function htSigmaUnknownHTML() {
       <div class="col-span-2"><label class="label">Significance Level (α, in %)</label><input id="ht-su-alpha" class="input" type="number" min="0" max="100" value="1" /></div>
       <div class="col-span-2">
         <label class="label">Hypothesis Type</label>
-        <select id="ht-su-type" class="input">
+        <select id="ht-su-type" class="input text-black">
           <option value="neq">Two-tailed (H₁: μ ≠ μ₀)</option>
           <option value="lt">Left-tailed (H₁: μ < μ₀)</option>
           <option value="gt">Right-tailed (H₁: μ > μ₀)</option>
@@ -2290,7 +2290,7 @@ function ht2SamplesUnknownHTML(){
       <div class="col-span-2"><label class="label">Significance Level (α, in %)</label><input id="ht2-su-alpha" class="input" type="number" min="0" max="100" value="5" /></div>
       <div class="col-span-2">
         <label class="label">Hypothesis Type (H₀: μ₁ = μ₂)</label>
-        <select id="ht2-su-type" class="input">
+        <select id="ht2-su-type" class="input text-black">
           <option value="neq">Two-tailed (H₁: μ₁ ≠ μ₂)</option>
           <option value="lt">Left-tailed (H₁: μ₁ < μ₂)</option>
           <option value="gt">Right-tailed (H₁: μ₁ > μ₂)</option>
@@ -2421,7 +2421,7 @@ function htPairedHTML(){
       <div class="col-span-2"><label class="label">Significance Level (α, in %)</label><input id="ht-p-alpha" class="input" type="number" min="0" max="100" value="5" /></div>
       <div class="col-span-2">
         <label class="label">Hypothesis Type</label>
-        <select id="ht-p-type" class="input">
+        <select id="ht-p-type" class="input text-black">
           <option value="neq">Two-tailed (H₁: μ_d ≠ 0)</option>
           <option value="lt">Left-tailed (H₁: μ_d < 0)</option>
           <option value="gt">Right-tailed (H₁: μ_d > 0)</option>
