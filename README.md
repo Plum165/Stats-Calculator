@@ -1,59 +1,85 @@
-# Statistics Calculator & Practice Platform  
+# 📊 Interactive Statistics Calculator & Practice Platform  
 
-This project is a **two-part educational web app** built for first-year university statistics practice.  
+This project is a **two-part educational web app** built for first-year university statistics students. It combines a **step-by-step calculator** with a **practice/testing system**, designed to help learners grasp key statistical concepts interactively.  
 
-## 📊 Features  
+---
 
-### 1. Calculator 
-- Interactive calculators with **step-by-step solutions** for:
-  - Basic Probability  
-  - Permutations & Combinations (with/without repetition)  
-  - Bayes’ Theorem  
-  - Conditional Probability  
-  - Set Theory (union, intersection, complement, power sets, etc.)  
-  - Random Variables (discrete & continuous, PMF/PDF, expectation & variance)  
-  - House Advantage (bets, odds, expected value & losses)  
+## 🧮 1. Calculator  
 
-- Inputs guide students with **help buttons and example scenarios**.  
-- Uses **MathJax** to render formulas cleanly.  
-- Multiple themes, including:
+An intuitive interface offering **worked examples and formula visualizations** for:  
+- **Basic Probability**  
+- **Permutations & Combinations** (with and without repetition)  
+- **Bayes’ Theorem**  
+- **Conditional Probability & Independence**  
+- **Set Theory** (union, intersection, complement, power sets, etc.)  
+- **Random Variables** (discrete & continuous — PMF, PDF, expectation & variance)  
+- **House Advantage** (bets, odds, expected values, and losses)  
+
+**Additional Features:**  
+- Built-in **help buttons** and **example scenarios** for guidance.  
+- **MathJax** for smooth formula rendering.  
+- **Multiple visual themes**, including:  
   - Blood Red  
   - Spiderman (default)  
   - Red–Blue  
   - Purple–Black  
   - Sapphire & Steel  
-  - Many more...  
-
-### 2. Practice & Testing Portal  
-- **Practice Mode**: Choose a topic and receive questions with **instant feedback** and detailed, step-by-step solutions.  
-- **Test Simulation Mode**:  
-  - Randomly selects 25 questions.  
-  - Timed environment.  
-  - Results summary + full review of answers with explanations.  
-
-- All questions load dynamically from:
-  - `questions.json` → Multiple Choice Questions (MCQs).  
-  - `complex.json` → Open-ended / numerical-answer problems.  
-
-### 3. Technical Highlights  
-- Built with **HTML, CSS, and vanilla JavaScript** (no frameworks).  
-- **Theme persistence** using `localStorage`.  
-- **MathJax integration** for professional math rendering.  
-- JSON-driven questions for easy expansion.  
-
-## 🚀 Usage  
-1. Clone or download this repo.  
-2. Open `index.html` for the calculator.  
-3. Open `exam.html` for practice & testing.  
-4. To add or edit questions, update `questions.json` and `complex.json`.  
-
-## ⚠️ Disclaimer  
-This platform was developed primarily for **academic learning and practice**.  
-- Some worked-out solutions may contain mistakes.  
-- Always cross-check with course material, textbooks, or lecturers.  
-- This is not intended as a replacement for formal instruction.  
+  - Forest Canopy, Cat Noir, Retro Pop, and more.  
 
 ---
 
-👨‍💻 Developed by **Moegamat**  
+## 🧠 2. Practice & Testing Portal  
 
+A self-assessment system with both **practice** and **exam** modes.  
+
+### 📝 Practice Mode  
+- Choose a topic to receive random questions.  
+- **Instant feedback** and **step-by-step worked solutions**.  
+
+### 🧾 Test Simulation Mode  
+- Generates a random **25-question test**.  
+- Includes a **countdown timer** and **result summary**.  
+- Full **answer review** with explanations after completion.  
+
+Questions are dynamically loaded from:  
+- `questions.json` → Multiple Choice Questions (MCQs)  
+- `complex.json` → Open-ended / numerical questions  
+
+---
+
+## ⚙️ 3. Technical Highlights  
+
+- Built with **HTML, CSS, and vanilla JavaScript** (no frameworks).  
+- **Theme persistence** using `localStorage`.  
+- **MathJax** for LaTeX-style math rendering.  
+- **Chart.js** integrated for distribution visualizations.  
+- **Modular question structure** → easily add new topics via JSON.  
+
+---
+
+## 🚀 How to Use  
+
+1. **Clone or download** this repository.  
+2. Open `index.html` → Calculator interface.  
+3. Open `exam.html` → Practice & testing portal.  
+4. To **add/edit questions**, update `questions.json` and `complex.json`.  
+
+---
+
+## 🎨 Default Theme  
+
+The current default theme is **Cat Noir** — a sleek black & purple interface designed for late-night study sessions.  
+
+---
+
+## ⚠️ Disclaimer  
+
+This web app is intended for **academic learning and personal practice** only.  
+- Some worked solutions may be approximations or simplified explanations.  
+- Always verify final answers using trusted course materials.  
+- This platform is **not a substitute for formal instruction**.  
+
+---
+
+👨‍💻 **Developed by Moegamat Samsodien**  
+*Version 5 — Interactive Stats Calculator*  
